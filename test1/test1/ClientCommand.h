@@ -1,168 +1,23 @@
-#ifndef _LIVE_RTSP_CLIENT_HH
-#define _LIVE_RTSP_CLIENT_HH
 
-#ifdef __cplusplus
-extern "C"{
-#endif
+typedef void (GetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime );
 
-/**************************************************************************************************
-功能：处理视频数据的回调函数
-参数：
-clientId:					指向LIVE_RTSP_CLIENT对象的指针
-clientData:					指向视频数据的指针
-frameSize:					数据长度
-duration:					媒体时间长度
-presentationTime：			RTP时间戳
-**************************************************************************************************/
+typedef void (GetResult)( void* clientId, int resultCode, char* resultString);
 
-typedef void (doGetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime );
+typedef void (GetRtcp)(void* clientId, char *clientData);
 
-/**************************************************************************************************
-功能：处理错误信息的回调函数
-参数：
-clientId:					指向LIVE_RTSP_CLIENT对象的指针
-resultCode:					错误代码 正确，为0；错误，非0；
-resultString:				错误原因 正确，为NULL；错误，为错误原因；
-**************************************************************************************************/
-
-typedef void (doGetResult)( void* clientId, int resultCode, char* resultString);
-
-/**************************************************************************************************
-功能：处理RTCP状态的回调函数
-参数：
-clientId:					指向LIVE_RTSP_CLIENT对象的指针
-clientData：				字符串SR，RR，BYE
-**************************************************************************************************/
-
-typedef void (doGetRtcp)(void* clientId, char *clientData);
-
-/**************************************************************************************************
-功能：处理SDP的回调函数
-参数：
-clientId:					指向LIVE_RTSP_CLIENT对象的指针
-clientData：				SDP数据
-**************************************************************************************************/
-
-typedef void (doGetSdp)(void* clientId, char *clientData);
-
-/**************************************************************************************************
-功能：生成新的对象
-参数：						无
-返回值：					指向LIVE_RTSP_CLIENT对象的指针
-
-**************************************************************************************************/
+typedef void (GetSdp)(void* clientId, char *clientData);
 
 void* CreateClient();
 
-/**************************************************************************************************
-功能：发送连接的RTSP命令
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针
-RTSP_URL：					RTSP地址字符串
-doGetBuffer：				处理视频数据的回调函数
-返回值：					
-发送正确，为0；
-发送错误，为非0；
-**************************************************************************************************/
-
-int Play(void* clientId, char* RTSP_URL,doGetBuffer* CallBackForGetBuffer);
-
-/**************************************************************************************************
-功能：发送暂停的RTSP命令
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针
-返回值：					
-发送正确，为0；
-发送错误，为非0；
-**************************************************************************************************/
+int Play(void* clientId, char* RTSP_URL,GetBuffer* CallBackForGetBuffer);
 
 int Pause( void* clientId );
 
-/**************************************************************************************************
-功能：发送重新连接的RTSP命令 （在Pause后使用）
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针
-percent：					接着暂停时间播放，percent<0；跳到特定时刻播放，percent为百分比；							
-返回值：					
-发送正确，为0；
-发送错误，为非0；
-**************************************************************************************************/
-
 int Resume(void* clientId,double percent);
-
-/**************************************************************************************************
-功能：发送快速播放的RTSP命令 （在Pause后使用）
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针
-rescale：					rescale>1，快速播放；							
-返回值：					
-发送正确，为0；
-发送错误，为非0；
-**************************************************************************************************/
 
 int Fast(void* clientId,double resacle);
 
-/**************************************************************************************************
-功能：发送慢速播放的RTSP命令 （在Pause后使用）
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针
-rescale：					rescale<1，慢速播放；							
-返回值：					
-发送正确，为0；
-发送错误，为非0；
-**************************************************************************************************/
-
 int Slow(void* clientId,double resacle);
-
-/**************************************************************************************************
-功能：发送停止的RTSP命令 
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针						
-返回值：					
-发送正确，为0；
-发送错误，为非0；
-**************************************************************************************************/
 
 int Stop(void* clientId );
 
-/**************************************************************************************************
-功能：注册处理RTCP状态的回调函数
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针	
-doGetRtcp：					取RTCP状态的回调函数
-返回值：					
-正确，为0；
-错误，为非0；
-**************************************************************************************************/
-
-int RegisterCallBackForGetRtcpStatus(void* clientId,doGetRtcp* doGetRtcp);
-
-/*************************************************************************************************
-功能：注册处理错误信息的回调函数
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针	
-doGetResult：				处理错误信息的回调函数
-返回值：					
-正确，为0；
-错误，为非0；
-**************************************************************************************************/
-
-int RegisterCallBackForGetResult(void* clientId,doGetResult* doGetResult);
-
-/**************************************************************************************************
-功能：注册处理SDP的回调函数
-参数：		
-clientId：					指向LIVE_RTSP_CLIENT对象的指针	
-doGetResult：				取SDP的回调函数
-返回值：					
-正确，为0；
-错误，为非0；
-**************************************************************************************************/
-
-int RegisterCallBackForGetSdp(void* clientId,doGetSdp* doGetSdp);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif

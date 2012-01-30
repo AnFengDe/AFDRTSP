@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test1", "test1\test1.vcproj", "{DB409850-300A-4909-BFD3-AF8BE71E23C0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "live", "..\04.RTSP-CLIENT\04.RTSP-CLIENT\src\live.vcproj", "{5E1C70F4-321F-41DC-BEF1-37C07A525C98}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "live", "..\RTSP-CLIENT\src\live.vcproj", "{5E1C70F4-321F-41DC-BEF1-37C07A525C98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

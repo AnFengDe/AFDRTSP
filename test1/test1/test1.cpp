@@ -7,17 +7,17 @@
 #pragma   comment(lib,   "Wsock32.lib ")
 
 
-//typedef void (doGetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime );
+//typedef void (GetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime );
 
 //extern void*  CreateClient();
-//extern int  Play(void* RtspClient, char* RTSP_URL,doGetBuffer* CallBackForGetBuffer);
+//extern int  Play(void* RtspClient, char* RTSP_URL,GetBuffer* CallBackForGetBuffer);
 void* a;
 void* b;
 void printsdp( void* clientId,char* resultString) 
 {
 	printf("SDP:\n%s\n",resultString);
 }
-void continueAfterStop( void* clientId,int resultCode, char* resultString) 
+void AfterStop( void* clientId,int resultCode, char* resultString) 
 {
 	printf("RESULT:%d,%s\n",resultCode,resultString);
 	if(0 != resultCode)
@@ -48,7 +48,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		case 'a':
 
 			a = CreateClient();
-			//RegisterCallBackForGetResult(a,continueAfterStop);
+			//RegisterCallBackForGetResult(a,AfterStop);
 			//RegisterCallBackForGetRtcpStatus(a, doAfterGetRtcp);
 			//RegisterCallBackForGetSdp(a,printsdp);
 			Play(a, "rtsp://127.0.0.1/1.mp3",add_Data);

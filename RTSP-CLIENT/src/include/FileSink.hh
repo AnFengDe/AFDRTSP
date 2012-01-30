@@ -32,12 +32,12 @@ class FileSink: public MediaSink {
 public:
   static FileSink* createNew(UsageEnvironment& env, char const* fileName,
 			     unsigned bufferSize = 20000,
-			     Boolean oneFilePerFrame = False,ClientInterface* newclient = NULL);
+			     Boolean OneFilePerFrame = False,ClientInterface* newclient = NULL);
   // "bufferSize" should be at least as large as the largest expected
   //   input frame.
-  // "oneFilePerFrame" - if True - specifies that each input frame will
+  // "OneFilePerFrame" - if True - specifies that each input frame will
   //   be written to a separate file (using the presentation time as a
-  //   file name suffix).  The default behavior ("oneFilePerFrame" == False)
+  //   file name suffix).  The default behavior ("OneFilePerFrame" == False)
   //   is to output all incoming data into a single file.
 
   void addData(unsigned char const* data, unsigned dataSize,
@@ -62,8 +62,8 @@ protected:
   FILE* fOutFid;
   unsigned char* fBuffer;
   unsigned fBufferSize;
-  char* fPerFrameFileNamePrefix; // used if "oneFilePerFrame" is True
-  char* fPerFrameFileNameBuffer; // used if "oneFilePerFrame" is True
+  char* fPerFrameFileNamePrefix; // used if "OneFilePerFrame" is True
+  char* fPerFrameFileNameBuffer; // used if "OneFilePerFrame" is True
   char fOutFileName[50]; //zhaojin
   ClientInterface* mediaclient;
 private: // redefined virtual functions:

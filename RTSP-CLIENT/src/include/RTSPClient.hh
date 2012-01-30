@@ -39,8 +39,8 @@ public:
 				  	  char const* rtspURL,
 			       int verbosityLevel = 0,
 			       char const* applicationName = NULL,
-			       portNumBits tunnelOverHTTPPortNum = 0);
-  // If "tunnelOverHTTPPortNum" is non-zero, we tunnel RTSP (and RTP)
+			       portNumBits OverHTTPPortNum = 0);
+  // If "OverHTTPPortNum" is non-zero, we tunnel RTSP (and RTP)
   // over a HTTP connection with the given port number, using the technique
   // described in Apple's document <http://developer.apple.com/documentation/QuickTime/QTSS/Concepts/chapter_2_section_14.html>
 
@@ -157,7 +157,7 @@ public:
    // void* parentCaller() { return fClientData; }
 protected:
   RTSPClient(UsageEnvironment& env, char const* rtspURL,
-	     int verbosityLevel, char const* applicationName, portNumBits tunnelOverHTTPPortNum);
+	     int verbosityLevel, char const* applicationName, portNumBits OverHTTPPortNum);
       // called only by createNew();
   virtual ~RTSPClient();
 
@@ -292,7 +292,7 @@ public:
   static RTSPClient* createNew(UsageEnvironment& env,
                                int verbosityLevel = 0,
                                char const* applicationName = NULL,
-                               portNumBits tunnelOverHTTPPortNum = 0);
+                               portNumBits OverHTTPPortNum = 0);
   char* describeURL(char const* url, Authenticator* authenticator = NULL,
                     Boolean allowKasennaProtocol = False, int timeout = -1);
   char* describeWithPassword(char const* url,

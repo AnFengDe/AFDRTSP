@@ -51,12 +51,12 @@ FileSink::~FileSink() {
 }
 
 FileSink* FileSink::createNew(UsageEnvironment& env, char const* fileName,
-			      unsigned bufferSize, Boolean oneFilePerFrame,ClientInterface* newclient) {
+			      unsigned bufferSize, Boolean OneFilePerFrame,ClientInterface* newclient) {
 
   do {
     FILE* fid;
     char const* perFrameFileNamePrefix;
-    if (oneFilePerFrame) {
+    if (OneFilePerFrame) {
       // Create the fid for each frame
       fid = NULL;
       perFrameFileNamePrefix = fileName;

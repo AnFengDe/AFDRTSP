@@ -1,68 +1,45 @@
-#ifndef _MEDIA_CLIENT_HH
 #include "ClientInterface.h"
-#endif
 
 ClientInterface* ClientData;
 
 
 ClientInterface::ClientInterface(UsageEnvironment& env):Medium(env)
 {
-	ourRTSPClient = NULL;
-	//allowProxyServers = False;
-	//controlConnectionUsesTCP = True;
-	//supportCodecSelection = False;
-	//clientProtocolName = "RTSP";
-	ourAuthenticator =NULL;
-	//CallBackForGetRtcpStatus = NULL;
-	//CallBackForGetResult= NULL;
+	OurRTSPClient = NULL;
+	OurAuthenticator =NULL;
 	CallBackForGetBuffer = NULL;
-	//CallBackForGetSdp =NULL;
-
-
-	setupIter = NULL; //fengyu modifyed
-	//progName = NULL;
-	fileSink = NULL;//fengyu modifyed
-	tunnelOverHTTPPortNum = 0;
+    setupIter = NULL; 
+	fileSink = NULL;
+	OverHTTPPortNum = 0;
      session = NULL;
 	sessionTimerTask = NULL;
-	arrivalCheckTimerTask = NULL;
-	interPacketGapCheckTimerTask = NULL;
-	qosMeasurementTimerTask = NULL;
+	arrivalTimerTask = NULL;
+	PacketTimerTask = NULL;
+	MeasurementTimerTask = NULL;
 	createReceivers = True;
-	//notifyOnPacketArrival = False;
-	//outputAVIFile = False;
-	//interPacketGapMaxTime = 0;
-	//totNumPacketsReceived = ~0; // used if checking inter-packet gaps
-	//playContinuously = False;
 	singleMedium = NULL;
-	//streamURL = NULL;
-	oneFilePerFrame = False;
+	OneFilePerFrame = False;
 	streamUsingTCP = False;
-	// syncStreams = False;
-	desiredPortNum = 0;
 	duration = 0.0f;
-	durationSlop = -1.0; // extra seconds to play at the end
-	initialSeekTime = 0.0f;
+	SeekTime = 0.0f;
 	scale = 1.0f;
-	endTime = 0.0f;//fengyu @ i don't know???
-	simpleRTPoffsetArg = -1;
+	endTime = 0.0f;
+	simpleRTP = -1;
 	fileSinkBufferSize = 100000;
-	socketInputBufferSize = 0;
 	areAlreadyShuttingDown = False;
-	shutdownExitCode = 1;
 	watchVariable = 0;
 	madeProgress = False;
 
 
 }
 ClientInterface::~ClientInterface(){
-	if (NULL != ourAuthenticator)
+	if (NULL != OurAuthenticator)
 	{
-		delete ourAuthenticator;
-		ourAuthenticator = NULL;
+		delete OurAuthenticator;
+		OurAuthenticator = NULL;
 	}
-	Medium::close(ourRTSPClient);
-	ourRTSPClient = NULL;
+	Medium::close(OurRTSPClient);
+	OurRTSPClient = NULL;
 }
 ClientInterface* ClientInterface
 :: createNew() 
@@ -72,47 +49,44 @@ ClientInterface* ClientInterface
 	return new ClientInterface(*env);
 }
 
-Medium* ClientInterface::createClient(UsageEnvironment& env, char const* url, int verbosityLevel, char const* applicationName) {
+Medium* ClientInterface::CreateClient(UsageEnvironment& env, char const* url, int verbosityLevel, char const* applicationName) {
     ClientData=this;
-	return ourRTSPClient = RTSPClient::createNew(env,url, verbosityLevel, applicationName, tunnelOverHTTPPortNum);
+	return OurRTSPClient = RTSPClient::createNew(env,url, verbosityLevel, applicationName, OverHTTPPortNum);
 }
 
-void ClientInterface::getOptions(RTSPClient::responseHandler* afterFunc) { 
-	ourRTSPClient->sendOptionsCommand(afterFunc, ourAuthenticator);
+void ClientInterface::GetOptions(RTSPClient::responseHandler* afterFunc) { 
+	OurRTSPClient->sendOptionsCommand(afterFunc, OurAuthenticator);
 }
 
-void ClientInterface::getSDPDescription(RTSPClient::responseHandler* afterFunc) {
-	ourRTSPClient->sendDescribeCommand(afterFunc, ourAuthenticator);
+void ClientInterface::GetSdpDescription(RTSPClient::responseHandler* afterFunc) {
+	OurRTSPClient->sendDescribeCommand(afterFunc, OurAuthenticator);
 }
 
-void ClientInterface::getSetup(MediaSubsession* subsession, Boolean streamUsingTCP, RTSPClient::responseHandler* afterFunc) {
+void ClientInterface::GetSetup(MediaSubsession* subsession, Boolean streamUsingTCP, RTSPClient::responseHandler* afterFunc) {
 	Boolean forceMulticastOnUnspecified = False;
-	ourRTSPClient->sendSetupCommand(*subsession, afterFunc, False, streamUsingTCP, forceMulticastOnUnspecified, ourAuthenticator);
+	OurRTSPClient->sendSetupCommand(*subsession, afterFunc, False, streamUsingTCP, forceMulticastOnUnspecified, OurAuthenticator);
 }
 
-void ClientInterface::getPlay(MediaSession* session, double start, double end, float scale, RTSPClient::responseHandler* afterFunc) {
-	ourRTSPClient->sendPlayCommand(*session, afterFunc, start, end, scale, ourAuthenticator);
+void ClientInterface::GetPlay(MediaSession* session, double start, double end, float scale, RTSPClient::responseHandler* afterFunc) {
+	OurRTSPClient->sendPlayCommand(*session, afterFunc, start, end, scale, OurAuthenticator);
 }
 
-void ClientInterface::getPause(MediaSession* session, RTSPClient::responseHandler* responseHandler) {
-	ourRTSPClient->sendPauseCommand(*session, responseHandler, ourAuthenticator);
+void ClientInterface::GetPause(MediaSession* session, RTSPClient::responseHandler* responseHandler) {
+	OurRTSPClient->sendPauseCommand(*session, responseHandler, OurAuthenticator);
 }
 
-void ClientInterface::getTeardown(MediaSession* session, RTSPClient::responseHandler* afterFunc) {
-	ourRTSPClient->sendTeardownCommand(*session, afterFunc, ourAuthenticator);
+void ClientInterface::GetTeardown(MediaSession* session, RTSPClient::responseHandler* afterFunc) {
+	OurRTSPClient->sendTeardownCommand(*session, afterFunc, OurAuthenticator);
 }
-int ClientInterface::Start(char* RTSP_URL,doGetBuffer* doGetBuffer)
+int ClientInterface::Start(char* RTSP_URL,GetBuffer* GetBuffer)
 {
+int verbosityLevel = 1;
 areAlreadyShuttingDown = False;
-CallBackForGetBuffer = doGetBuffer;
-#if 1
-int verbosityLevel = 1; // by default, print verbose output
-createClient(envir(),RTSP_URL, verbosityLevel, /*progName*/"HyerVision");
-//streamURL = RTSP_URL;
-if (ourRTSPClient == NULL) 
+CallBackForGetBuffer = GetBuffer;
+CreateClient(envir(),RTSP_URL, verbosityLevel, /*progName*/"HyerVision");
+if (OurRTSPClient == NULL) 
 {}
 else
-#endif
 {	
 	if((m_PlayThrd = CreateThread( 	(LPSECURITY_ATTRIBUTES)NULL, 0,	(LPTHREAD_START_ROUTINE)PlayThrd,(void *)this,	0, NULL)) == NULL)
 		return -1;
@@ -121,13 +95,13 @@ return 0;
 }
 void ClientInterface::PlayThrd(LPVOID lParam)
 {
-	ClientInterface* _this = (ClientInterface*)lParam;
-	_this->getOptions(continueAfterOPTIONS);
-	_this->setWatchVariable(0);
-	_this->envir().taskScheduler().doEventLoop(&(_this->watchVariable )); 
+	ClientInterface* testClient = (ClientInterface*)lParam;
+	testClient->GetOptions(AfterOPTIONS);
+	testClient->SetWatchVariable(0);
+	testClient->envir().taskScheduler().doEventLoop(&(testClient->watchVariable )); 
 }
 int ClientInterface::Pause()
-{	getPause(session, continueAfter );
+{	GetPause(session, After);
 	return 0;
 }
 
@@ -137,16 +111,16 @@ int ClientInterface::Resume(double percent)
 		NTP_time = percent;
 	else
 		NTP_time = duration * percent;
-	getPlay(session, NTP_time, endTime, scale, continueAfter);
+	GetPlay(session, NTP_time, endTime, scale, After);
 	return 0;
 }
 
 int ClientInterface::Fast(double resacle)
-{	getPlay(session, -0.1, endTime, resacle, continueAfter);
+{	GetPlay(session, -0.1, endTime, resacle, After);
 	return 0;
 }
 int ClientInterface::Slow(double resacle)
-{	getPlay(session, -0.1, endTime, resacle, continueAfter);
+{	GetPlay(session, -0.1, endTime, resacle, After);
 	return 0;
 }
 
@@ -155,24 +129,22 @@ int ClientInterface::Stop()
 #if 1
 	if (&envir() != NULL) {
 		envir().taskScheduler().unscheduleDelayedTask(sessionTimerTask);
-		envir().taskScheduler().unscheduleDelayedTask(arrivalCheckTimerTask);
-		envir().taskScheduler().unscheduleDelayedTask(interPacketGapCheckTimerTask);
-		envir().taskScheduler().unscheduleDelayedTask(qosMeasurementTimerTask);
+		envir().taskScheduler().unscheduleDelayedTask(arrivalTimerTask);
+		envir().taskScheduler().unscheduleDelayedTask(PacketTimerTask);
+		envir().taskScheduler().unscheduleDelayedTask(MeasurementTimerTask);
 	}
 #endif
-
-	// Teardown, then shutdown, any outstanding RTP/RTCP subsessions
 	if (session != NULL) {
-		getTeardown(session, continueAfterTEARDOWN);
+		GetTeardown(session, AfterTEARDOWN);
 
 	} else {
-		continueAfterTEARDOWN(ourRTSPClient, 0, NULL);
+		AfterTEARDOWN(OurRTSPClient, 0, NULL);
 	}
 
 	return 0;
 
 }
-void ClientInterface::continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultString) {
+void ClientInterface::AfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultString) {
 	if (NULL != rtspClient)
 	{
         if (NULL != resultString)
@@ -181,44 +153,39 @@ void ClientInterface::continueAfterOPTIONS(RTSPClient* rtspClient, int resultCod
 	}
 	if (NULL != rtspClient)
 	{		
-        ClientData->getSDPDescription(continueAfterDESCRIBE);
+        ClientData->GetSdpDescription(AfterDESCRIBE);
 	}	
 	}
 }
-void ClientInterface::continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString) 
+void ClientInterface::AfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString) 
 {
 	if (NULL != rtspClient)
 	{
-		ClientData->doAfterDESCRIBE(rtspClient, resultCode, resultString);
+		ClientData->DoAfterDESCRIBE(rtspClient, resultCode, resultString);
 	}
 }
-void ClientInterface::doAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString){
+void ClientInterface::DoAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString){
 	if (resultCode == 0)
 {
   char* sdpDescription = resultString;
-  // // Create a media session object from this SDP description:
   session = MediaSession::createNew(envir(), sdpDescription);
   delete[] sdpDescription;
   	 if (session != NULL&&session->hasSubsessions())
 	{
-  // Then, setup the "RTPSource"s for the session:
   MediaSubsessionIterator iter(*session);
   MediaSubsession *subsession;
   Boolean madeProgress = False;
   char const* singleMediumToTest = singleMedium;
   while ((subsession = iter.next()) != NULL) {
-    // If we've asked to receive only a single medium, then check this now:
     if (singleMediumToTest != NULL) {
       if (strcmp(subsession->mediumName(), singleMediumToTest) != 0) {
 			continue;
       } else {
-	// Receive this subsession only
 	singleMediumToTest = "xxxxx";
-	    // this hack ensures that we get only 1 subsession of this type
       }
     }
     if (createReceivers) {
-      if (!subsession->initiate(simpleRTPoffsetArg)) {
+      if (!subsession->initiate(simpleRTP)) {
 	
       } else {
 	
@@ -234,14 +201,13 @@ void ClientInterface::doAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, ch
   }
   
   if (madeProgress) {	
-  // Perform additional 'setup' on each subsession, before playing them:
-  setupStreams();
+  SetupStreams();
   }
      }
 }
 }
 
-void ClientInterface::continueAfterSETUP(RTSPClient* rtspClient, int resultCode, char* resultString) 
+void ClientInterface::AfterSETUP(RTSPClient* rtspClient, int resultCode, char* resultString) 
 {
 	if (NULL != rtspClient)
 	{
@@ -249,39 +215,33 @@ void ClientInterface::continueAfterSETUP(RTSPClient* rtspClient, int resultCode,
    ClientData->madeProgress = True;
   } else {
   }
- ClientData->setupStreams(); //
+ ClientData->SetupStreams(); //
 	}
 }
 
-void ClientInterface::setupStreams() {
-  if (setupIter == NULL) //only setup once, zhaojin
+void ClientInterface::SetupStreams() {
+  if (setupIter == NULL) 
 	  setupIter = new MediaSubsessionIterator(*session);
 	MediaSubsession *subsession;
   while ((subsession = setupIter->next()) != NULL) {
-    // We have another subsession left to set up:
-    if (subsession->clientPortNum() == 0) continue; // port # was not set
-    getSetup(subsession, streamUsingTCP, continueAfterSETUP);
+    if (subsession->clientPortNum() == 0) continue; 
+    GetSetup(subsession, streamUsingTCP, AfterSETUP);
     return;
   }
-  // We're done setting up subsessions.
   delete setupIter;
   setupIter = NULL;
   if (madeProgress) 
 	{
-  // Create output files:
   if (createReceivers) {
 	if (True) {
-   // } else {
-      // Create and start "FileSink"s for each subsession:
-      madeProgress = False;
+    madeProgress = False;
       MediaSubsessionIterator iter(*session);
       while ((subsession = iter.next()) != NULL) {
-	if (subsession->readSource() == NULL) continue; // was not initiated
-	// Create an output file for each desired stream:
+	if (subsession->readSource() == NULL) continue; 
 	char outFileName[1000]="test.264";
 	  fileSink = FileSink::createNew(envir(), outFileName,
-					 fileSinkBufferSize, oneFilePerFrame,this);
-	  fileSink->afterGetingFrameData(afterGetFrameData,outFileName);//set CALLBACK function, read data stream,added by zhaojin
+					 fileSinkBufferSize, OneFilePerFrame,this);
+	  fileSink->afterGetingFrameData(AfterGetFrameData,outFileName);
 	subsession->sink = fileSink;
 	if (subsession->sink == NULL) {
 	 } 
@@ -290,7 +250,7 @@ void ClientInterface::setupStreams() {
 	  } else {
 	   }
 	  subsession->sink->startPlaying(*(subsession->readSource()),
-					 subsessionAfterPlaying,
+					 SubsessionAfterPlaying,
 					 subsession); madeProgress = True;
 	}
       }
@@ -298,30 +258,28 @@ void ClientInterface::setupStreams() {
   }
 	 if (madeProgress) 
 	 {
-  // Finally, start playing each subsession, to start the data flow:
   if (duration == 0) {
-    if (scale > 0) duration = session->playEndTime() - initialSeekTime; // use SDP end time
-    else if (scale < 0) duration = initialSeekTime;
+    if (scale > 0) duration = session->playEndTime() - SeekTime; // use SDP end time
+    else if (scale < 0) duration = SeekTime;
   }
   if (duration < 0) duration = 0.0;
-  endTime = initialSeekTime;
+  endTime = SeekTime;
   if (scale > 0) {
     if (duration <= 0) endTime = -1.0f;
-    else endTime = initialSeekTime + duration;
+    else endTime = SeekTime + duration;
   } else {
-    endTime = initialSeekTime - duration;
+    endTime = SeekTime - duration;
     if (endTime < 0) endTime = 0.0f;
   }
-  getPlay(session, initialSeekTime, endTime, scale, continueAfter);
+  GetPlay(session, SeekTime, endTime, scale, After);
 }
 }
 }
 
-void ClientInterface::continueAfter(RTSPClient* rtspClient, int resultCode, char* resultString) 
+void ClientInterface::After(RTSPClient* rtspClient, int resultCode, char* resultString) 
 {
 }
-void ClientInterface::closeMediaSinks() {
-	//Medium::close(fileSink);
+void ClientInterface::CloseMediaSinks() {
   if (session == NULL) return;
   MediaSubsessionIterator iter(*session);
   MediaSubsession* subsession;
@@ -330,40 +288,30 @@ void ClientInterface::closeMediaSinks() {
     subsession->sink = NULL;
   }
 }
-void ClientInterface::subsessionAfterPlaying(void* clientData) {
+void ClientInterface::SubsessionAfterPlaying(void* clientData) {
 	
-  // Begin by closing this media subsession's stream:
   MediaSubsession* tmp_subsession = (MediaSubsession*)clientData;
   Medium::close(tmp_subsession->sink);
   tmp_subsession->sink = NULL;
-  // Next, check whether *all* subsessions' streams have now been closed:
   MediaSession& tmp_session = tmp_subsession->parentSession();
   MediaSubsessionIterator iter(tmp_session);
   while ((tmp_subsession = iter.next()) != NULL) {
-    if (tmp_subsession->sink != NULL) return; // this subsession is still active
+    if (tmp_subsession->sink != NULL) return; 
   }
   }
-void ClientInterface::continueAfterTEARDOWN(RTSPClient*rtspClient, int resultCode, char* resultString) {
+void ClientInterface::AfterTEARDOWN(RTSPClient*rtspClient, int resultCode, char* resultString) {
 	if (NULL != rtspClient)
 	{
-		ClientData->setWatchVariable(~0);//ÖÕÖ¹doEventLoop
-		ClientData->docontinueAfterTEARDOWN(rtspClient,resultCode,resultString);
+		ClientData->SetWatchVariable(~0);
+		ClientData->DoAfterTEARDOWN(rtspClient,resultCode,resultString);
 	}
 }
-void ClientInterface::docontinueAfterTEARDOWN(RTSPClient*rtspClient, int resultCode, char* resultString) {
-  closeMediaSinks();
+void ClientInterface::DoAfterTEARDOWN(RTSPClient*rtspClient, int resultCode, char* resultString) {
+  CloseMediaSinks();
   Medium::close(session);
   session = NULL;
  }
-void ClientInterface::afterGetFrameData(unsigned char const *clientData, unsigned frameSize, struct timeval presentationTime,char *outFileName,void* mediaC)
+void ClientInterface::AfterGetFrameData(unsigned char const *clientData, unsigned frameSize, struct timeval presentationTime,char *outFileName,void* mediaC)
 {	
-	ClientInterface* mediaClient = (ClientInterface*)mediaC;
-	mediaClient->doafterGetFrameData(clientData, frameSize,presentationTime,outFileName);
+	
 }
-
-void ClientInterface::doafterGetFrameData(unsigned char const *clientData, unsigned frameSize, struct timeval presentationTime,char *outFileName)
-{
-	if(CallBackForGetBuffer != NULL)
-		CallBackForGetBuffer(this,clientData, frameSize, duration, presentationTime);
-}
-

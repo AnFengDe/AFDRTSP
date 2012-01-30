@@ -7,7 +7,7 @@ RtspClient = ClientInterface::createNew();
 return RtspClient;
 }
 
-int Play(void* RtspClient, char* RTSP_URL,doGetBuffer* CallBackForGetBuffer)
+int Play(void* RtspClient, char* RTSP_URL,GetBuffer* CallBackForGetBuffer)
 {
 	ClientInterface* myclient = (ClientInterface*)RtspClient;
 	return myclient->Start(RTSP_URL,CallBackForGetBuffer);
@@ -40,20 +40,20 @@ int Stop(void* RtspClient )
 	return myclient->Stop();
 }
 
-//int RegisterCallBackForGetRtcpStatus(void* RtspClient,doGetRtcp* doGetRtcp)
+//int RegisterCallBackForGetRtcpStatus(void* RtspClient,GetRtcp* GetRtcp)
 //{
 //	ClientInterface* myclient = (ClientInterface*)RtspClient;
-//	return myclient->RegisterCallBackForGetRtcpStatus(doGetRtcp);
+//	return myclient->RegisterCallBackForGetRtcpStatus(GetRtcp);
 //	
 //}
-//int RegisterCallBackForGetResult(void* RtspClient,doGetResult* doGetResult)
+//int RegisterCallBackForGetResult(void* RtspClient,GetResult* GetResult)
 //{
 //	ClientInterface* myclient = (ClientInterface*)RtspClient;
-//	return myclient->RegisterCallBackForGetResult(doGetResult);
+//	return myclient->RegisterCallBackForGetResult(GetResult);
 //
 //}
-//int RegisterCallBackForGetSdp(void* RtspClient,doGetSdp* doGetSdp)
+//int RegisterCallBackForGetSdp(void* RtspClient,GetSdp* GetSdp)
 //{
 //	ClientInterface* myclient = (ClientInterface*)RtspClient;
-//	return myclient->RegisterCallBackForGetSdp(doGetSdp);
+//	return myclient->RegisterCallBackForGetSdp(GetSdp);
 //}

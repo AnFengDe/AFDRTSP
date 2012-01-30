@@ -31,9 +31,9 @@ RTSPClient* RTSPClient::createNew(UsageEnvironment& env,
 					  		char const* rtspURL,
 				  int verbosityLevel,
 				  char const* applicationName,
-				  portNumBits tunnelOverHTTPPortNum) {
+				  portNumBits OverHTTPPortNum) {
   return new RTSPClient(env,rtspURL,
-			verbosityLevel, applicationName, tunnelOverHTTPPortNum);
+			verbosityLevel, applicationName, OverHTTPPortNum);
 }
 
 unsigned RTSPClient::sendDescribeCommand(responseHandler* responseHandler, Authenticator* authenticator) {
@@ -282,9 +282,9 @@ unsigned RTSPClient::responseBufferSize = 20000; // default value; you can reass
 
 RTSPClient::RTSPClient(UsageEnvironment& env,char const* rtspURL,
 		       int verbosityLevel, char const* applicationName,
-		       portNumBits tunnelOverHTTPPortNum)
+		       portNumBits OverHTTPPortNum)
   : Medium(env),
-    fVerbosityLevel(verbosityLevel), fTunnelOverHTTPPortNum(tunnelOverHTTPPortNum),
+    fVerbosityLevel(verbosityLevel), fTunnelOverHTTPPortNum(OverHTTPPortNum),
     fUserAgentHeaderStr(NULL), fUserAgentHeaderStrLen(0), fInputSocketNum(-1), fOutputSocketNum(-1), fServerAddress(0), fCSeq(1),
     fBaseURL(NULL), fTCPStreamIdCount(0), fLastSessionId(NULL), fSessionTimeoutParameter(0),
     fSessionCookieCounter(0), fHTTPTunnelingConnectionIsPending(False) {
@@ -1642,9 +1642,9 @@ RTSPClient::RequestRecord* RTSPClient::RequestQueue::findByCSeq(unsigned cseq) {
 RTSPClient* RTSPClient::createNew(UsageEnvironment& env,
 					 		  int verbosityLevel,
 				  char const* applicationName,
-				  portNumBits tunnelOverHTTPPortNum) {
+				  portNumBits OverHTTPPortNum) {
   return new RTSPClient(env,NULL,
-			verbosityLevel, applicationName, tunnelOverHTTPPortNum);
+			verbosityLevel, applicationName, OverHTTPPortNum);
 }
 
 char* RTSPClient::describeURL(char const* url, Authenticator* authenticator,
