@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="&quot;D:\RTSP lib\04.RTSP-CLIENT\04.RTSP-CLIENT\lib\live_d.lib&quot;"
+				AdditionalDependencies="&quot;D:\RTSP\RTSP-CLIENT\lib\RTSPClient.lib&quot;"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
