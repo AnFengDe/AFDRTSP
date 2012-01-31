@@ -12,7 +12,7 @@ int Play(void* clientId, char* RTSP_URL,GetBuffer* CallBackForGetBuffer);
 
 int Pause( void* clientId );
 
-int Resume(void* clientId,double percent);
+int RePlay(void* clientId,double percent);
 
 int Fast(void* clientId,double resacle);
 

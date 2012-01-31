@@ -2,17 +2,16 @@
 #include "BasicUsageEnvironment.hh"
 #include "GroupsockHelper.hh"
 #include <NetAddress.hh>
+typedef void (GetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime );
 
-	typedef void (GetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime );
+typedef void (GetResult)( void* clientId,int resultCode, char* resultString);
 
-	typedef void (GetResult)( void* clientId,int resultCode, char* resultString);
+typedef void (GetRtcp)(void* clientId,char *clientData);
 
-	typedef void (GetRtcp)(void* clientId,char *clientData);
+typedef void (GetSdp)(void* clientId,char *clientData);
 
-	typedef void (GetSdp)(void* clientId,char *clientData);
-
-class RTSPClient;
-class FileSink;
+//class RTSPClient;
+//class FileSink;
 
 class ClientInterface: public Medium{
 
@@ -27,7 +26,7 @@ public:
 
 	virtual	int Pause();
 
-	virtual int Resume(double percent);
+	virtual int RePlay(double percent);
 
 	virtual int Fast(double resacle);
 
@@ -45,7 +44,7 @@ private:
 
 	void GetSetup(MediaSubsession* subsession, Boolean streamUsingTCP, RTSPClient::responseHandler* afterFunc) ;	
 
-	void GetPlay(MediaSession* session, double start, double end, float scale, RTSPClient::responseHandler* afterFunc) ;
+	void GetPlay(MediaSession* session, double start, double end, float Scale, RTSPClient::responseHandler* afterFunc) ;
 	
 	void GetPause(MediaSession* session, RTSPClient::responseHandler* responseHandler);	
 
@@ -87,13 +86,13 @@ private:
 	Boolean streamUsingTCP;
 	double duration;
 	double SeekTime;
-	float scale;
-	double endTime;
+	float Scale;
+	double EndTime;
 	int simpleRTP;
 	unsigned fileSinkBufferSize;
 	struct timeval startTime;
 	bool areAlreadyShuttingDown;
 	char watchVariable;
 	int resultCode;
-	Boolean madeProgress;
+	Boolean m_Progress;
 };

@@ -65,17 +65,17 @@ unsigned RTSPClient::sendSetupCommand(MediaSubsession& subsession, responseHandl
 }
 
 unsigned RTSPClient::sendPlayCommand(MediaSession& session, responseHandler* responseHandler,
-                                     double start, double end, float scale,
+                                     double start, double end, float Scale,
                                      Authenticator* authenticator) {
   if (authenticator != NULL) fCurrentAuthenticator = *authenticator;
-  return sendRequest(new RequestRecord(fClientData, ++fCSeq, "PLAY", responseHandler, &session, NULL, 0, start, end, scale));
+  return sendRequest(new RequestRecord(fClientData, ++fCSeq, "PLAY", responseHandler, &session, NULL, 0, start, end, Scale));
 }
 
 unsigned RTSPClient::sendPlayCommand(MediaSubsession& subsession, responseHandler* responseHandler,
-                                     double start, double end, float scale,
+                                     double start, double end, float Scale,
                                      Authenticator* authenticator) {
   if (authenticator != NULL) fCurrentAuthenticator = *authenticator;
-  return sendRequest(new RequestRecord(fClientData, ++fCSeq, "PLAY", responseHandler, NULL, &subsession, 0, start, end, scale));
+  return sendRequest(new RequestRecord(fClientData, ++fCSeq, "PLAY", responseHandler, NULL, &subsession, 0, start, end, Scale));
 }
 
 unsigned RTSPClient::sendPauseCommand(MediaSession& session, responseHandler* responseHandler, Authenticator* authenticator) {
@@ -464,14 +464,14 @@ static char* createSessionString(char const* sessionId) {
   return sessionStr;
 }
 
-static char* createScaleString(float scale, float currentScale) {
+static char* createScaleString(float Scale, float currentScale) {
   char buf[100];
-  if (scale == 1.0f && currentScale == 1.0f) {
+  if (Scale == 1.0f && currentScale == 1.0f) {
     // This is the default value; we don't need a "Scale:" header:
     buf[0] = '\0';
   } else {
     Locale l("C", LC_NUMERIC);
-    sprintf(buf, "Scale: %f\r\n", scale);
+    sprintf(buf, "Scale: %f\r\n", Scale);
   }
 
   return strDup(buf);
@@ -681,7 +681,7 @@ unsigned RTSPClient::sendRequest(RequestRecord* request) {
 	cmdURL = (char*)sessionURL(*request->session());
 
 	sessionId = fLastSessionId;
-	originalScale = request->session()->scale();
+	originalScale = request->session()->Scale();
       } else {
 	// Media-level operation
 	char const *prefix, *separator, *suffix;
@@ -691,13 +691,13 @@ unsigned RTSPClient::sendRequest(RequestRecord* request) {
 	sprintf(cmdURL, "%s%s%s", prefix, separator, suffix);
 	
 	sessionId = request->subsession()->sessionId;
-	originalScale = request->subsession()->scale();
+	originalScale = request->subsession()->Scale();
       }
 
       if (strcmp(request->commandName(), "PLAY") == 0) {
 	// Create "Session:", "Scale:", and "Range:" headers; these make up the 'extra headers':
 	char* sessionStr = createSessionString(sessionId);
-	char* scaleStr = createScaleString(request->scale(), originalScale);
+	char* scaleStr = createScaleString(request->Scale(), originalScale);
 	char* rangeStr = createRangeString(request->start(), request->end());
 	extraHeaders = new char[strlen(sessionStr) + strlen(scaleStr) + strlen(rangeStr) + 1];
 	extraHeadersWereAllocated = True;
@@ -919,9 +919,9 @@ Boolean RTSPClient::parseTransportParams(char const* paramsStr,
   return False;
 }
 
-Boolean RTSPClient::parseScaleParam(char const* paramStr, float& scale) {
+Boolean RTSPClient::parseScaleParam(char const* paramStr, float& Scale) {
   Locale l("C", LC_NUMERIC);
-  return sscanf(paramStr, "%f", &scale) == 1;
+  return sscanf(paramStr, "%f", &Scale) == 1;
 }
 
 Boolean RTSPClient::parseRTPInfoParams(char const*& paramsStr, u_int16_t& seqNum, u_int32_t& timestamp) {
@@ -1007,7 +1007,7 @@ Boolean RTSPClient::handlePLAYResponse(MediaSession& session, MediaSubsession& s
   do {
     if (&session != NULL) {
       // The command was on the whole session
-      if (scaleParamsStr != NULL && !parseScaleParam(scaleParamsStr, session.scale())) break;
+      if (scaleParamsStr != NULL && !parseScaleParam(scaleParamsStr, session.Scale())) break;
       scaleOK = True;
       if (rangeParamsStr != NULL && !parseRangeParam(rangeParamsStr, session.playStartTime(), session.playEndTime())) break;
       rangeOK = True;
@@ -1028,7 +1028,7 @@ Boolean RTSPClient::handlePLAYResponse(MediaSession& session, MediaSubsession& s
       }
     } else {
       // The command was on a subsession
-      if (scaleParamsStr != NULL && !parseScaleParam(scaleParamsStr, subsession.scale())) break;
+      if (scaleParamsStr != NULL && !parseScaleParam(scaleParamsStr, subsession.Scale())) break;
       scaleOK = True;
       if (rangeParamsStr != NULL && !parseRangeParam(rangeParamsStr, subsession._playStartTime(), subsession._playEndTime())) break;
       rangeOK = True;
@@ -1228,7 +1228,7 @@ void RTSPClient::responseHandlerForHTTP_GET1(int responseCode, char* responseStr
     // The connection succeeded.  Continue setting up RTSP-over-HTTP:
     if (!setupHTTPTunneling2()) break;
 
-    // RTSP-over-HTTP tunneling succeeded.  Resume the pending request(s):
+    // RTSP-over-HTTP tunneling succeeded.  RePlay the pending request(s):
     while ((request = fRequestsAwaitingHTTPTunneling.dequeue()) != NULL) {
       sendRequest(request);
     }
@@ -1284,7 +1284,7 @@ void RTSPClient::connectionHandler1() {
     if (fVerbosityLevel >= 1) envir() << "...remote connection opened\n";
     if (fHTTPTunnelingConnectionIsPending && !setupHTTPTunneling2()) break;
 
-    // Resume sending all pending requests:
+    // RePlay sending all pending requests:
     while ((request = tmpRequestQueue.dequeue()) != NULL) {
       sendRequest(request);
     }
@@ -1575,9 +1575,9 @@ void RTSPClient::handleResponseBytes(int newBytesRead) {
 
 RTSPClient::RequestRecord::RequestRecord(void* clientData,unsigned cseq, char const* commandName, responseHandler* handler,
 					 MediaSession* session, MediaSubsession* subsession, u_int32_t booleanFlags,
-					 double start, double end, float scale, char const* contentStr)
+					 double start, double end, float Scale, char const* contentStr)
   : fNext(NULL), fCSeq(cseq), fCommandName(commandName), fSession(session), fSubsession(subsession), fBooleanFlags(booleanFlags),
-    fStart(start), fEnd(end), fScale(scale), fContentStr(strDup(contentStr)), fHandler(handler) {
+    fStart(start), fEnd(end), fScale(Scale), fContentStr(strDup(contentStr)), fHandler(handler) {
 //    		fClientData = clientData;
 }
 
@@ -1779,10 +1779,10 @@ Boolean RTSPClient::setupMediaSubsession(MediaSubsession& subsession,
 }
 
 Boolean RTSPClient::playMediaSession(MediaSession& session,
-				     double start, double end, float scale) {
+				     double start, double end, float Scale) {
   fWatchVariableForSyncInterface = 0;
   fTimeoutTask = NULL;
-  (void)sendPlayCommand(session, responseHandlerForSyncInterface, start, end, scale);
+  (void)sendPlayCommand(session, responseHandlerForSyncInterface, start, end, Scale);
 
   // Now block (but handling events) until we get a response (or a timeout):
   envir().taskScheduler().doEventLoop(&fWatchVariableForSyncInterface);
@@ -1791,13 +1791,13 @@ Boolean RTSPClient::playMediaSession(MediaSession& session,
 }
 
 Boolean RTSPClient::playMediaSubsession(MediaSubsession& subsession,
-					double start, double end, float scale,
+					double start, double end, float Scale,
 					Boolean /*hackForDSS*/) {
   // NOTE: The "hackForDSS" flag is no longer supported.  (However, we will consider resupporting it
   // if we get reports that it is still needed.)
   fWatchVariableForSyncInterface = 0;
   fTimeoutTask = NULL;
-  (void)sendPlayCommand(subsession, responseHandlerForSyncInterface, start, end, scale);
+  (void)sendPlayCommand(subsession, responseHandlerForSyncInterface, start, end, Scale);
 
   // Now block (but handling events) until we get a response (or a timeout):
   envir().taskScheduler().doEventLoop(&fWatchVariableForSyncInterface);

@@ -44,7 +44,7 @@ public:
   char* connectionEndpointName() const { return fConnectionEndpointName; }
   char const* CNAME() const { return fCNAME; }
   struct in_addr const& sourceFilterAddr() const { return fSourceFilterAddr; }
-  float& scale() { return fScale; }
+  float& Scale() { return fScale; }
   char* mediaSessionType() const { return fMediaSessionType; }
   char* sessionName() const { return fSessionName; }
   char* sessionDescription() const { return fSessionDescription; }
@@ -133,7 +133,7 @@ public:
   unsigned short videoHeight() const { return fVideoHeight; }
   unsigned videoFPS() const { return fVideoFPS; }
   unsigned numChannels() const { return fNumChannels; }
-  float& scale() { return fScale; }
+  float& Scale() { return fScale; }
 
   RTPSource* rtpSource() { return fRTPSource; }
   RTCPInstance* rtcpInstance() { return fRTCPInstance; }

@@ -86,13 +86,13 @@ public:
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
 
   unsigned sendPlayCommand(MediaSession& session, responseHandler* responseHandler,
-			   double start = 0.0f, double end = -1.0f, float scale = 1.0f,
+			   double start = 0.0f, double end = -1.0f, float Scale = 1.0f,
 			   Authenticator* authenticator = NULL);
       // Issues an aggregate RTSP "PLAY" command on "session", then returns the "CSeq" sequence number that was used in the command.
       // (Note: start=-1 means 'resume'; end=-1 means 'play to end')
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
   unsigned sendPlayCommand(MediaSubsession& subsession, responseHandler* responseHandler,
-			   double start = 0.0f, double end = -1.0f, float scale = 1.0f,
+			   double start = 0.0f, double end = -1.0f, float Scale = 1.0f,
 			   Authenticator* authenticator = NULL);
       // Issues a RTSP "PLAY" command on "subsession", then returns the "CSeq" sequence number that was used in the command.
       // (Note: start=-1 means 'resume'; end=-1 means 'play to end')
@@ -170,7 +170,7 @@ public: // Some compilers complain if this is "private:"
   public:
     RequestRecord(void* clientData, unsigned cseq, char const* commandName, responseHandler* handler,
 		  MediaSession* session = NULL, MediaSubsession* subsession = NULL, u_int32_t booleanFlags = 0,
-		  double start = 0.0f, double end = -1.0f, float scale = 1.0f, char const* contentStr = NULL);
+		  double start = 0.0f, double end = -1.0f, float Scale = 1.0f, char const* contentStr = NULL);
     virtual ~RequestRecord();
 
     RequestRecord*& next() { return fNext; }
@@ -181,7 +181,7 @@ public: // Some compilers complain if this is "private:"
     u_int32_t booleanFlags() const { return fBooleanFlags; }
     double start() const { return fStart; }
     double end() const { return fEnd; }
-    float scale() const { return fScale; }
+    float Scale() const { return fScale; }
     char* contentStr() const { return fContentStr; }
     responseHandler*& handler() { return fHandler; }
 
@@ -230,7 +230,7 @@ private:
   Boolean parseTransportParams(char const* paramsStr,
 			       char*& serverAddressStr, portNumBits& serverPortNum,
 			       unsigned char& rtpChannelId, unsigned char& rtcpChannelId);
-  Boolean parseScaleParam(char const* paramStr, float& scale);
+  Boolean parseScaleParam(char const* paramStr, float& Scale);
   Boolean parseRTPInfoParams(char const*& paramStr, u_int16_t& seqNum, u_int32_t& timestamp);
   Boolean handleSETUPResponse(MediaSubsession& subsession, char const* sessionParamsStr, char const* transportParamsStr,
 			      Boolean streamUsingTCP);
@@ -315,10 +315,10 @@ public:
 			       Boolean forceMulticastOnUnspecified = False);
   Boolean playMediaSession(MediaSession& session,
 			   double start = 0.0f, double end = -1.0f,
-			   float scale = 1.0f);
+			   float Scale = 1.0f);
   Boolean playMediaSubsession(MediaSubsession& subsession,
 			      double start = 0.0f, double end = -1.0f,
-			      float scale = 1.0f,
+			      float Scale = 1.0f,
 			      Boolean hackForDSS = False);
   Boolean pauseMediaSession(MediaSession& session);
   Boolean pauseMediaSubsession(MediaSubsession& subsession);

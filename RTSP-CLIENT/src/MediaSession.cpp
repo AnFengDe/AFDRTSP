@@ -338,8 +338,8 @@ Boolean MediaSession::parseSDPAttribute_type(char const* sdpLine) {
   return parseSuccess;
 }
 
-static Boolean parseRangeAttribute(char const* sdpLine, double& startTime, double& endTime) {
-  return sscanf(sdpLine, "a=range: npt = %lg - %lg", &startTime, &endTime) == 2;
+static Boolean parseRangeAttribute(char const* sdpLine, double& startTime, double& EndTime) {
+  return sscanf(sdpLine, "a=range: npt = %lg - %lg", &startTime, &EndTime) == 2;
 }
 
 Boolean MediaSession::parseSDPAttribute_control(char const* sdpLine) {
@@ -357,7 +357,7 @@ Boolean MediaSession::parseSDPAttribute_control(char const* sdpLine) {
 }
 
 Boolean MediaSession::parseSDPAttribute_range(char const* sdpLine) {
-  // Check for a "a=range:npt=<startTime>-<endTime>" line:
+  // Check for a "a=range:npt=<startTime>-<EndTime>" line:
   // (Later handle other kinds of "a=range" attributes also???#####)
   Boolean parseSuccess = False;
 
@@ -983,7 +983,7 @@ double MediaSubsession::getNormalPlayTime(struct timeval const& presentationTime
   if (!rtpSource()->hasBeenSynchronizedUsingRTCP()) {
     if (!rtpInfo.infoIsNew) return 0.0; // the "rtpInfo" structure has not been filled in
     u_int32_t timestampOffset = rtpSource()->curPacketRTPTimestamp() - rtpInfo.timestamp;
-    double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*scale();
+    double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*Scale();
     double npt = playStartTime() + nptOffset;
 
     return npt;
@@ -997,16 +997,16 @@ double MediaSubsession::getNormalPlayTime(struct timeval const& presentationTime
       // structure was last filled in.  Use this "presentationTime" to compute "fNPT_PTS_Offset":
       if (seqNumLT(rtpSource()->curPacketRTPSeqNum(), rtpInfo.seqNum)) return -0.1; // sanity check; ignore old packets
       u_int32_t timestampOffset = rtpSource()->curPacketRTPTimestamp() - rtpInfo.timestamp;
-      double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*scale();
+      double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*Scale();
       double npt = playStartTime() + nptOffset;
-      fNPT_PTS_Offset = npt - ptsDouble*scale();
+      fNPT_PTS_Offset = npt - ptsDouble*Scale();
       rtpInfo.infoIsNew = False; // for next time
 
       return npt;
     } else {
       // Use the precomputed "fNPT_PTS_Offset" to compute the NPT from the PTS:
       if (fNPT_PTS_Offset == 0.0) return 0.0; // error: The "rtpInfo" structure was apparently never filled in
-      return (double)(ptsDouble*scale() + fNPT_PTS_Offset);
+      return (double)(ptsDouble*Scale() + fNPT_PTS_Offset);
     }
   }
 }
@@ -1082,7 +1082,7 @@ Boolean MediaSubsession::parseSDPAttribute_control(char const* sdpLine) {
 }
 
 Boolean MediaSubsession::parseSDPAttribute_range(char const* sdpLine) {
-  // Check for a "a=range:npt=<startTime>-<endTime>" line:
+  // Check for a "a=range:npt=<startTime>-<EndTime>" line:
   // (Later handle other kinds of "a=range" attributes also???#####)
   Boolean parseSuccess = False;
 
