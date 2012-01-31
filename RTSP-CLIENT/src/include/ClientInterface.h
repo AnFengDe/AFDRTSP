@@ -10,11 +10,8 @@ typedef void (GetRtcp)(void* clientId,char *clientData);
 
 typedef void (GetSdp)(void* clientId,char *clientData);
 
-//class RTSPClient;
-//class FileSink;
 
 class ClientInterface: public Medium{
-
 
 public:
 	ClientInterface(UsageEnvironment& env);
@@ -68,7 +65,7 @@ private:
 
 
 private:
-		HANDLE m_PlayThrd;
+	HANDLE m_PlayThrd;
 	RTSPClient* OurRTSPClient;
 	Authenticator* OurAuthenticator;
 	GetBuffer* CallBackForGetBuffer;
@@ -89,10 +86,7 @@ private:
 	float Scale;
 	double EndTime;
 	int SimpleRTP;
-	unsigned fileSinkBufferSize;
-	//struct timeval startTime;
-	//bool areAlreadyShuttingDown;
+	unsigned FileSinkBufferSize;
 	char WatchVariable;
-	//int resultCode;
 	Boolean m_Progress;
 };

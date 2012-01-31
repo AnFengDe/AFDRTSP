@@ -23,11 +23,9 @@ ClientInterface::ClientInterface(UsageEnvironment& env):Medium(env)
 	Scale = 1.0f;
 	EndTime = 0.0f;
 	SimpleRTP = -1;
-	fileSinkBufferSize = 100000;
+	FileSinkBufferSize = 100000;
 	WatchVariable = 0;
 	m_Progress = False;
-
-
 }
 ClientInterface::~ClientInterface(){
 	if (NULL != OurAuthenticator)
@@ -191,8 +189,7 @@ void ClientInterface::AfterSETUP(RTSPClient* rtspClient, int resultCode, char* r
 	{
         if (resultCode == 0) {
    ClientData->m_Progress = True;
-  } else {
-  }
+  } 
  ClientData->SetupStreams(); 
 	}
 }
@@ -218,7 +215,7 @@ void ClientInterface::SetupStreams() {
 	if (subsession->readSource() == NULL) continue; 
 	char outFileName[1000]="test.264";
 	  fileSink = FileSink::createNew(envir(), outFileName,
-					 fileSinkBufferSize, OneFilePerFrame,this);
+					 FileSinkBufferSize, OneFilePerFrame,this);
 	  fileSink->afterGetingFrameData(AfterGetFrameData,outFileName);
 	subsession->sink = fileSink;
 	    if (subsession->sink != NULL) {
@@ -229,8 +226,8 @@ void ClientInterface::SetupStreams() {
       }
       }
   }
-	 if (m_Progress) 
-	 {
+ if (m_Progress) 
+{
   if (Duration == 0) {
     if (Scale > 0) Duration = session->playEndTime() - SeekTime; // use SDP end time
     else if (Scale < 0) Duration = SeekTime;
