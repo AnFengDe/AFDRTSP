@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\lib\live_d.lib"
+				OutputFile="..\lib\RTSPClient.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
