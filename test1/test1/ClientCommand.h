@@ -1,5 +1,5 @@
 
-typedef void (GetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime );
+typedef void (GetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double Duration,struct timeval presentationTime );
 
 typedef void (GetResult)( void* clientId, int resultCode, char* resultString);
 
