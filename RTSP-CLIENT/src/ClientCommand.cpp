@@ -19,10 +19,10 @@ int Pause( void* RtspClient )
 	return myclient->Pause();
 }
 
-int Resume(void* RtspClient,double percent)
+int RePlay(void* RtspClient,double percent)
 {
 	ClientInterface* myclient = (ClientInterface*)RtspClient;
-	return myclient->Resume(percent);
+	return myclient->RePlay(percent);
 }
 int Fast(void* RtspClient,double resacle)
 {
@@ -39,21 +39,3 @@ int Stop(void* RtspClient )
 	ClientInterface* myclient = (ClientInterface*)RtspClient;
 	return myclient->Stop();
 }
-
-//int RegisterCallBackForGetRtcpStatus(void* RtspClient,GetRtcp* GetRtcp)
-//{
-//	ClientInterface* myclient = (ClientInterface*)RtspClient;
-//	return myclient->RegisterCallBackForGetRtcpStatus(GetRtcp);
-//	
-//}
-//int RegisterCallBackForGetResult(void* RtspClient,GetResult* GetResult)
-//{
-//	ClientInterface* myclient = (ClientInterface*)RtspClient;
-//	return myclient->RegisterCallBackForGetResult(GetResult);
-//
-//}
-//int RegisterCallBackForGetSdp(void* RtspClient,GetSdp* GetSdp)
-//{
-//	ClientInterface* myclient = (ClientInterface*)RtspClient;
-//	return myclient->RegisterCallBackForGetSdp(GetSdp);
-//}

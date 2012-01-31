@@ -1,8 +1,6 @@
 #include "ClientInterface.h"
 
 ClientInterface* ClientData;
-
-
 ClientInterface::ClientInterface(UsageEnvironment& env):Medium(env)
 {
 	OurRTSPClient = NULL;
@@ -11,7 +9,7 @@ ClientInterface::ClientInterface(UsageEnvironment& env):Medium(env)
     setupIter = NULL; 
 	fileSink = NULL;
 	OverHTTPPortNum = 0;
-     session = NULL;
+    session = NULL;
 	sessionTimerTask = NULL;
 	arrivalTimerTask = NULL;
 	PacketTimerTask = NULL;
@@ -22,13 +20,13 @@ ClientInterface::ClientInterface(UsageEnvironment& env):Medium(env)
 	streamUsingTCP = False;
 	duration = 0.0f;
 	SeekTime = 0.0f;
-	scale = 1.0f;
-	endTime = 0.0f;
+	Scale = 1.0f;
+	EndTime = 0.0f;
 	simpleRTP = -1;
 	fileSinkBufferSize = 100000;
 	areAlreadyShuttingDown = False;
 	watchVariable = 0;
-	madeProgress = False;
+	m_Progress = False;
 
 
 }
@@ -67,8 +65,8 @@ void ClientInterface::GetSetup(MediaSubsession* subsession, Boolean streamUsingT
 	OurRTSPClient->sendSetupCommand(*subsession, afterFunc, False, streamUsingTCP, forceMulticastOnUnspecified, OurAuthenticator);
 }
 
-void ClientInterface::GetPlay(MediaSession* session, double start, double end, float scale, RTSPClient::responseHandler* afterFunc) {
-	OurRTSPClient->sendPlayCommand(*session, afterFunc, start, end, scale, OurAuthenticator);
+void ClientInterface::GetPlay(MediaSession* session, double start, double end, float Scale, RTSPClient::responseHandler* afterFunc) {
+	OurRTSPClient->sendPlayCommand(*session, afterFunc, start, end, Scale, OurAuthenticator);
 }
 
 void ClientInterface::GetPause(MediaSession* session, RTSPClient::responseHandler* responseHandler) {
@@ -78,15 +76,12 @@ void ClientInterface::GetPause(MediaSession* session, RTSPClient::responseHandle
 void ClientInterface::GetTeardown(MediaSession* session, RTSPClient::responseHandler* afterFunc) {
 	OurRTSPClient->sendTeardownCommand(*session, afterFunc, OurAuthenticator);
 }
-int ClientInterface::Start(char* RTSP_URL,GetBuffer* GetBuffer)
+int ClientInterface::Start(char* url,GetBuffer* GetBuffer)
 {
-int verbosityLevel = 1;
 areAlreadyShuttingDown = False;
 CallBackForGetBuffer = GetBuffer;
-CreateClient(envir(),RTSP_URL, verbosityLevel, /*progName*/"HyerVision");
-if (OurRTSPClient == NULL) 
-{}
-else
+CreateClient(envir(),url, 1,"NewClient");
+if (OurRTSPClient != NULL) 
 {	
 	if((m_PlayThrd = CreateThread( 	(LPSECURITY_ATTRIBUTES)NULL, 0,	(LPTHREAD_START_ROUTINE)PlayThrd,(void *)this,	0, NULL)) == NULL)
 		return -1;
@@ -105,35 +100,33 @@ int ClientInterface::Pause()
 	return 0;
 }
 
-int ClientInterface::Resume(double percent)
+int ClientInterface::RePlay(double percent)
 {	double NTP_time;
 	if (duration == 0.0f)
 		NTP_time = percent;
 	else
 		NTP_time = duration * percent;
-	GetPlay(session, NTP_time, endTime, scale, After);
+	GetPlay(session, NTP_time, EndTime, Scale, After);
 	return 0;
 }
 
 int ClientInterface::Fast(double resacle)
-{	GetPlay(session, -0.1, endTime, resacle, After);
+{	GetPlay(session, -0.1, EndTime, resacle, After);
 	return 0;
 }
 int ClientInterface::Slow(double resacle)
-{	GetPlay(session, -0.1, endTime, resacle, After);
+{	GetPlay(session, -0.1, EndTime, resacle, After);
 	return 0;
 }
 
 int ClientInterface::Stop()
 {	
-#if 1
 	if (&envir() != NULL) {
 		envir().taskScheduler().unscheduleDelayedTask(sessionTimerTask);
 		envir().taskScheduler().unscheduleDelayedTask(arrivalTimerTask);
 		envir().taskScheduler().unscheduleDelayedTask(PacketTimerTask);
 		envir().taskScheduler().unscheduleDelayedTask(MeasurementTimerTask);
 	}
-#endif
 	if (session != NULL) {
 		GetTeardown(session, AfterTEARDOWN);
 
@@ -151,10 +144,7 @@ void ClientInterface::AfterOPTIONS(RTSPClient* rtspClient, int resultCode, char*
 	{
 		delete[] resultString;
 	}
-	if (NULL != rtspClient)
-	{		
-        ClientData->GetSdpDescription(AfterDESCRIBE);
-	}	
+         ClientData->GetSdpDescription(AfterDESCRIBE);
 	}
 }
 void ClientInterface::AfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString) 
@@ -174,33 +164,23 @@ void ClientInterface::DoAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, ch
 	{
   MediaSubsessionIterator iter(*session);
   MediaSubsession *subsession;
-  Boolean madeProgress = False;
+  Boolean m_Progress = False;
   char const* singleMediumToTest = singleMedium;
   while ((subsession = iter.next()) != NULL) {
-    if (singleMediumToTest != NULL) {
-      if (strcmp(subsession->mediumName(), singleMediumToTest) != 0) {
-			continue;
-      } else {
-	singleMediumToTest = "xxxxx";
-      }
-    }
     if (createReceivers) {
-      if (!subsession->initiate(simpleRTP)) {
-	
-      } else {
-	
-	madeProgress = True;	
-	if (subsession->rtpSource() != NULL) {}
+      if (subsession->initiate(simpleRTP)) {
+		
+	m_Progress = True;	
       }
     } 
     else {
       if (subsession->clientPortNum() == 0) {      } else {
-		madeProgress = True;
+		m_Progress = True;
       }
     }
   }
   
-  if (madeProgress) {	
+  if (m_Progress) {	
   SetupStreams();
   }
      }
@@ -212,10 +192,10 @@ void ClientInterface::AfterSETUP(RTSPClient* rtspClient, int resultCode, char* r
 	if (NULL != rtspClient)
 	{
         if (resultCode == 0) {
-   ClientData->madeProgress = True;
+   ClientData->m_Progress = True;
   } else {
   }
- ClientData->SetupStreams(); //
+ ClientData->SetupStreams(); 
 	}
 }
 
@@ -230,11 +210,11 @@ void ClientInterface::SetupStreams() {
   }
   delete setupIter;
   setupIter = NULL;
-  if (madeProgress) 
+  if (m_Progress) 
 	{
   if (createReceivers) {
 	if (True) {
-    madeProgress = False;
+    m_Progress = False;
       MediaSubsessionIterator iter(*session);
       while ((subsession = iter.next()) != NULL) {
 	if (subsession->readSource() == NULL) continue; 
@@ -243,35 +223,30 @@ void ClientInterface::SetupStreams() {
 					 fileSinkBufferSize, OneFilePerFrame,this);
 	  fileSink->afterGetingFrameData(AfterGetFrameData,outFileName);
 	subsession->sink = fileSink;
-	if (subsession->sink == NULL) {
-	 } 
-    if (subsession->sink != NULL) {
-	  if (singleMedium == NULL) {
-	  } else {
-	   }
-	  subsession->sink->startPlaying(*(subsession->readSource()),
+	    if (subsession->sink != NULL) {
+		  subsession->sink->startPlaying(*(subsession->readSource()),
 					 SubsessionAfterPlaying,
-					 subsession); madeProgress = True;
+					 subsession); m_Progress = True;
 	}
       }
       }
   }
-	 if (madeProgress) 
+	 if (m_Progress) 
 	 {
   if (duration == 0) {
-    if (scale > 0) duration = session->playEndTime() - SeekTime; // use SDP end time
-    else if (scale < 0) duration = SeekTime;
+    if (Scale > 0) duration = session->playEndTime() - SeekTime; // use SDP end time
+    else if (Scale < 0) duration = SeekTime;
   }
   if (duration < 0) duration = 0.0;
-  endTime = SeekTime;
-  if (scale > 0) {
-    if (duration <= 0) endTime = -1.0f;
-    else endTime = SeekTime + duration;
+  EndTime = SeekTime;
+  if (Scale > 0) {
+    if (duration <= 0) EndTime = -1.0f;
+    else EndTime = SeekTime + duration;
   } else {
-    endTime = SeekTime - duration;
-    if (endTime < 0) endTime = 0.0f;
+    EndTime = SeekTime - duration;
+    if (EndTime < 0) EndTime = 0.0f;
   }
-  GetPlay(session, SeekTime, endTime, scale, After);
+  GetPlay(session, SeekTime, EndTime, Scale, After);
 }
 }
 }
