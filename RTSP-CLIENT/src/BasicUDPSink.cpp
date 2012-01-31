@@ -75,7 +75,7 @@ void BasicUDPSink::afterGettingFrame1(unsigned frameSize, unsigned numTruncatedB
   fGS->output(envir(), fGS->ttl(), fOutputBuffer, frameSize);
 
   // Figure out the time at which the next packet should be sent, based
-  // on the duration of the payload that we just read:
+  // on the Duration of the payload that we just read:
   fNextSendTime.tv_usec += durationInMicroseconds;
   fNextSendTime.tv_sec += fNextSendTime.tv_usec/1000000;
   fNextSendTime.tv_usec %= 1000000;

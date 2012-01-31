@@ -308,9 +308,9 @@ void MultiFramedRTPSink
     ++fNumFramesUsedSoFar;
 
     // Update the time at which the next packet should be sent, based
-    // on the duration of the frame that we just packed into it.
+    // on the Duration of the frame that we just packed into it.
     // However, if this frame has overflow data remaining, then don't
-    // count its duration yet.
+    // count its Duration yet.
     if (overflowBytes == 0) {
       fNextSendTime.tv_usec += durationInMicroseconds;
       fNextSendTime.tv_sec += fNextSendTime.tv_usec/1000000;

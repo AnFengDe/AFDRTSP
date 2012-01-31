@@ -52,13 +52,13 @@ unsigned RTSPClient::sendAnnounceCommand(char const* sdpDescription, responseHan
 }
 
 unsigned RTSPClient::sendSetupCommand(MediaSubsession& subsession, responseHandler* responseHandler,
-                                      Boolean streamOutgoing, Boolean streamUsingTCP, Boolean forceMulticastOnUnspecified,
+                                      Boolean streamOutgoing, Boolean StreamUsingTCP, Boolean forceMulticastOnUnspecified,
 				      Authenticator* authenticator) {
-  if (fTunnelOverHTTPPortNum != 0) streamUsingTCP = True; // RTSP-over-HTTP tunneling uses TCP (by definition)
+  if (fTunnelOverHTTPPortNum != 0) StreamUsingTCP = True; // RTSP-over-HTTP tunneling uses TCP (by definition)
   if (authenticator != NULL) fCurrentAuthenticator = *authenticator;
 
   u_int32_t booleanFlags = 0;
-  if (streamUsingTCP) booleanFlags |= 0x1;
+  if (StreamUsingTCP) booleanFlags |= 0x1;
   if (streamOutgoing) booleanFlags |= 0x2;
   if (forceMulticastOnUnspecified) booleanFlags |= 0x4;
   return sendRequest(new RequestRecord(fClientData, ++fCSeq, "SETUP", responseHandler, NULL, &subsession, booleanFlags));
@@ -557,7 +557,7 @@ unsigned RTSPClient::sendRequest(RequestRecord* request) {
       extraHeaders = (char*)"Content-Type: application/sdp\r\n";
     } else if (strcmp(request->commandName(), "SETUP") == 0) {
       MediaSubsession& subsession = *request->subsession();
-      Boolean streamUsingTCP = (request->booleanFlags()&0x1) != 0;
+      Boolean StreamUsingTCP = (request->booleanFlags()&0x1) != 0;
       Boolean streamOutgoing = (request->booleanFlags()&0x2) != 0;
       Boolean forceMulticastOnUnspecified = (request->booleanFlags()&0x4) != 0;
 
@@ -582,7 +582,7 @@ unsigned RTSPClient::sendRequest(RequestRecord* request) {
           // Note: I think the above is nonstandard, but DSS wants it this way
       char const* portTypeStr;
       portNumBits rtpNumber, rtcpNumber;
-      if (streamUsingTCP) { // streaming over the RTSP connection
+      if (StreamUsingTCP) { // streaming over the RTSP connection
 	transportTypeStr = "/TCP;unicast";
 	portTypeStr = ";interleaved";
 	rtpNumber = fTCPStreamIdCount++;
@@ -946,7 +946,7 @@ Boolean RTSPClient::parseRTPInfoParams(char const*& paramsStr, u_int16_t& seqNum
 }
 
 Boolean RTSPClient::handleSETUPResponse(MediaSubsession& subsession, char const* sessionParamsStr, char const* transportParamsStr,
-                                        Boolean streamUsingTCP) {
+                                        Boolean StreamUsingTCP) {
   char* sessionId = new char[responseBufferSize]; // ensures we have enough space
   Boolean success = False;
   do {
@@ -979,7 +979,7 @@ Boolean RTSPClient::handleSETUPResponse(MediaSubsession& subsession, char const*
     subsession.rtpChannelId = rtpChannelId;
     subsession.rtcpChannelId = rtcpChannelId;
 
-    if (streamUsingTCP) {
+    if (StreamUsingTCP) {
       // Tell the subsession to receive RTP (and send/receive RTCP) over the RTSP stream:
       if (subsession.rtpSource() != NULL) {
 	subsession.rtpSource()->setStreamSocket(fInputSocketNum, subsession.rtpChannelId);
@@ -1766,11 +1766,11 @@ Boolean RTSPClient
 
 Boolean RTSPClient::setupMediaSubsession(MediaSubsession& subsession,
 					 Boolean streamOutgoing,
-					 Boolean streamUsingTCP,
+					 Boolean StreamUsingTCP,
 					 Boolean forceMulticastOnUnspecified) {
   fWatchVariableForSyncInterface = 0;
   fTimeoutTask = NULL;
-  (void)sendSetupCommand(subsession, responseHandlerForSyncInterface, streamOutgoing, streamUsingTCP, forceMulticastOnUnspecified);
+  (void)sendSetupCommand(subsession, responseHandlerForSyncInterface, streamOutgoing, StreamUsingTCP, forceMulticastOnUnspecified);
 
   // Now block (but handling events) until we get a response (or a timeout):
   envir().taskScheduler().doEventLoop(&fWatchVariableForSyncInterface);

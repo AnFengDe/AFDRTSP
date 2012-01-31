@@ -2,7 +2,7 @@
 #include "BasicUsageEnvironment.hh"
 #include "GroupsockHelper.hh"
 #include <NetAddress.hh>
-typedef void (GetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime );
+typedef void (GetBuffer)(void* clientId, unsigned char const *clientData, unsigned frameSize, double Duration,struct timeval presentationTime );
 
 typedef void (GetResult)( void* clientId,int resultCode, char* resultString);
 
@@ -42,7 +42,7 @@ private:
 
 	void GetSdpDescription(RTSPClient::responseHandler* afterFunc) ;
 
-	void GetSetup(MediaSubsession* subsession, Boolean streamUsingTCP, RTSPClient::responseHandler* afterFunc) ;	
+	void GetSetup(MediaSubsession* subsession, Boolean StreamUsingTCP, RTSPClient::responseHandler* afterFunc) ;	
 
 	void GetPlay(MediaSession* session, double start, double end, float Scale, RTSPClient::responseHandler* afterFunc) ;
 	
@@ -62,8 +62,8 @@ private:
     static void AfterTEARDOWN(RTSPClient*, int resultCode, char* resultString) ;
 	void DoAfterTEARDOWN(RTSPClient*, int resultCode, char* resultString) ;
 	static void AfterGetFrameData(unsigned char const *clientData, unsigned frameSize, struct timeval presentationTime,char *outFileName,void *);
-	void SetSessionTimerTask(TaskToken token){sessionTimerTask = token;};
-	void SetWatchVariable(char c){watchVariable = c;};
+	void SetSessionTimerTask(TaskToken token){SessionTimerTask = token;};
+	void SetWatchVariable(char c){WatchVariable = c;};
 	static void PlayThrd(LPVOID lParam);
 
 
@@ -76,23 +76,23 @@ private:
 	FileSink* fileSink;
 	u_int16_t OverHTTPPortNum;
 	MediaSession* session ;
-	TaskToken sessionTimerTask;
-	TaskToken arrivalTimerTask;
+	TaskToken SessionTimerTask;
+	TaskToken ArrivalTimerTask;
 	TaskToken PacketTimerTask;
 	TaskToken MeasurementTimerTask;
-	Boolean createReceivers ;
-	char const* singleMedium;
+	Boolean CreateReceivers ;
+	char const* SingleMedium;
 	Boolean OneFilePerFrame ;
-	Boolean streamUsingTCP;
-	double duration;
+	Boolean StreamUsingTCP;
+	double Duration;
 	double SeekTime;
 	float Scale;
 	double EndTime;
-	int simpleRTP;
+	int SimpleRTP;
 	unsigned fileSinkBufferSize;
-	struct timeval startTime;
-	bool areAlreadyShuttingDown;
-	char watchVariable;
-	int resultCode;
+	//struct timeval startTime;
+	//bool areAlreadyShuttingDown;
+	char WatchVariable;
+	//int resultCode;
 	Boolean m_Progress;
 };

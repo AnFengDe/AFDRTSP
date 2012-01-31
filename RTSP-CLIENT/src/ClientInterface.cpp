@@ -10,22 +10,21 @@ ClientInterface::ClientInterface(UsageEnvironment& env):Medium(env)
 	fileSink = NULL;
 	OverHTTPPortNum = 0;
     session = NULL;
-	sessionTimerTask = NULL;
-	arrivalTimerTask = NULL;
+	SessionTimerTask = NULL;
+	ArrivalTimerTask = NULL;
 	PacketTimerTask = NULL;
 	MeasurementTimerTask = NULL;
-	createReceivers = True;
-	singleMedium = NULL;
+	CreateReceivers = True;
+	SingleMedium = NULL;
 	OneFilePerFrame = False;
-	streamUsingTCP = False;
-	duration = 0.0f;
+	StreamUsingTCP = False;
+	Duration = 0.0f;
 	SeekTime = 0.0f;
 	Scale = 1.0f;
 	EndTime = 0.0f;
-	simpleRTP = -1;
+	SimpleRTP = -1;
 	fileSinkBufferSize = 100000;
-	areAlreadyShuttingDown = False;
-	watchVariable = 0;
+	WatchVariable = 0;
 	m_Progress = False;
 
 
@@ -60,9 +59,9 @@ void ClientInterface::GetSdpDescription(RTSPClient::responseHandler* afterFunc) 
 	OurRTSPClient->sendDescribeCommand(afterFunc, OurAuthenticator);
 }
 
-void ClientInterface::GetSetup(MediaSubsession* subsession, Boolean streamUsingTCP, RTSPClient::responseHandler* afterFunc) {
+void ClientInterface::GetSetup(MediaSubsession* subsession, Boolean StreamUsingTCP, RTSPClient::responseHandler* afterFunc) {
 	Boolean forceMulticastOnUnspecified = False;
-	OurRTSPClient->sendSetupCommand(*subsession, afterFunc, False, streamUsingTCP, forceMulticastOnUnspecified, OurAuthenticator);
+	OurRTSPClient->sendSetupCommand(*subsession, afterFunc, False, StreamUsingTCP, forceMulticastOnUnspecified, OurAuthenticator);
 }
 
 void ClientInterface::GetPlay(MediaSession* session, double start, double end, float Scale, RTSPClient::responseHandler* afterFunc) {
@@ -78,7 +77,6 @@ void ClientInterface::GetTeardown(MediaSession* session, RTSPClient::responseHan
 }
 int ClientInterface::Start(char* url,GetBuffer* GetBuffer)
 {
-areAlreadyShuttingDown = False;
 CallBackForGetBuffer = GetBuffer;
 CreateClient(envir(),url, 1,"NewClient");
 if (OurRTSPClient != NULL) 
@@ -93,7 +91,7 @@ void ClientInterface::PlayThrd(LPVOID lParam)
 	ClientInterface* testClient = (ClientInterface*)lParam;
 	testClient->GetOptions(AfterOPTIONS);
 	testClient->SetWatchVariable(0);
-	testClient->envir().taskScheduler().doEventLoop(&(testClient->watchVariable )); 
+	testClient->envir().taskScheduler().doEventLoop(&(testClient->WatchVariable )); 
 }
 int ClientInterface::Pause()
 {	GetPause(session, After);
@@ -102,10 +100,10 @@ int ClientInterface::Pause()
 
 int ClientInterface::RePlay(double percent)
 {	double NTP_time;
-	if (duration == 0.0f)
+	if (Duration == 0.0f)
 		NTP_time = percent;
 	else
-		NTP_time = duration * percent;
+		NTP_time = Duration * percent;
 	GetPlay(session, NTP_time, EndTime, Scale, After);
 	return 0;
 }
@@ -122,8 +120,8 @@ int ClientInterface::Slow(double resacle)
 int ClientInterface::Stop()
 {	
 	if (&envir() != NULL) {
-		envir().taskScheduler().unscheduleDelayedTask(sessionTimerTask);
-		envir().taskScheduler().unscheduleDelayedTask(arrivalTimerTask);
+		envir().taskScheduler().unscheduleDelayedTask(SessionTimerTask);
+		envir().taskScheduler().unscheduleDelayedTask(ArrivalTimerTask);
 		envir().taskScheduler().unscheduleDelayedTask(PacketTimerTask);
 		envir().taskScheduler().unscheduleDelayedTask(MeasurementTimerTask);
 	}
@@ -165,10 +163,10 @@ void ClientInterface::DoAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, ch
   MediaSubsessionIterator iter(*session);
   MediaSubsession *subsession;
   Boolean m_Progress = False;
-  char const* singleMediumToTest = singleMedium;
+  char const* singleMediumToTest = SingleMedium;
   while ((subsession = iter.next()) != NULL) {
-    if (createReceivers) {
-      if (subsession->initiate(simpleRTP)) {
+    if (CreateReceivers) {
+      if (subsession->initiate(SimpleRTP)) {
 		
 	m_Progress = True;	
       }
@@ -205,14 +203,14 @@ void ClientInterface::SetupStreams() {
 	MediaSubsession *subsession;
   while ((subsession = setupIter->next()) != NULL) {
     if (subsession->clientPortNum() == 0) continue; 
-    GetSetup(subsession, streamUsingTCP, AfterSETUP);
+    GetSetup(subsession, StreamUsingTCP, AfterSETUP);
     return;
   }
   delete setupIter;
   setupIter = NULL;
   if (m_Progress) 
 	{
-  if (createReceivers) {
+  if (CreateReceivers) {
 	if (True) {
     m_Progress = False;
       MediaSubsessionIterator iter(*session);
@@ -233,17 +231,17 @@ void ClientInterface::SetupStreams() {
   }
 	 if (m_Progress) 
 	 {
-  if (duration == 0) {
-    if (Scale > 0) duration = session->playEndTime() - SeekTime; // use SDP end time
-    else if (Scale < 0) duration = SeekTime;
+  if (Duration == 0) {
+    if (Scale > 0) Duration = session->playEndTime() - SeekTime; // use SDP end time
+    else if (Scale < 0) Duration = SeekTime;
   }
-  if (duration < 0) duration = 0.0;
+  if (Duration < 0) Duration = 0.0;
   EndTime = SeekTime;
   if (Scale > 0) {
-    if (duration <= 0) EndTime = -1.0f;
-    else EndTime = SeekTime + duration;
+    if (Duration <= 0) EndTime = -1.0f;
+    else EndTime = SeekTime + Duration;
   } else {
-    EndTime = SeekTime - duration;
+    EndTime = SeekTime - Duration;
     if (EndTime < 0) EndTime = 0.0f;
   }
   GetPlay(session, SeekTime, EndTime, Scale, After);

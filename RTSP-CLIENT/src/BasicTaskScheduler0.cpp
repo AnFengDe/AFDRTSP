@@ -73,10 +73,10 @@ void BasicTaskScheduler0::unscheduleDelayedTask(TaskToken& prevTask) {
   delete alarmHandler;
 }
 
-void BasicTaskScheduler0::doEventLoop(char* watchVariable) {
+void BasicTaskScheduler0::doEventLoop(char* WatchVariable) {
   // Repeatedly loop, handling readble sockets and timed events:
   while (1) {
-    if (watchVariable != NULL && *watchVariable != 0) break;
+    if (WatchVariable != NULL && *WatchVariable != 0) break;
     SingleStep();
   }
 }

@@ -136,10 +136,10 @@ public:
   virtual void moveSocketHandling(int oldSocketNum, int newSocketNum) = 0;
         // Changes any socket handling for "oldSocketNum" so that occurs with "newSocketNum" instead.
 
-  virtual void doEventLoop(char* watchVariable = NULL) = 0;
+  virtual void doEventLoop(char* WatchVariable = NULL) = 0;
       // Causes further execution to take place within the event loop.
       // Delayed tasks, background I/O handling, and other events are handled, sequentially (as a single thread of control).
-      // (If "watchVariable" is not NULL, then we return from this routine when *watchVariable != 0)
+      // (If "WatchVariable" is not NULL, then we return from this routine when *WatchVariable != 0)
 
   virtual EventTriggerId createEventTrigger(TaskFunc* eventHandlerProc) = 0;
       // Creates a 'trigger' for an event, which - if it occurs - will be handled (from the event loop) using "eventHandlerProc".

@@ -6,7 +6,7 @@
 #include "ClientCommand.h"
 #pragma   comment(lib,   "Wsock32.lib ")
 void* a;
-void add_Data(void* clientId,unsigned char const *clientData, unsigned frameSize, double duration,struct timeval presentationTime)
+void add_Data(void* clientId,unsigned char const *clientData, unsigned frameSize, double Duration,struct timeval presentationTime)
 {
 }
 int _tmain(int argc, _TCHAR* argv[])

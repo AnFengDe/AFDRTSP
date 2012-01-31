@@ -79,7 +79,7 @@ public:
 
   unsigned sendSetupCommand(MediaSubsession& subsession, responseHandler* responseHandler,
 			    Boolean streamOutgoing = False,
-			    Boolean streamUsingTCP = False,
+			    Boolean StreamUsingTCP = False,
 			    Boolean forceMulticastOnUnspecified = False,
 			    Authenticator* authenticator = NULL);
       // Issues a RTSP "SETUP" command, then returns the "CSeq" sequence number that was used in the command.
@@ -233,7 +233,7 @@ private:
   Boolean parseScaleParam(char const* paramStr, float& Scale);
   Boolean parseRTPInfoParams(char const*& paramStr, u_int16_t& seqNum, u_int32_t& timestamp);
   Boolean handleSETUPResponse(MediaSubsession& subsession, char const* sessionParamsStr, char const* transportParamsStr,
-			      Boolean streamUsingTCP);
+			      Boolean StreamUsingTCP);
   Boolean handlePLAYResponse(MediaSession& session, MediaSubsession& subsession,
                              char const* scaleParamsStr, char const* rangeParamsStr, char const* rtpInfoParamsStr);
   Boolean handleTEARDOWNResponse(MediaSession& session, MediaSubsession& subsession);
@@ -311,7 +311,7 @@ public:
 			       char const* username, char const* password, int timeout = -1);
   Boolean setupMediaSubsession(MediaSubsession& subsession,
 			       Boolean streamOutgoing = False,
-			       Boolean streamUsingTCP = False,
+			       Boolean StreamUsingTCP = False,
 			       Boolean forceMulticastOnUnspecified = False);
   Boolean playMediaSession(MediaSession& session,
 			   double start = 0.0f, double end = -1.0f,

@@ -86,7 +86,7 @@ public:
 				void* clientData);
   virtual void unscheduleDelayedTask(TaskToken& prevTask);
 
-  virtual void doEventLoop(char* watchVariable);
+  virtual void doEventLoop(char* WatchVariable);
 
   virtual EventTriggerId createEventTrigger(TaskFunc* eventHandlerProc);
   virtual void deleteEventTrigger(EventTriggerId eventTriggerId);
