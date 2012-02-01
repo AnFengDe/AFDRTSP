@@ -1,6 +1,3 @@
-// test1.cpp : 定义控制台应用程序的入口点。
-//
-
 #include "stdafx.h"
 #include <windows.h>
 #include "ClientCommand.h"
@@ -20,7 +17,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		case 'a':
 
 			a = CreateClient();
-			Play(a, "rtsp://127.0.0.1/1.mp3",add_Data);
+			Play(a, "rtsp://127.0.0.1/3.264",add_Data);
 			break;
 		case 'b':
 			Stop(a);
