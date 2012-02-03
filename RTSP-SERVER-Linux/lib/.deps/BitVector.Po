@@ -1,0 +1,3 @@
+BitVector.o: BitVector.cpp BitVector.hh
+
+BitVector.hh:

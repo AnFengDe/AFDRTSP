@@ -1,0 +1,5 @@
+HashTable.o: HashTable.cpp HashTable.hh Boolean.hh
+
+HashTable.hh:
+
+Boolean.hh:
