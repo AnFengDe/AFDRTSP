@@ -1,6 +1,6 @@
 //#include <windows.h>
 //#pragma comment(lib, "wsock32.lib")
-//#include <pthread.h>
+//test example
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <errno.h>
