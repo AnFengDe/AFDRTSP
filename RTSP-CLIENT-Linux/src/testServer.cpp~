@@ -1,0 +1,13 @@
+//test example
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <errno.h>
+extern int runRTSPsever(unsigned short serverPortNum);
+
+
+int main(int argc, char *argv[])
+{
+     runRTSPsever(554);
+	
+return 0;
+}
