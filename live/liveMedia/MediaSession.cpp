@@ -441,7 +441,7 @@ char* MediaSession::lookupPayloadFormat(unsigned char rtpPayloadType,
   case 25: {temp = "CELB"; freq = 90000; nCh = 1; break;}
   case 26: {temp = "JPEG"; freq = 90000; nCh = 1; break;}
   case 28: {temp = "NV"; freq = 90000; nCh = 1; break;}
-  case 31: {temp = "H261"; freq = 90000; nCh = 1; break;}
+  //case 31: {temp = "H261"; freq = 90000; nCh = 1; break;}
   case 32: {temp = "MPV"; freq = 90000; nCh = 1; break;}
   case 33: {temp = "MP2T"; freq = 90000; nCh = 1; break;}
   case 34: {temp = "H263"; freq = 90000; nCh = 1; break;}
@@ -1194,12 +1194,12 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 						0, False);
 	fReadSource = MPEG2TransportStreamFramer::createNew(env(), fRTPSource);
 	// this sets "durationInMicroseconds" correctly, based on the PCR values
-      } else if (strcmp(fCodecName, "H261") == 0) { // H.261
+      /*} else if (strcmp(fCodecName, "H261") == 0) { // H.261
 	fReadSource = fRTPSource
 	  = H261VideoRTPSource::createNew(env(), fRTPSocket,
 					  fRTPPayloadFormat,
 					  fRTPTimestampFrequency);
-      } else if (strcmp(fCodecName, "H263-1998") == 0 ||
+      */} else if (strcmp(fCodecName, "H263-1998") == 0 ||
 		 strcmp(fCodecName, "H263-2000") == 0) { // H.263+
 	fReadSource = fRTPSource
 	  = H263plusVideoRTPSource::createNew(env(), fRTPSocket,
