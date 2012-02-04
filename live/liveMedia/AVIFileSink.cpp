@@ -356,10 +356,10 @@ void AVISubsessionIOState::setAVIstate(unsigned subsessionIndex) {
       fAVICodecHandlerType = fourChar('D','I','V','X');
     } else if (strcmp(fOurSubsession.codecName(), "MPV") == 0) {
       fAVICodecHandlerType = fourChar('m','p','g','1'); // what about MPEG-2?
-    } else if (strcmp(fOurSubsession.codecName(), "H263-1998") == 0 ||
+    /*} else if (strcmp(fOurSubsession.codecName(), "H263-1998") == 0 ||
 	       strcmp(fOurSubsession.codecName(), "H263-2000") == 0) {
       fAVICodecHandlerType = fourChar('H','2','6','3');
-    } else if (strcmp(fOurSubsession.codecName(), "H264") == 0) {
+    */} else if (strcmp(fOurSubsession.codecName(), "H264") == 0) {
       fAVICodecHandlerType = fourChar('H','2','6','4');
     } else {
       fAVICodecHandlerType = fourChar('?','?','?','?');

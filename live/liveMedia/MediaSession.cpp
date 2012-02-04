@@ -444,7 +444,7 @@ char* MediaSession::lookupPayloadFormat(unsigned char rtpPayloadType,
   //case 31: {temp = "H261"; freq = 90000; nCh = 1; break;}
   case 32: {temp = "MPV"; freq = 90000; nCh = 1; break;}
   case 33: {temp = "MP2T"; freq = 90000; nCh = 1; break;}
-  case 34: {temp = "H263"; freq = 90000; nCh = 1; break;}
+  //case 34: {temp = "H263"; freq = 90000; nCh = 1; break;}
   };
 
   return strDup(temp);
@@ -1199,13 +1199,13 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 	  = H261VideoRTPSource::createNew(env(), fRTPSocket,
 					  fRTPPayloadFormat,
 					  fRTPTimestampFrequency);
-      */} else if (strcmp(fCodecName, "H263-1998") == 0 ||
+      } else if (strcmp(fCodecName, "H263-1998") == 0 ||
 		 strcmp(fCodecName, "H263-2000") == 0) { // H.263+
 	fReadSource = fRTPSource
 	  = H263plusVideoRTPSource::createNew(env(), fRTPSocket,
 					      fRTPPayloadFormat,
 					      fRTPTimestampFrequency);
-      } else if (strcmp(fCodecName, "H264") == 0) {
+      */} else if (strcmp(fCodecName, "H264") == 0) {
 	fReadSource = fRTPSource
 	  = H264VideoRTPSource::createNew(env(), fRTPSocket,
 					  fRTPPayloadFormat,
