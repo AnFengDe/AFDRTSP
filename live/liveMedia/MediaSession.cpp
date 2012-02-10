@@ -1194,22 +1194,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 						0, False);
 	fReadSource = MPEG2TransportStreamFramer::createNew(env(), fRTPSource);
 	// this sets "durationInMicroseconds" correctly, based on the PCR values
-      /*} else if (strcmp(fCodecName, "H261") == 0) { // H.261
-	fReadSource = fRTPSource
-	  = H261VideoRTPSource::createNew(env(), fRTPSocket,
-					  fRTPPayloadFormat,
-					  fRTPTimestampFrequency);
-      } else if (strcmp(fCodecName, "H263-1998") == 0 ||
-		 strcmp(fCodecName, "H263-2000") == 0) { // H.263+
-	fReadSource = fRTPSource
-	  = H263plusVideoRTPSource::createNew(env(), fRTPSocket,
-					      fRTPPayloadFormat,
-					      fRTPTimestampFrequency);
-      */} else if (strcmp(fCodecName, "H264") == 0) {
-	fReadSource = fRTPSource
-	  = H264VideoRTPSource::createNew(env(), fRTPSocket,
-					  fRTPPayloadFormat,
-					  fRTPTimestampFrequency);
       } else if (strcmp(fCodecName, "DV") == 0) {
 	fReadSource = fRTPSource
 	  = DVVideoRTPSource::createNew(env(), fRTPSocket,
