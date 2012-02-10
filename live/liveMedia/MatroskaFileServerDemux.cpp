@@ -21,7 +21,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "MatroskaFileServerDemux.hh"
 #include "MP3AudioMatroskaFileServerMediaSubsession.hh"
 #include "AACAudioMatroskaFileServerMediaSubsession.hh"
-#include "AC3AudioMatroskaFileServerMediaSubsession.hh"
 #include "VorbisAudioMatroskaFileServerMediaSubsession.hh"
 #include "VP8VideoMatroskaFileServerMediaSubsession.hh"
 #include "T140TextMatroskaFileServerMediaSubsession.hh"
@@ -58,9 +57,6 @@ ServerMediaSubsession* MatroskaFileServerDemux::newServerMediaSubsession(unsigne
   } else if (strncmp(track->codecID, "A_AAC", 5) == 0) {
     track->mimeType = "audio/AAC";
     result = AACAudioMatroskaFileServerMediaSubsession::createNew(*this, track->trackNumber);
-  } else if (strncmp(track->codecID, "A_AC3", 5) == 0) {
-    track->mimeType = "audio/AC3";
-    result = AC3AudioMatroskaFileServerMediaSubsession::createNew(*this, track->trackNumber);
   } else if (strncmp(track->codecID, "A_VORBIS", 8) == 0) {
     track->mimeType = "audio/VORBIS";
     result = VorbisAudioMatroskaFileServerMediaSubsession::createNew(*this, track->trackNumber);

@@ -24,8 +24,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "MPEG1or2AudioRTPSink.hh"
 #include "MPEG1or2VideoStreamFramer.hh"
 #include "MPEG1or2VideoRTPSink.hh"
-#include "AC3AudioStreamFramer.hh"
-#include "AC3AudioRTPSink.hh"
 #include "ByteStreamFileSource.hh"
 
 MPEG1or2DemuxedServerMediaSubsession* MPEG1or2DemuxedServerMediaSubsession
@@ -62,9 +60,6 @@ FramedSource* MPEG1or2DemuxedServerMediaSubsession
       estBitrate = 500; // kbps, estimate
       return MPEG1or2VideoStreamFramer::createNew(envir(), es,
 						  fIFramesOnly, fVSHPeriod);
-    } else if (fStreamIdTag == 0xBD /*AC-3 audio*/) {
-      estBitrate = 192; // kbps, estimate
-      return AC3AudioStreamFramer::createNew(envir(), es);
     } else { // unknown stream type
       break;
     }
@@ -82,12 +77,6 @@ RTPSink* MPEG1or2DemuxedServerMediaSubsession
     return MPEG1or2AudioRTPSink::createNew(envir(), rtpGroupsock);
   } else if ((fStreamIdTag&0xF0) == 0xE0 /*video*/) {
     return MPEG1or2VideoRTPSink::createNew(envir(), rtpGroupsock);
-  } else if (fStreamIdTag == 0xBD /*AC-3 audio*/) {
-    // Get the sampling frequency from the audio source; use it for the RTP frequency:
-    AC3AudioStreamFramer* audioSource
-      = (AC3AudioStreamFramer*)inputSource;
-    return AC3AudioRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic,
-				      audioSource->samplingRate());
   } else {
     return NULL;
   }
