@@ -1090,12 +1090,7 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
       // (Also, add more fmts that can be implemented by SimpleRTPSource#####)
       Boolean createSimpleRTPSource = False; // by default; can be changed below
       Boolean doNormalMBitRule = False; // default behavior if "createSimpleRTPSource" is True
-      if (strcmp(fCodecName, "VP8") == 0) { // VP8 video
-	fReadSource = fRTPSource
-	  = VP8VideoRTPSource::createNew(env(), fRTPSocket,
-					 fRTPPayloadFormat,
-					 fRTPTimestampFrequency);
-      } else if (strcmp(fCodecName, "X-QT") == 0
+      if (strcmp(fCodecName, "X-QT") == 0
 		 || strcmp(fCodecName, "X-QUICKTIME") == 0) {
 	// Generic QuickTime streams, as defined in
 	// <http://developer.apple.com/quicktime/icefloe/dispatch026.html>
@@ -1120,7 +1115,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 		   || strcmp(fCodecName, "G726-32") == 0 // G.726, 32 kbps
 		   || strcmp(fCodecName, "G726-40") == 0 // G.726, 40 kbps
 		   || strcmp(fCodecName, "SPEEX") == 0 // SPEEX audio
-		   || strcmp(fCodecName, "T140") == 0 // T.140 text (RFC 4103)
 		   || strcmp(fCodecName, "DAT12") == 0 // 12-bit nonlinear audio (RFC 3190)
 		   ) {
 	createSimpleRTPSource = True;

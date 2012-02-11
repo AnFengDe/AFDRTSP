@@ -30,17 +30,13 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "ByteStreamMemoryBufferSource.hh"
 #include "BasicUDPSource.hh"
 #include "SimpleRTPSource.hh"
-#include "VP8VideoRTPSource.hh"
-#include "VP8VideoRTPSink.hh"
 #include "DeviceSource.hh"
 #include "StreamReplicator.hh"
 #include "RTSPServerSupportingHTTPStreaming.hh"
 #include "RTSPClient.hh"
 #include "QuickTimeGenericRTPSource.hh"
 #include "PassiveServerMediaSubsession.hh"
-#include "T140TextRTPSink.hh"
 #include "TCPStreamSink.hh"
-#include "MatroskaFileServerDemux.hh"
 #include "DarwinInjector.hh"
 
 #endif
