@@ -435,7 +435,6 @@ char* MediaSession::lookupPayloadFormat(unsigned char rtpPayloadType,
   case 15: {temp = "G728"; freq = 8000; nCh = 1; break;}
   case 18: {temp = "G729"; freq = 8000; nCh = 1; break;}
   case 25: {temp = "CELB"; freq = 90000; nCh = 1; break;}
-  case 26: {temp = "JPEG"; freq = 90000; nCh = 1; break;}
   case 28: {temp = "NV"; freq = 90000; nCh = 1; break;}
   //case 31: {temp = "H261"; freq = 90000; nCh = 1; break;}
   case 32: {temp = "MPV"; freq = 90000; nCh = 1; break;}
@@ -1125,13 +1124,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 						0, False);
 	fReadSource = MPEG2TransportStreamFramer::createNew(env(), fRTPSource);
 	// this sets "durationInMicroseconds" correctly, based on the PCR values
-      } else if (strcmp(fCodecName, "JPEG") == 0) { // motion JPEG
-	fReadSource = fRTPSource
-	  = JPEGVideoRTPSource::createNew(env(), fRTPSocket,
-					  fRTPPayloadFormat,
-					  fRTPTimestampFrequency,
-					  videoWidth(),
-					  videoHeight());
       } else if (strcmp(fCodecName, "X-QT") == 0
 		 || strcmp(fCodecName, "X-QUICKTIME") == 0) {
 	// Generic QuickTime streams, as defined in
