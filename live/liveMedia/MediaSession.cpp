@@ -424,8 +424,6 @@ char* MediaSession::lookupPayloadFormat(unsigned char rtpPayloadType,
   case 2: {temp = "G726-32"; freq = 8000; nCh = 1; break;}
   case 3: {temp = "GSM"; freq = 8000; nCh = 1; break;}
   case 4: {temp = "G723"; freq = 8000; nCh = 1; break;}
-  case 5: {temp = "DVI4"; freq = 8000; nCh = 1; break;}
-  case 6: {temp = "DVI4"; freq = 16000; nCh = 1; break;}
   case 7: {temp = "LPC"; freq = 8000; nCh = 1; break;}
   case 8: {temp = "PCMA"; freq = 8000; nCh = 1; break;}
   case 9: {temp = "G722"; freq = 8000; nCh = 1; break;}
@@ -435,8 +433,6 @@ char* MediaSession::lookupPayloadFormat(unsigned char rtpPayloadType,
   case 14: {temp = "MPA"; freq = 90000; nCh = 1; break;}
     // 'number of channels' is actually encoded in the media stream
   case 15: {temp = "G728"; freq = 8000; nCh = 1; break;}
-  case 16: {temp = "DVI4"; freq = 11025; nCh = 1; break;}
-  case 17: {temp = "DVI4"; freq = 22050; nCh = 1; break;}
   case 18: {temp = "G729"; freq = 8000; nCh = 1; break;}
   case 25: {temp = "CELB"; freq = 90000; nCh = 1; break;}
   case 26: {temp = "JPEG"; freq = 90000; nCh = 1; break;}
@@ -1129,11 +1125,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 						0, False);
 	fReadSource = MPEG2TransportStreamFramer::createNew(env(), fRTPSource);
 	// this sets "durationInMicroseconds" correctly, based on the PCR values
-      } else if (strcmp(fCodecName, "DV") == 0) {
-	fReadSource = fRTPSource
-	  = DVVideoRTPSource::createNew(env(), fRTPSocket,
-					fRTPPayloadFormat,
-					fRTPTimestampFrequency);
       } else if (strcmp(fCodecName, "JPEG") == 0) { // motion JPEG
 	fReadSource = fRTPSource
 	  = JPEGVideoRTPSource::createNew(env(), fRTPSocket,
@@ -1156,7 +1147,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 	delete[] mimeType;
       } else if (  strcmp(fCodecName, "PCMU") == 0 // PCM u-law audio
 		   || strcmp(fCodecName, "GSM") == 0 // GSM audio
-		   || strcmp(fCodecName, "DVI4") == 0 // DVI4 (IMA ADPCM) audio
 		   || strcmp(fCodecName, "PCMA") == 0 // PCM a-law audio
 		   || strcmp(fCodecName, "MP1S") == 0 // MPEG-1 System Stream
 		   || strcmp(fCodecName, "MP2P") == 0 // MPEG-2 Program Stream

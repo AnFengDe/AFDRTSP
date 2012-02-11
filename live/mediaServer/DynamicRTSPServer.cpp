@@ -114,13 +114,6 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
     NEW_SMS("MPEG Transport Stream");
     sms->addSubsession(MPEG2TransportFileServerMediaSubsession::createNew(env, fileName, indexFileName, reuseSource));
     delete[] indexFileName;
-  } else if (strcmp(extension, ".dv") == 0) {
-    // Assumed to be a DV Video file
-    // First, make sure that the RTPSinks' buffers will be large enough to handle the huge size of DV frames (as big as 288000).
-    OutPacketBuffer::maxSize = 300000;
-
-    NEW_SMS("DV Video");
-    sms->addSubsession(DVVideoFileServerMediaSubsession::createNew(env, fileName, reuseSource));
   } else if (strcmp(extension, ".mkv") == 0 || strcmp(extension, ".webm") == 0) {
     // Assumed to be a Matroska file (note that WebM ('.webm') files are also Matroska files)
     NEW_SMS("Matroska video+audio+(optional)subtitles");
