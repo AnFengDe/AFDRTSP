@@ -59,7 +59,6 @@ int main(int argc, char** argv) {
        << urlPrefix << "<filename>\nwhere <filename> is a file present in the current directory.\n";
   *env << "Each file's type is inferred from its name suffix:\n";
   *env << "\t\".264\" => a H.264 Video Elementary Stream file\n";
-  *env << "\t\".amr\" => an AMR Audio file\n";
   *env << "\t\".dv\" => a DV Video file\n";
   *env << "\t\".m4e\" => a MPEG-4 Video Elementary Stream file\n";
   *env << "\t\".mkv\" => a Matroska audio+video+(optional)subtitles file\n";

@@ -1106,20 +1106,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 					 fRTPPayloadFormat,
 					 fRTPTimestampFrequency);
 	// Note that fReadSource will differ from fRTPSource in this case
-      } else if (strcmp(fCodecName, "AMR") == 0) { // AMR audio (narrowband)
-	fReadSource =
-	  AMRAudioRTPSource::createNew(env(), fRTPSocket, fRTPSource,
-				       fRTPPayloadFormat, 0 /*isWideband*/,
-				       fNumChannels, fOctetalign, fInterleaving,
-				       fRobustsorting, fCRC);
-	// Note that fReadSource will differ from fRTPSource in this case
-      } else if (strcmp(fCodecName, "AMR-WB") == 0) { // AMR audio (wideband)
-	fReadSource =
-	  AMRAudioRTPSource::createNew(env(), fRTPSocket, fRTPSource,
-				       fRTPPayloadFormat, 1 /*isWideband*/,
-				       fNumChannels, fOctetalign, fInterleaving,
-				       fRobustsorting, fCRC);
-	// Note that fReadSource will differ from fRTPSource in this case
       } else if (strcmp(fCodecName, "MPA") == 0) { // MPEG-1 or 2 audio
 	fReadSource = fRTPSource
 	  = MPEG1or2AudioRTPSource::createNew(env(), fRTPSocket,

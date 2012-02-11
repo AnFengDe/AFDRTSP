@@ -95,11 +95,7 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 
   ServerMediaSession* sms = NULL;
   Boolean const reuseSource = False;
-  if (strcmp(extension, ".amr") == 0) {
-    // Assumed to be an AMR Audio file:
-    NEW_SMS("AMR Audio");
-    sms->addSubsession(AMRAudioFileServerMediaSubsession::createNew(env, fileName, reuseSource));
-  } else if (strcmp(extension, ".m4e") == 0) {
+  if (strcmp(extension, ".m4e") == 0) {
     // Assumed to be a MPEG-4 Video Elementary Stream file:
     NEW_SMS("MPEG-4 Video");
     sms->addSubsession(MPEG4VideoFileServerMediaSubsession::createNew(env, fileName, reuseSource));
