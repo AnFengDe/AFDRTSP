@@ -87,11 +87,6 @@ Boolean Medium::isServerMediaSession() const {
   return False; // default implementation
 }
 
-Boolean Medium::isDarwinInjector() const {
-  return False; // default implementation
-}
-
-
 ////////// _Tables implementation //////////
 
 _Tables* _Tables::getOurTables(UsageEnvironment& env, Boolean createIfNotPresent) {
