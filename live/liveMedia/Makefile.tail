@@ -10,8 +10,6 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-MP3_SOURCE_OBJS = MP3FileSource.$(OBJ) MP3HTTPSource.$(OBJ) MP3Transcoder.$(OBJ) MP3ADU.$(OBJ) MP3ADUdescriptor.$(OBJ) MP3ADUinterleaving.$(OBJ) MP3ADUTranscoder.$(OBJ) MP3StreamState.$(OBJ) MP3Internals.$(OBJ) MP3InternalsHuffman.$(OBJ) MP3InternalsHuffmanTable.$(OBJ) MP3ADURTPSource.$(OBJ)
-
 MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) FramedFileSource.$(OBJ) FramedFilter.$(OBJ) ByteStreamFileSource.$(OBJ) ByteStreamMultiFileSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ) StreamReplicator.$(OBJ)
 MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) VP8VideoRTPSink.$(OBJ) SimpleRTPSink.$(OBJ) T140TextRTPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
@@ -73,28 +71,6 @@ include/BasicUDPSource.hh:	include/FramedSource.hh
 DeviceSource.$(CPP):	include/DeviceSource.hh
 include/DeviceSource.hh:	include/FramedSource.hh
 StreamParser.hh:	include/FramedSource.hh
-MP3FileSource.$(CPP):	include/MP3FileSource.hh MP3StreamState.hh include/InputFile.hh
-include/MP3FileSource.hh:	include/FramedFileSource.hh
-MP3StreamState.hh:	MP3Internals.hh
-MP3Internals.hh:	BitVector.hh
-MP3HTTPSource.$(CPP):	include/MP3HTTPSource.hh MP3StreamState.hh
-include/MP3HTTPSource.hh:	include/MP3FileSource.hh
-MP3Transcoder.$(CPP):	include/MP3ADU.hh include/MP3Transcoder.hh
-include/MP3ADU.hh:		include/FramedFilter.hh
-include/MP3Transcoder.hh:	include/MP3ADU.hh include/MP3ADUTranscoder.hh
-include/MP3ADUTranscoder.hh:	include/FramedFilter.hh
-MP3ADU.$(CPP):		include/MP3ADU.hh MP3ADUdescriptor.hh MP3Internals.hh
-MP3ADUdescriptor.$(CPP):	MP3ADUdescriptor.hh
-MP3ADUinterleaving.$(CPP):	include/MP3ADUinterleaving.hh MP3ADUdescriptor.hh
-include/MP3ADUinterleaving.hh:	include/FramedFilter.hh
-MP3ADUTranscoder.$(CPP):	include/MP3ADUTranscoder.hh MP3Internals.hh
-MP3StreamState.$(CPP):	MP3StreamState.hh include/InputFile.hh
-MP3Internals.$(CPP):	MP3InternalsHuffman.hh
-MP3InternalsHuffman.hh:	MP3Internals.hh
-MP3InternalsHuffman.$(CPP):	MP3InternalsHuffman.hh
-MP3InternalsHuffmanTable.$(CPP):	MP3InternalsHuffman.hh
-MP3ADURTPSource.$(CPP):	include/MP3ADURTPSource.hh MP3ADUdescriptor.hh
-include/MP3ADURTPSource.hh:	include/MultiFramedRTPSource.hh
 InputFile.$(CPP):		include/InputFile.hh
 StreamReplicator.$(CPP):	include/StreamReplicator.hh
 include/StreamReplicator.hh:	include/FramedSource.hh
@@ -167,9 +143,9 @@ our_md5hl.$(C):		our_md5.h
 Base64.$(CPP):	include/Base64.hh
 Locale.$(CPP):	include/Locale.hh
 
-include/liveMedia.hh:: include/BasicUDPSink.hh include/SimpleRTPSink.hh include/ByteStreamMultiFileSource.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh include/SimpleRTPSource.hh include/MP3ADURTPSource.hh include/VP8VideoRTPSource.hh
+include/liveMedia.hh:: include/BasicUDPSink.hh include/SimpleRTPSink.hh include/ByteStreamMultiFileSource.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh include/SimpleRTPSource.hh include/VP8VideoRTPSource.hh
 
-include/liveMedia.hh::	include/MP3HTTPSource.hh include/MP3ADU.hh include/MP3ADUinterleaving.hh include/MP3Transcoder.hh include/VP8VideoRTPSink.hh include/DeviceSource.hh include/StreamReplicator.hh
+include/liveMedia.hh::	include/VP8VideoRTPSink.hh include/DeviceSource.hh include/StreamReplicator.hh
 
 include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh include/QuickTimeGenericRTPSource.hh include/PassiveServerMediaSubsession.hh include/T140TextRTPSink.hh include/TCPStreamSink.hh include/MatroskaFileServerDemux.hh include/DarwinInjector.hh
 
