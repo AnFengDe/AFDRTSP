@@ -38,8 +38,6 @@ public:
   // Test for specific types of source:
   virtual Boolean isFramedSource() const;
   virtual Boolean isRTPSource() const;
-  virtual Boolean isMPEG1or2VideoStreamFramer() const;
-  virtual Boolean isMPEG4VideoStreamFramer() const;
 
 protected:
   MediaSource(UsageEnvironment& env); // abstract base class

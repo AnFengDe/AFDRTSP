@@ -131,11 +131,6 @@ char const* ADUFromMP3Source::MIMEtype() const {
 ADUFromMP3Source* ADUFromMP3Source::createNew(UsageEnvironment& env,
                                               FramedSource* inputSource,
                                               Boolean includeADUdescriptors) {
-  // The source must be a MPEG audio source:
-  if (strcmp(inputSource->MIMEtype(), "audio/MPEG") != 0) {
-    env.setResultMsg(inputSource->name(), " is not an MPEG audio source");
-    return NULL;
-  }
 
   return new ADUFromMP3Source(env, inputSource, includeADUdescriptors);
 }

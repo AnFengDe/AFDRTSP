@@ -60,10 +60,7 @@ int main(int argc, char** argv) {
   *env << "Each file's type is inferred from its name suffix:\n";
   *env << "\t\".264\" => a H.264 Video Elementary Stream file\n";
   *env << "\t\".dv\" => a DV Video file\n";
-  *env << "\t\".m4e\" => a MPEG-4 Video Elementary Stream file\n";
   *env << "\t\".mkv\" => a Matroska audio+video+(optional)subtitles file\n";
-  *env << "\t\".mpg\" => a MPEG-1 or 2 Program Stream (audio+video) file\n";
-  *env << "\t\".ts\" => a MPEG Transport Stream file\n";
   *env << "\t\t(a \".tsx\" index file - if present - provides server 'trick play' support)\n";
   *env << "\t\".webm\" => a WebM audio(Vorbis)+video(VP8) file\n";
   *env << "See http://www.live555.com/mediaServer/ for additional documentation.\n";

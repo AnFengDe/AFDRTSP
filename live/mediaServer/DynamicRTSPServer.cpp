@@ -95,26 +95,7 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 
   ServerMediaSession* sms = NULL;
   Boolean const reuseSource = False;
-  if (strcmp(extension, ".m4e") == 0) {
-    // Assumed to be a MPEG-4 Video Elementary Stream file:
-    NEW_SMS("MPEG-4 Video");
-    sms->addSubsession(MPEG4VideoFileServerMediaSubsession::createNew(env, fileName, reuseSource));
-  } else if (strcmp(extension, ".mpg") == 0) {
-    // Assumed to be a MPEG-1 or 2 Program Stream (audio+video) file:
-    NEW_SMS("MPEG-1 or 2 Program Stream");
-    MPEG1or2FileServerDemux* demux
-      = MPEG1or2FileServerDemux::createNew(env, fileName, reuseSource);
-    sms->addSubsession(demux->newVideoServerMediaSubsession());
-  } else if (strcmp(extension, ".ts") == 0) {
-    // Assumed to be a MPEG Transport Stream file:
-    // Use an index file name that's the same as the TS file name, except with ".tsx":
-    unsigned indexFileNameLen = strlen(fileName) + 2; // allow for trailing "x\0"
-    char* indexFileName = new char[indexFileNameLen];
-    sprintf(indexFileName, "%sx", fileName);
-    NEW_SMS("MPEG Transport Stream");
-    sms->addSubsession(MPEG2TransportFileServerMediaSubsession::createNew(env, fileName, indexFileName, reuseSource));
-    delete[] indexFileName;
-  } else if (strcmp(extension, ".mkv") == 0 || strcmp(extension, ".webm") == 0) {
+  if (strcmp(extension, ".mkv") == 0 || strcmp(extension, ".webm") == 0) {
     // Assumed to be a Matroska file (note that WebM ('.webm') files are also Matroska files)
     NEW_SMS("Matroska video+audio+(optional)subtitles");
 

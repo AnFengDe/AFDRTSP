@@ -43,12 +43,6 @@ Boolean MediaSource::isFramedSource() const {
 Boolean MediaSource::isRTPSource() const {
   return False; // default implementation
 }
-Boolean MediaSource::isMPEG1or2VideoStreamFramer() const {
-  return False; // default implementation
-}
-Boolean MediaSource::isMPEG4VideoStreamFramer() const {
-  return False; // default implementation
-}
 
 Boolean MediaSource::lookupByName(UsageEnvironment& env,
 				  char const* sourceName,

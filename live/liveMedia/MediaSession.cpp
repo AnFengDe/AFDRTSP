@@ -1083,11 +1083,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
       // A UDP-packetized stream (*not* a RTP stream)
       fReadSource = BasicUDPSource::createNew(env(), fRTPSocket);
       fRTPSource = NULL; // Note!
-      
-      if (strcmp(fCodecName, "MP2T") == 0) { // MPEG-2 Transport Stream
-	fReadSource = MPEG2TransportStreamFramer::createNew(env(), fReadSource);
-	// this sets "durationInMicroseconds" correctly, based on the PCR values
-      }
     } else {
       // Check "fCodecName" against the set of codecs that we support,
       // and create our RTP source accordingly
@@ -1100,30 +1095,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 	  = VP8VideoRTPSource::createNew(env(), fRTPSocket,
 					 fRTPPayloadFormat,
 					 fRTPTimestampFrequency);
-      } else if (strcmp(fCodecName, "MP4V-ES") == 0) { // MPEG-4 Elementary Stream video
-	fReadSource = fRTPSource
-	  = MPEG4ESVideoRTPSource::createNew(env(), fRTPSocket,
-					     fRTPPayloadFormat,
-					     fRTPTimestampFrequency);
-      } else if (strcmp(fCodecName, "MPEG4-GENERIC") == 0) {
-	fReadSource = fRTPSource
-	  = MPEG4GenericRTPSource::createNew(env(), fRTPSocket,
-					     fRTPPayloadFormat,
-					     fRTPTimestampFrequency,
-					     fMediumName, fMode,
-					     fSizelength, fIndexlength,
-					     fIndexdeltalength);
-      } else if (strcmp(fCodecName, "MPV") == 0) { // MPEG-1 or 2 video
-	fReadSource = fRTPSource
-	  = MPEG1or2VideoRTPSource::createNew(env(), fRTPSocket,
-					      fRTPPayloadFormat,
-					      fRTPTimestampFrequency);
-      } else if (strcmp(fCodecName, "MP2T") == 0) { // MPEG-2 Transport Stream
-	fRTPSource = SimpleRTPSource::createNew(env(), fRTPSocket, fRTPPayloadFormat,
-						fRTPTimestampFrequency, "video/MP2T",
-						0, False);
-	fReadSource = MPEG2TransportStreamFramer::createNew(env(), fRTPSource);
-	// this sets "durationInMicroseconds" correctly, based on the PCR values
       } else if (strcmp(fCodecName, "X-QT") == 0
 		 || strcmp(fCodecName, "X-QUICKTIME") == 0) {
 	// Generic QuickTime streams, as defined in
@@ -1140,8 +1111,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
       } else if (  strcmp(fCodecName, "PCMU") == 0 // PCM u-law audio
 		   || strcmp(fCodecName, "GSM") == 0 // GSM audio
 		   || strcmp(fCodecName, "PCMA") == 0 // PCM a-law audio
-		   || strcmp(fCodecName, "MP1S") == 0 // MPEG-1 System Stream
-		   || strcmp(fCodecName, "MP2P") == 0 // MPEG-2 Program Stream
 		   || strcmp(fCodecName, "L8") == 0 // 8-bit linear audio
 		   || strcmp(fCodecName, "L16") == 0 // 16-bit linear audio
 		   || strcmp(fCodecName, "L20") == 0 // 20-bit linear audio (RFC 3190)
