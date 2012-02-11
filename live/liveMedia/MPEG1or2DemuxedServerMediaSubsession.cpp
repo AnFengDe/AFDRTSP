@@ -20,8 +20,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // Implementation
 
 #include "MPEG1or2DemuxedServerMediaSubsession.hh"
-#include "MPEG1or2AudioStreamFramer.hh"
-#include "MPEG1or2AudioRTPSink.hh"
 #include "MPEG1or2VideoStreamFramer.hh"
 #include "MPEG1or2VideoRTPSink.hh"
 #include "ByteStreamFileSource.hh"
@@ -53,10 +51,7 @@ FramedSource* MPEG1or2DemuxedServerMediaSubsession
     es = fOurDemux.newElementaryStream(clientSessionId, fStreamIdTag);
     if (es == NULL) break;
 
-    if ((fStreamIdTag&0xF0) == 0xC0 /*MPEG audio*/) {
-      estBitrate = 128; // kbps, estimate
-      return MPEG1or2AudioStreamFramer::createNew(envir(), es);
-    } else if ((fStreamIdTag&0xF0) == 0xE0 /*video*/) {
+    if ((fStreamIdTag&0xF0) == 0xE0 /*video*/) {
       estBitrate = 500; // kbps, estimate
       return MPEG1or2VideoStreamFramer::createNew(envir(), es,
 						  fIFramesOnly, fVSHPeriod);
@@ -73,9 +68,7 @@ FramedSource* MPEG1or2DemuxedServerMediaSubsession
 RTPSink* MPEG1or2DemuxedServerMediaSubsession
 ::createNewRTPSink(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic,
 		   FramedSource* inputSource) {
-  if ((fStreamIdTag&0xF0) == 0xC0 /*MPEG audio*/) {
-    return MPEG1or2AudioRTPSink::createNew(envir(), rtpGroupsock);
-  } else if ((fStreamIdTag&0xF0) == 0xE0 /*video*/) {
+  if ((fStreamIdTag&0xF0) == 0xE0 /*video*/) {
     return MPEG1or2VideoRTPSink::createNew(envir(), rtpGroupsock);
   } else {
     return NULL;
@@ -90,10 +83,7 @@ void MPEG1or2DemuxedServerMediaSubsession
 
   // "inputSource" is a 'framer'
   // Flush its data, to account for the seek that we're about to do:
-  if ((fStreamIdTag&0xF0) == 0xC0 /*MPEG audio*/) {
-    MPEG1or2AudioStreamFramer* framer = (MPEG1or2AudioStreamFramer*)inputSource;
-    framer->flushInput();
-  } else if ((fStreamIdTag&0xF0) == 0xE0 /*video*/) {
+  if ((fStreamIdTag&0xF0) == 0xE0 /*video*/) {
     MPEG1or2VideoStreamFramer* framer = (MPEG1or2VideoStreamFramer*)inputSource;
     framer->flushInput();
   }

@@ -62,11 +62,9 @@ int main(int argc, char** argv) {
   *env << "\t\".dv\" => a DV Video file\n";
   *env << "\t\".m4e\" => a MPEG-4 Video Elementary Stream file\n";
   *env << "\t\".mkv\" => a Matroska audio+video+(optional)subtitles file\n";
-  *env << "\t\".mp3\" => a MPEG-1 or 2 Audio file\n";
   *env << "\t\".mpg\" => a MPEG-1 or 2 Program Stream (audio+video) file\n";
   *env << "\t\".ts\" => a MPEG Transport Stream file\n";
   *env << "\t\t(a \".tsx\" index file - if present - provides server 'trick play' support)\n";
-  *env << "\t\".wav\" => a WAV Audio file\n";
   *env << "\t\".webm\" => a WebM audio(Vorbis)+video(VP8) file\n";
   *env << "See http://www.live555.com/mediaServer/ for additional documentation.\n";
 

@@ -99,34 +99,12 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
     // Assumed to be a MPEG-4 Video Elementary Stream file:
     NEW_SMS("MPEG-4 Video");
     sms->addSubsession(MPEG4VideoFileServerMediaSubsession::createNew(env, fileName, reuseSource));
-  } else if (strcmp(extension, ".mp3") == 0) {
-    // Assumed to be a MPEG-1 or 2 Audio file:
-    NEW_SMS("MPEG-1 or 2 Audio");
-    // To stream using 'ADUs' rather than raw MP3 frames, uncomment the following:
-//#define STREAM_USING_ADUS 1
-    // To also reorder ADUs before streaming, uncomment the following:
-//#define INTERLEAVE_ADUS 1
-    // (For more information about ADUs and interleaving,
-    //  see <http://www.live555.com/rtp-mp3/>)
-    Boolean useADUs = False;
-    Interleaving* interleaving = NULL;
-#ifdef STREAM_USING_ADUS
-    useADUs = True;
-#ifdef INTERLEAVE_ADUS
-    unsigned char interleaveCycle[] = {0,2,1,3}; // or choose your own...
-    unsigned const interleaveCycleSize
-      = (sizeof interleaveCycle)/(sizeof (unsigned char));
-    interleaving = new Interleaving(interleaveCycleSize, interleaveCycle);
-#endif
-#endif
-    sms->addSubsession(MP3AudioFileServerMediaSubsession::createNew(env, fileName, reuseSource, useADUs, interleaving));
   } else if (strcmp(extension, ".mpg") == 0) {
     // Assumed to be a MPEG-1 or 2 Program Stream (audio+video) file:
     NEW_SMS("MPEG-1 or 2 Program Stream");
     MPEG1or2FileServerDemux* demux
       = MPEG1or2FileServerDemux::createNew(env, fileName, reuseSource);
     sms->addSubsession(demux->newVideoServerMediaSubsession());
-    sms->addSubsession(demux->newAudioServerMediaSubsession());
   } else if (strcmp(extension, ".ts") == 0) {
     // Assumed to be a MPEG Transport Stream file:
     // Use an index file name that's the same as the TS file name, except with ".tsx":
@@ -136,13 +114,6 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
     NEW_SMS("MPEG Transport Stream");
     sms->addSubsession(MPEG2TransportFileServerMediaSubsession::createNew(env, fileName, indexFileName, reuseSource));
     delete[] indexFileName;
-  } else if (strcmp(extension, ".wav") == 0) {
-    // Assumed to be a WAV Audio file:
-    NEW_SMS("WAV Audio Stream");
-    // To convert 16-bit PCM data to 8-bit u-law, prior to streaming,
-    // change the following to True:
-    Boolean convertToULaw = False;
-    sms->addSubsession(WAVAudioFileServerMediaSubsession::createNew(env, fileName, reuseSource, convertToULaw));
   } else if (strcmp(extension, ".dv") == 0) {
     // Assumed to be a DV Video file
     // First, make sure that the RTPSinks' buffers will be large enough to handle the huge size of DV frames (as big as 288000).

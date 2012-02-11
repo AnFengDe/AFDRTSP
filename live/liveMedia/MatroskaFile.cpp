@@ -69,7 +69,7 @@ MatroskaFile::MatroskaFile(UsageEnvironment& env, char const* fileName, onCreati
     fFileName(strDup(fileName)), fOnCreation(onCreation), fOnCreationClientData(onCreationClientData),
     fPreferredLanguage(strDup(preferredLanguage)),
     fTimecodeScale(1000000), fSegmentDuration(0.0), fSegmentDataOffset(0), fClusterOffset(0), fCuesOffset(0), fCuePoints(NULL),
-    fChosenVideoTrackNumber(0), fChosenAudioTrackNumber(0), fChosenSubtitleTrackNumber(0) {
+    fChosenSubtitleTrackNumber(0) {
   fDemuxesTable = HashTable::create(ONE_WORD_HASH_KEYS);
 
   // Initialize ourselves by parsing the file's 'Track' headers:
@@ -153,7 +153,6 @@ void MatroskaFile::handleEndOfTrackHeaderParsing() {
       }
       if (bestChoiceFlags >= 0) { // There is a track for this track type
 	if (trackType == MATROSKA_TRACK_TYPE_VIDEO) fChosenVideoTrackNumber = trackChoice[bestNum].trackNumber;
-	else if (trackType == MATROSKA_TRACK_TYPE_AUDIO) fChosenAudioTrackNumber = trackChoice[bestNum].trackNumber;
 	else fChosenSubtitleTrackNumber = trackChoice[bestNum].trackNumber;
       }
     }
@@ -163,7 +162,6 @@ void MatroskaFile::handleEndOfTrackHeaderParsing() {
   
 #ifdef DEBUG
   if (fChosenVideoTrackNumber > 0) fprintf(stderr, "Chosen video track: #%d\n", fChosenVideoTrackNumber); else fprintf(stderr, "No chosen video track\n");
-  if (fChosenAudioTrackNumber > 0) fprintf(stderr, "Chosen audio track: #%d\n", fChosenAudioTrackNumber); else fprintf(stderr, "No chosen audio track\n");
   if (fChosenSubtitleTrackNumber > 0) fprintf(stderr, "Chosen subtitle track: #%d\n", fChosenSubtitleTrackNumber); else fprintf(stderr, "No chosen subtitle track\n");
 #endif
 

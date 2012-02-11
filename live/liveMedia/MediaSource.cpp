@@ -58,9 +58,6 @@ Boolean MediaSource::isDVVideoStreamFramer() const {
 Boolean MediaSource::isJPEGVideoSource() const {
   return False; // default implementation
 }
-Boolean MediaSource::isAMRAudioSource() const {
-  return False; // default implementation
-}
 
 Boolean MediaSource::lookupByName(UsageEnvironment& env,
 				  char const* sourceName,

@@ -80,7 +80,6 @@ public:
   char const* fileName() const { return fFileName; }
 
   unsigned chosenVideoTrackNumber() { return fChosenVideoTrackNumber; }
-  unsigned chosenAudioTrackNumber() { return fChosenAudioTrackNumber; }
   unsigned chosenSubtitleTrackNumber() { return fChosenSubtitleTrackNumber; }
 
 private:
@@ -113,7 +112,7 @@ private:
   TrackTable fTracks;
   HashTable* fDemuxesTable;
   class CuePoint* fCuePoints;
-  unsigned fChosenVideoTrackNumber, fChosenAudioTrackNumber, fChosenSubtitleTrackNumber;
+  unsigned fChosenVideoTrackNumber, fChosenSubtitleTrackNumber;
   class MatroskaFileParser* fParserForInitialization;
 };
 

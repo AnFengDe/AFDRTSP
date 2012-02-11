@@ -19,9 +19,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // Implementation
 
 #include "MatroskaFileServerDemux.hh"
-#include "MP3AudioMatroskaFileServerMediaSubsession.hh"
-#include "AACAudioMatroskaFileServerMediaSubsession.hh"
-#include "VorbisAudioMatroskaFileServerMediaSubsession.hh"
 #include "VP8VideoMatroskaFileServerMediaSubsession.hh"
 #include "T140TextMatroskaFileServerMediaSubsession.hh"
 
@@ -36,7 +33,6 @@ ServerMediaSubsession* MatroskaFileServerDemux::newServerMediaSubsession() {
   for (result = NULL; result == NULL && fNextTrackTypeToCheck != MATROSKA_TRACK_TYPE_OTHER; fNextTrackTypeToCheck <<= 1) {
     unsigned trackNumber = 0;
     if (fNextTrackTypeToCheck == MATROSKA_TRACK_TYPE_VIDEO) trackNumber = fOurMatroskaFile->chosenVideoTrackNumber();
-    else if (fNextTrackTypeToCheck == MATROSKA_TRACK_TYPE_AUDIO) trackNumber = fOurMatroskaFile->chosenAudioTrackNumber();
     else if (fNextTrackTypeToCheck == MATROSKA_TRACK_TYPE_SUBTITLE) trackNumber = fOurMatroskaFile->chosenSubtitleTrackNumber();
 
     result = newServerMediaSubsession(trackNumber);
@@ -51,16 +47,7 @@ ServerMediaSubsession* MatroskaFileServerDemux::newServerMediaSubsession(unsigne
 
   // Use the track's "codecID" string to figure out which "ServerMediaSubsession" subclass to use:
   ServerMediaSubsession* result = NULL;
-  if (strncmp(track->codecID, "A_MPEG", 6) == 0) {
-    track->mimeType = "audio/MPEG";
-    result = MP3AudioMatroskaFileServerMediaSubsession::createNew(*this, track->trackNumber, False, NULL);
-  } else if (strncmp(track->codecID, "A_AAC", 5) == 0) {
-    track->mimeType = "audio/AAC";
-    result = AACAudioMatroskaFileServerMediaSubsession::createNew(*this, track->trackNumber);
-  } else if (strncmp(track->codecID, "A_VORBIS", 8) == 0) {
-    track->mimeType = "audio/VORBIS";
-    result = VorbisAudioMatroskaFileServerMediaSubsession::createNew(*this, track->trackNumber);
-  } else if (strncmp(track->codecID, "V_VP8", 5) == 0) {
+  if (strncmp(track->codecID, "V_VP8", 5) == 0) {
     track->mimeType = "video/VP8";
     result = VP8VideoMatroskaFileServerMediaSubsession::createNew(*this, track->trackNumber);
   } else if (strncmp(track->codecID, "S_TEXT", 6) == 0) {

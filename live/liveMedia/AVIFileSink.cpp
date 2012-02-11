@@ -79,7 +79,7 @@ public:
   Boolean fOurSourceIsActive;
   struct timeval fPrevPresentationTime;
   unsigned fMaxBytesPerSecond;
-  Boolean fIsVideo, fIsAudio, fIsByteSwappedAudio;
+  Boolean fIsVideo;
   unsigned fAVISubsessionTag;
   unsigned fAVICodecHandlerType;
   unsigned fAVISamplingFrequency; // for audio
@@ -289,7 +289,6 @@ void AVIFileSink::completeOutputFile() {
   // we've now written to the file:
   unsigned maxBytesPerSecond = 0;
   unsigned numVideoFrames = 0;
-  unsigned numAudioFrames = 0;
 
   //// Subsession-specific fields:
   MediaSubsessionIterator iter(fInputSession);
@@ -303,7 +302,6 @@ void AVIFileSink::completeOutputFile() {
 
     setWord(ioState->fSTRHFrameCountPosition, ioState->fNumFrames);
     if (ioState->fIsVideo) numVideoFrames = ioState->fNumFrames;
-    else if (ioState->fIsAudio) numAudioFrames = ioState->fNumFrames;
   }
 
   //// Global fields:
@@ -312,7 +310,7 @@ void AVIFileSink::completeOutputFile() {
 
   setWord(fAVIHMaxBytesPerSecondPosition, maxBytesPerSecond);
   setWord(fAVIHFrameCountPosition,
-	  numVideoFrames > 0 ? numVideoFrames : numAudioFrames);
+	  numVideoFrames > 0 ? numVideoFrames : 0);
 
   fMoviSizeValue += fNumBytesWritten;
   setWord(fMoviSizePosition, fMoviSizeValue);
@@ -327,7 +325,7 @@ void AVIFileSink::completeOutputFile() {
 AVISubsessionIOState::AVISubsessionIOState(AVIFileSink& sink,
 				     MediaSubsession& subsession)
   : fOurSink(sink), fOurSubsession(subsession),
-    fMaxBytesPerSecond(0), fIsVideo(False), fIsAudio(False), fIsByteSwappedAudio(False), fNumFrames(0) {
+    fMaxBytesPerSecond(0), fIsVideo(False), fNumFrames(0) {
   fBuffer = new SubsessionBuffer(fOurSink.fBufferSize);
   fPrevBuffer = sink.fPacketLossCompensate
     ? new SubsessionBuffer(fOurSink.fBufferSize) : NULL;
@@ -345,7 +343,6 @@ AVISubsessionIOState::~AVISubsessionIOState() {
 
 void AVISubsessionIOState::setAVIstate(unsigned subsessionIndex) {
   fIsVideo = strcmp(fOurSubsession.mediumName(), "video") == 0;
-  fIsAudio = strcmp(fOurSubsession.mediumName(), "audio") == 0;
 
   if (fIsVideo) {
     fAVISubsessionTag
@@ -362,39 +359,6 @@ void AVISubsessionIOState::setAVIstate(unsigned subsessionIndex) {
     fAVIScale = 1; // ??? #####
     fAVIRate = fOurSink.fMovieFPS; // ??? #####
     fAVISize = fOurSink.fMovieWidth*fOurSink.fMovieHeight*3; // ??? #####
-  } else if (fIsAudio) {
-    fIsByteSwappedAudio = False; // by default
-    fAVISubsessionTag
-      = fourChar('0'+subsessionIndex/10,'0'+subsessionIndex%10,'w','b');
-    fAVICodecHandlerType = 1; // ??? ####
-    unsigned numChannels = fOurSubsession.numChannels();
-    fAVISamplingFrequency = fOurSubsession.rtpTimestampFrequency(); // default
-    if (strcmp(fOurSubsession.codecName(), "L16") == 0) {
-      fIsByteSwappedAudio = True; // need to byte-swap data before writing it
-      fWAVCodecTag = 0x0001;
-      fAVIScale = fAVISize = 2*numChannels; // 2 bytes/sample
-      fAVIRate = fAVISize*fAVISamplingFrequency;
-    } else if (strcmp(fOurSubsession.codecName(), "L8") == 0) {
-      fWAVCodecTag = 0x0001;
-      fAVIScale = fAVISize = numChannels; // 1 byte/sample
-      fAVIRate = fAVISize*fAVISamplingFrequency;
-    } else if (strcmp(fOurSubsession.codecName(), "PCMA") == 0) {
-      fWAVCodecTag = 0x0006;
-      fAVIScale = fAVISize = numChannels; // 1 byte/sample
-      fAVIRate = fAVISize*fAVISamplingFrequency;
-    } else if (strcmp(fOurSubsession.codecName(), "PCMU") == 0) {
-      fWAVCodecTag = 0x0007;
-      fAVIScale = fAVISize = numChannels; // 1 byte/sample
-      fAVIRate = fAVISize*fAVISamplingFrequency;
-    } else if (strcmp(fOurSubsession.codecName(), "MPA") == 0) {
-      fWAVCodecTag = 0x0050;
-      fAVIScale = fAVISize = 1;
-      fAVIRate = 0; // ??? #####
-    } else {
-      fWAVCodecTag = 0x0001; // ??? #####
-      fAVIScale = fAVISize = 1;
-      fAVIRate = 0; // ??? #####
-    }
   } else { // unknown medium
     fAVISubsessionTag
       = fourChar('0'+subsessionIndex/10,'0'+subsessionIndex%10,'?','?');
@@ -454,16 +418,6 @@ void AVISubsessionIOState::useFrame(SubsessionBuffer& buffer) {
     }
   }
   fPrevPresentationTime = presentationTime;
-
-  if (fIsByteSwappedAudio) {
-    // We need to swap the 16-bit audio samples from big-endian
-    // to little-endian order, before writing them to a file:
-    for (unsigned i = 0; i < frameSize; i += 2) {
-      unsigned char tmp = frameSource[i];
-      frameSource[i] = frameSource[i+1];
-      frameSource[i+1] = tmp;
-    }
-  }
 
   // Write the data into the file:
   fOurSink.fNumBytesWritten += fOurSink.addWord(fAVISubsessionTag);
@@ -621,7 +575,6 @@ addFileHeaderEnd;
 
 addFileHeader1(strh);
     size += add4ByteString(fCurrentIOState->fIsVideo ? "vids" :
-			   fCurrentIOState->fIsAudio ? "auds" :
 			   "????"); // fccType
     size += addWord(fCurrentIOState->fAVICodecHandlerType); // fccHandler
     size += addWord(0); // dwFlags
@@ -657,28 +610,6 @@ addFileHeader1(strf);
       size += addWord(fCurrentIOState->fAVISize);
       size += addZeroWords(4); // ??? #####
       // Later, add extra data here (if any) #####
-    } else if (fCurrentIOState->fIsAudio) {
-      // Add a WAVFORMATEX header:
-      size += addHalfWord(fCurrentIOState->fWAVCodecTag);
-      unsigned numChannels = fCurrentIOState->fOurSubsession.numChannels();
-      size += addHalfWord(numChannels);
-      size += addWord(fCurrentIOState->fAVISamplingFrequency);
-      size += addWord(fCurrentIOState->fAVIRate); // bytes per second
-      size += addHalfWord(fCurrentIOState->fAVISize); // block alignment
-      unsigned bitsPerSample = (fCurrentIOState->fAVISize*8)/numChannels;
-      size += addHalfWord(bitsPerSample);
-      if (strcmp(fCurrentIOState->fOurSubsession.codecName(), "MPA") == 0) {
-	// Assume MPEG layer II audio (not MP3): #####
-	size += addHalfWord(22); // wav_extra_size
-	size += addHalfWord(2); // fwHeadLayer
-	size += addWord(8*fCurrentIOState->fAVIRate); // dwHeadBitrate #####
-	size += addHalfWord(numChannels == 2 ? 1: 8); // fwHeadMode
-	size += addHalfWord(0); // fwHeadModeExt
-	size += addHalfWord(1); // wHeadEmphasis
-	size += addHalfWord(16); // fwHeadFlags
-	size += addWord(0); // dwPTSLow
-	size += addWord(0); // dwPTSHigh
-      }
     }
 addFileHeaderEnd;
 

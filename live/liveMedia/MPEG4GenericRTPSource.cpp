@@ -20,7 +20,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #include "MPEG4GenericRTPSource.hh"
 #include "BitVector.hh"
-#include "MPEG4LATMAudioRTPSource.hh" // for parseGeneralConfigStr()
 
 ////////// MPEG4GenericBufferedPacket and MPEG4GenericBufferedPacketFactory
 
@@ -214,7 +213,7 @@ unsigned samplingFrequencyFromAudioSpecificConfig(char const* configStr) {
   do {
     // Begin by parsing the config string:
     unsigned configSize;
-    config = parseGeneralConfigStr(configStr, configSize);
+    config = NULL;
     if (config == NULL) break;
 
     if (configSize < 2) break;
