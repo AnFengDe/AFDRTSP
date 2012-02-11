@@ -23,8 +23,6 @@ RTSP_OBJS = RTSPServer.$(OBJ) RTSPClient.$(OBJ) RTSPCommon.$(OBJ) RTSPServerSupp
 
 SESSION_OBJS = MediaSession.$(OBJ) ServerMediaSession.$(OBJ) PassiveServerMediaSubsession.$(OBJ) OnDemandServerMediaSubsession.$(OBJ) FileServerMediaSubsession.$(OBJ) 
 
-QUICKTIME_OBJS = QuickTimeGenericRTPSource.$(OBJ)
-
 MISC_OBJS = DarwinInjector.$(OBJ) BitVector.$(OBJ) StreamParser.$(OBJ) DigestAuthentication.$(OBJ) our_md5.$(OBJ) our_md5hl.$(OBJ) Base64.$(OBJ) Locale.$(OBJ)
 
 LIVEMEDIA_LIB_OBJS = Media.$(OBJ) $(MISC_SOURCE_OBJS) $(MISC_SINK_OBJS) $(MISC_FILTER_OBJS) $(RTP_OBJS) $(RTCP_OBJS) $(RTSP_OBJS) $(SESSION_OBJS) $(QUICKTIME_OBJS) $(TRANSPORT_STREAM_TRICK_PLAY_OBJS) $(MATROSKA_OBJS) $(MISC_OBJS)
@@ -105,8 +103,6 @@ OnDemandServerMediaSubsession.$(CPP):	include/OnDemandServerMediaSubsession.hh
 include/OnDemandServerMediaSubsession.hh:	include/ServerMediaSession.hh include/RTPSink.hh include/BasicUDPSink.hh include/RTCP.hh
 FileServerMediaSubsession.$(CPP):	include/FileServerMediaSubsession.hh
 include/FileServerMediaSubsession.hh:	include/OnDemandServerMediaSubsession.hh
-QuickTimeGenericRTPSource.$(CPP):	include/QuickTimeGenericRTPSource.hh
-include/QuickTimeGenericRTPSource.hh:	include/MultiFramedRTPSource.hh
 EBMLNumber.$(CPP): EBMLNumber.hh
 DarwinInjector.$(CPP):	include/DarwinInjector.hh
 include/DarwinInjector.hh:	include/RTSPClient.hh include/RTCP.hh
@@ -122,7 +118,7 @@ include/liveMedia.hh:: include/BasicUDPSink.hh include/SimpleRTPSink.hh include/
 
 include/liveMedia.hh::	include/DeviceSource.hh include/StreamReplicator.hh
 
-include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh include/QuickTimeGenericRTPSource.hh include/PassiveServerMediaSubsession.hh include/TCPStreamSink.hh include/DarwinInjector.hh
+include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh include/PassiveServerMediaSubsession.hh include/TCPStreamSink.hh include/DarwinInjector.hh
 
 clean:
 	-rm -rf *.$(OBJ) $(ALL) core *.core *~ include/*~

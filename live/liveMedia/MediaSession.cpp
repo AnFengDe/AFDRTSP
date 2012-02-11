@@ -1090,20 +1090,7 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
       // (Also, add more fmts that can be implemented by SimpleRTPSource#####)
       Boolean createSimpleRTPSource = False; // by default; can be changed below
       Boolean doNormalMBitRule = False; // default behavior if "createSimpleRTPSource" is True
-      if (strcmp(fCodecName, "X-QT") == 0
-		 || strcmp(fCodecName, "X-QUICKTIME") == 0) {
-	// Generic QuickTime streams, as defined in
-	// <http://developer.apple.com/quicktime/icefloe/dispatch026.html>
-	char* mimeType
-	  = new char[strlen(mediumName()) + strlen(codecName()) + 2] ;
-	sprintf(mimeType, "%s/%s", mediumName(), codecName());
-	fReadSource = fRTPSource
-	  = QuickTimeGenericRTPSource::createNew(env(), fRTPSocket,
-						 fRTPPayloadFormat,
-						 fRTPTimestampFrequency,
-						 mimeType);
-	delete[] mimeType;
-      } else if (  strcmp(fCodecName, "PCMU") == 0 // PCM u-law audio
+      if (  strcmp(fCodecName, "PCMU") == 0 // PCM u-law audio
 		   || strcmp(fCodecName, "GSM") == 0 // GSM audio
 		   || strcmp(fCodecName, "PCMA") == 0 // PCM a-law audio
 		   || strcmp(fCodecName, "L8") == 0 // 8-bit linear audio

@@ -34,7 +34,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "StreamReplicator.hh"
 #include "RTSPServerSupportingHTTPStreaming.hh"
 #include "RTSPClient.hh"
-#include "QuickTimeGenericRTPSource.hh"
 #include "PassiveServerMediaSubsession.hh"
 #include "TCPStreamSink.hh"
 #include "DarwinInjector.hh"
