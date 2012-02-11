@@ -11,9 +11,9 @@ all:	$(ALL)
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
 MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) FramedFileSource.$(OBJ) FramedFilter.$(OBJ) ByteStreamFileSource.$(OBJ) ByteStreamMultiFileSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ) StreamReplicator.$(OBJ)
-MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) VP8VideoRTPSink.$(OBJ) SimpleRTPSink.$(OBJ) T140TextRTPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
+MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) SimpleRTPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
-RTP_SOURCE_OBJS = RTPSource.$(OBJ) MultiFramedRTPSource.$(OBJ) SimpleRTPSource.$(OBJ) VP8VideoRTPSource.$(OBJ)
+RTP_SOURCE_OBJS = RTPSource.$(OBJ) MultiFramedRTPSource.$(OBJ) SimpleRTPSource.$(OBJ) 
 RTP_SINK_OBJS = RTPSink.$(OBJ) MultiFramedRTPSink.$(OBJ) VideoRTPSink.$(OBJ) TextRTPSink.$(OBJ)
 RTP_INTERFACE_OBJS = RTPInterface.$(OBJ)
 RTP_OBJS = $(RTP_SOURCE_OBJS) $(RTP_SINK_OBJS) $(RTP_INTERFACE_OBJS)
@@ -24,13 +24,6 @@ RTSP_OBJS = RTSPServer.$(OBJ) RTSPClient.$(OBJ) RTSPCommon.$(OBJ) RTSPServerSupp
 SESSION_OBJS = MediaSession.$(OBJ) ServerMediaSession.$(OBJ) PassiveServerMediaSubsession.$(OBJ) OnDemandServerMediaSubsession.$(OBJ) FileServerMediaSubsession.$(OBJ) 
 
 QUICKTIME_OBJS = QuickTimeGenericRTPSource.$(OBJ)
-
-MATROSKA_FILE_OBJS = MatroskaFile.$(OBJ) MatroskaFileParser.$(OBJ) EBMLNumber.$(OBJ) MatroskaDemuxedTrack.$(OBJ)
-MATROSKA_SERVER_MEDIA_SUBSESSION_VIDEO_OBJS = VP8VideoMatroskaFileServerMediaSubsession.$(OBJ)
-MATROSKA_SERVER_MEDIA_SUBSESSION_TEXT_OBJS = T140TextMatroskaFileServerMediaSubsession.$(OBJ)
-MATROSKA_SERVER_MEDIA_SUBSESSION_OBJS = $(MATROSKA_SERVER_MEDIA_SUBSESSION_VIDEO_OBJS) $(MATROSKA_SERVER_MEDIA_SUBSESSION_AUDIO_OBJS) $(MATROSKA_SERVER_MEDIA_SUBSESSION_TEXT_OBJS)
-MATROSKA_RTSP_SERVER_OBJS = MatroskaFileServerDemux.$(OBJ) $(MATROSKA_SERVER_MEDIA_SUBSESSION_OBJS)
-MATROSKA_OBJS = $(MATROSKA_FILE_OBJS) $(MATROSKA_RTSP_SERVER_OBJS)
 
 MISC_OBJS = DarwinInjector.$(OBJ) BitVector.$(OBJ) StreamParser.$(OBJ) DigestAuthentication.$(OBJ) our_md5.$(OBJ) our_md5hl.$(OBJ) Base64.$(OBJ) Locale.$(OBJ)
 
@@ -58,8 +51,6 @@ MultiFramedRTPSource.$(CPP):	include/MultiFramedRTPSource.hh
 include/MultiFramedRTPSource.hh:	include/RTPSource.hh
 SimpleRTPSource.$(CPP):	include/SimpleRTPSource.hh
 include/SimpleRTPSource.hh:	include/MultiFramedRTPSource.hh
-VP8VideoRTPSource.$(CPP):	include/VP8VideoRTPSource.hh
-include/VP8VideoRTPSource.hh:	include/MultiFramedRTPSource.hh
 ByteStreamFileSource.$(CPP):	include/ByteStreamFileSource.hh include/InputFile.hh
 include/ByteStreamFileSource.hh:	include/FramedFileSource.hh
 ByteStreamMultiFileSource.$(CPP):	include/ByteStreamMultiFileSource.hh
@@ -89,12 +80,8 @@ include/VideoRTPSink.hh:	include/MultiFramedRTPSink.hh
 TextRTPSink.$(CPP):		include/TextRTPSink.hh
 include/TextRTPSink.hh:		include/MultiFramedRTPSink.hh
 RTPInterface.$(CPP):		include/RTPInterface.hh
-VP8VideoRTPSink.$(CPP):		include/VP8VideoRTPSink.hh
-include/VP8VideoRTPSink.hh:	include/VideoRTPSink.hh
 SimpleRTPSink.$(CPP):		include/SimpleRTPSink.hh
 include/SimpleRTPSink.hh:	include/MultiFramedRTPSink.hh
-T140TextRTPSink.$(CPP):		include/T140TextRTPSink.hh
-include/T140TextRTPSink.hh:	include/TextRTPSink.hh include/FramedFilter.hh
 TCPStreamSink.$(CPP):		include/TCPStreamSink.hh
 include/TCPStreamSink.hh:	include/MediaSink.hh
 OutputFile.$(CPP):		include/OutputFile.hh
@@ -120,19 +107,7 @@ FileServerMediaSubsession.$(CPP):	include/FileServerMediaSubsession.hh
 include/FileServerMediaSubsession.hh:	include/OnDemandServerMediaSubsession.hh
 QuickTimeGenericRTPSource.$(CPP):	include/QuickTimeGenericRTPSource.hh
 include/QuickTimeGenericRTPSource.hh:	include/MultiFramedRTPSource.hh
-MatroskaFile.$(CPP): MatroskaFileParser.hh MatroskaDemuxedTrack.hh include/ByteStreamFileSource.hh
-MatroskaFileParser.hh:	StreamParser.hh include/MatroskaFile.hh EBMLNumber.hh
-include/MatroskaFile.hh: include/Media.hh
-MatroskaDemuxedTrack.hh:	include/FramedSource.hh
-MatroskaFileParser.$(CPP): MatroskaFileParser.hh MatroskaDemuxedTrack.hh include/ByteStreamFileSource.hh
 EBMLNumber.$(CPP): EBMLNumber.hh
-MatroskaDemuxedTrack.$(CPP): MatroskaDemuxedTrack.hh include/MatroskaFile.hh
-VP8VideoMatroskaFileServerMediaSubsession.$(CPP): VP8VideoMatroskaFileServerMediaSubsession.hh include/VP8VideoRTPSink.hh
-VP8VideoMatroskaFileServerMediaSubsession.hh: include/FileServerMediaSubsession.hh include/MatroskaFileServerDemux.hh MatroskaDemuxedTrack.hh
-T140TextMatroskaFileServerMediaSubsession.$(CPP): T140TextMatroskaFileServerMediaSubsession.hh include/T140TextRTPSink.hh
-T140TextMatroskaFileServerMediaSubsession.hh: include/FileServerMediaSubsession.hh include/MatroskaFileServerDemux.hh MatroskaDemuxedTrack.hh
-MatroskaFileServerDemux.$(CPP): include/MatroskaFileServerDemux.hh VP8VideoMatroskaFileServerMediaSubsession.hh T140TextMatroskaFileServerMediaSubsession.hh
-include/MatroskaFileServerDemux.hh: include/ServerMediaSession.hh include/MatroskaFile.hh
 DarwinInjector.$(CPP):	include/DarwinInjector.hh
 include/DarwinInjector.hh:	include/RTSPClient.hh include/RTCP.hh
 BitVector.$(CPP):	BitVector.hh
@@ -143,11 +118,11 @@ our_md5hl.$(C):		our_md5.h
 Base64.$(CPP):	include/Base64.hh
 Locale.$(CPP):	include/Locale.hh
 
-include/liveMedia.hh:: include/BasicUDPSink.hh include/SimpleRTPSink.hh include/ByteStreamMultiFileSource.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh include/SimpleRTPSource.hh include/VP8VideoRTPSource.hh
+include/liveMedia.hh:: include/BasicUDPSink.hh include/SimpleRTPSink.hh include/ByteStreamMultiFileSource.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh include/SimpleRTPSource.hh 
 
-include/liveMedia.hh::	include/VP8VideoRTPSink.hh include/DeviceSource.hh include/StreamReplicator.hh
+include/liveMedia.hh::	include/DeviceSource.hh include/StreamReplicator.hh
 
-include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh include/QuickTimeGenericRTPSource.hh include/PassiveServerMediaSubsession.hh include/T140TextRTPSink.hh include/TCPStreamSink.hh include/MatroskaFileServerDemux.hh include/DarwinInjector.hh
+include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh include/QuickTimeGenericRTPSource.hh include/PassiveServerMediaSubsession.hh include/TCPStreamSink.hh include/DarwinInjector.hh
 
 clean:
 	-rm -rf *.$(OBJ) $(ALL) core *.core *~ include/*~

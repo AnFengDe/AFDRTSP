@@ -72,15 +72,6 @@ DynamicRTSPServer::lookupServerMediaSession(char const* streamName) {
   }
 }
 
-// Special code for handling Matroska files:
-static char newMatroskaDemuxWatchVariable;
-static MatroskaFileServerDemux* demux;
-static void onMatroskaDemuxCreation(MatroskaFileServerDemux* newDemux, void* /*clientData*/) {
-  demux = newDemux;
-  newMatroskaDemuxWatchVariable = 1;
-}
-// END Special code for handling Matroska files:
-
 #define NEW_SMS(description) do {\
 char const* descStr = description\
     ", streamed by the LIVE555 Media Server";\
@@ -95,20 +86,6 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 
   ServerMediaSession* sms = NULL;
   Boolean const reuseSource = False;
-  if (strcmp(extension, ".mkv") == 0 || strcmp(extension, ".webm") == 0) {
-    // Assumed to be a Matroska file (note that WebM ('.webm') files are also Matroska files)
-    NEW_SMS("Matroska video+audio+(optional)subtitles");
-
-    // Create a Matroska file server demultiplexor for the specified file.  (We enter the event loop to wait for this to complete.)
-    newMatroskaDemuxWatchVariable = 0;
-    MatroskaFileServerDemux::createNew(env, fileName, onMatroskaDemuxCreation, NULL);
-    env.taskScheduler().doEventLoop(&newMatroskaDemuxWatchVariable);
-
-    ServerMediaSubsession* smss;
-    while ((smss = demux->newServerMediaSubsession()) != NULL) {
-      sms->addSubsession(smss);
-    }
-  }
 
   return sms;
 }
