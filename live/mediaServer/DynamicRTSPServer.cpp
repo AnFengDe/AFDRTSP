@@ -95,11 +95,7 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 
   ServerMediaSession* sms = NULL;
   Boolean const reuseSource = False;
-  if (strcmp(extension, ".aac") == 0) {
-    // Assumed to be an AAC Audio (ADTS format) file:
-    NEW_SMS("AAC Audio");
-    sms->addSubsession(ADTSAudioFileServerMediaSubsession::createNew(env, fileName, reuseSource));
-  } else if (strcmp(extension, ".amr") == 0) {
+  if (strcmp(extension, ".amr") == 0) {
     // Assumed to be an AMR Audio file:
     NEW_SMS("AMR Audio");
     sms->addSubsession(AMRAudioFileServerMediaSubsession::createNew(env, fileName, reuseSource));
