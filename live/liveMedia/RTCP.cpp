@@ -20,7 +20,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #include "RTCP.hh"
 #include "GroupsockHelper.hh"
-#include "rtcp_from_spec.h"
 
 ////////// RTCPMemberDatabase //////////
 
@@ -127,7 +126,6 @@ RTCPInstance::RTCPInstance(UsageEnvironment& env, Groupsock* RTCPgs,
     fCNAME(RTCP_SDES_CNAME, cname), fOutgoingReportCount(1),
     fAveRTCPSize(0), fIsInitial(1), fPrevNumMembers(0),
     fLastSentSize(0), fLastReceivedSize(0), fLastReceivedSSRC(0),
-    fTypeOfEvent(EVENT_UNKNOWN), fTypeOfPacket(PACKET_UNKNOWN_TYPE),
     fHaveJustSentPacket(False), fLastPacketSentSize(0),
     fByeHandlerTask(NULL), fByeHandlerClientData(NULL),
     fSRHandlerTask(NULL), fSRHandlerClientData(NULL),
@@ -164,7 +162,6 @@ RTCPInstance::RTCPInstance(UsageEnvironment& env, Groupsock* RTCPgs,
   fRTCPInterface.startNetworkReading(handler);
 
   // Send our first report.
-  fTypeOfEvent = EVENT_REPORT;
   onExpire(this);
 }
 
@@ -182,7 +179,6 @@ RTCPInstance::~RTCPInstance() {
 
   // Begin by sending a BYE.  We have to do this immediately, without
   // 'reconsideration', because "this" is going away.
-  fTypeOfEvent = EVENT_BYE; // not used, but...
   sendBYE();
 
   if (fSpecificRRHandlerTable != NULL) {
@@ -403,7 +399,7 @@ void RTCPInstance::incomingReportHandler1() {
 
     // Process each of the individual RTCP 'subpackets' in (what may be)
     // a compound RTCP packet.
-    int typeOfPacket = PACKET_UNKNOWN_TYPE;
+    int typeOfPacket = 0;
     unsigned reportSenderSSRC = 0;
     Boolean packetOK = False;
     while (1) {
@@ -506,7 +502,6 @@ void RTCPInstance::incomingReportHandler1() {
 	  }
 
 	  subPacketOK = True;
-	  typeOfPacket = PACKET_RTCP_REPORT;
 	  break;
 	}
         case RTCP_PT_BYE: {
@@ -527,7 +522,6 @@ void RTCPInstance::incomingReportHandler1() {
 	  // We should really check for & handle >1 SSRCs being present #####
 
 	  subPacketOK = True;
-	  typeOfPacket = PACKET_BYE;
 	  break;
 	}
 	// Later handle SDES, APP, and compound RTCP packets #####
@@ -595,19 +589,6 @@ void RTCPInstance::onReceive(int typeOfPacket, int totPacketSize,
   fTypeOfPacket = typeOfPacket;
   fLastReceivedSize = totPacketSize;
   fLastReceivedSSRC = ssrc;
-
-  int members = (int)numMembers();
-  int senders = (fSink != NULL) ? 1 : 0;
-
-  OnReceive(this, // p
-	    this, // e
-	    &members, // members
-	    &fPrevNumMembers, // pmembers
-	    &senders, // senders
-	    &fAveRTCPSize, // avg_rtcp_size
-	    &fPrevReportTime, // tp
-	    dTimeNow(), // tc
-	    fNextReportTime);
 }
 
 void RTCPInstance::sendReport() {
@@ -900,20 +881,6 @@ void RTCPInstance::reschedule(double nextTime) {
 }
 
 void RTCPInstance::onExpire1() {
-  // Note: fTotSessionBW is kbits per second
-  double rtcpBW = 0.05*fTotSessionBW*1024/8; // -> bytes per second
-
-  OnExpire(this, // event
-	   numMembers(), // members
-	   (fSink != NULL) ? 1 : 0, // senders
-	   rtcpBW, // rtcp_bw
-	   (fSink != NULL) ? 1 : 0, // we_sent
-	   &fAveRTCPSize, // ave_rtcp_size
-	   &fIsInitial, // initial
-	   dTimeNow(), // tc
-	   &fPrevReportTime, // tp
-	   &fPrevNumMembers // pmembers
-	   );
 }
 
 ////////// SDESItem //////////
@@ -934,90 +901,87 @@ unsigned SDESItem::totalSize() const {
 
 ////////// Implementation of routines imported by the "rtcp_from_spec" C code
 
-extern "C" void Schedule(double nextTime, event e) {
-  RTCPInstance* instance = (RTCPInstance*)e;
+extern "C" void Schedule(double nextTime) {
+  RTCPInstance* instance = NULL;
   if (instance == NULL) return;
 
   instance->schedule(nextTime);
 }
 
-extern "C" void Reschedule(double nextTime, event e) {
-  RTCPInstance* instance = (RTCPInstance*)e;
+extern "C" void Reschedule(double nextTime) {
+  RTCPInstance* instance = NULL;
   if (instance == NULL) return;
 
   instance->reschedule(nextTime);
 }
 
-extern "C" void SendRTCPReport(event e) {
-  RTCPInstance* instance = (RTCPInstance*)e;
+extern "C" void SendRTCPReport() {
+  RTCPInstance* instance = NULL;
   if (instance == NULL) return;
 
   instance->sendReport();
 }
 
-extern "C" void SendBYEPacket(event e) {
-  RTCPInstance* instance = (RTCPInstance*)e;
+extern "C" void SendBYEPacket() {
+  RTCPInstance* instance = NULL;
   if (instance == NULL) return;
 
   instance->sendBYE();
 }
 
-extern "C" int TypeOfEvent(event e) {
-  RTCPInstance* instance = (RTCPInstance*)e;
-  if (instance == NULL) return EVENT_UNKNOWN;
+extern "C" int TypeOfEvent() {
+  RTCPInstance* instance = NULL;
+  if (instance == NULL) return 0;
 
   return instance->typeOfEvent();
 }
 
-extern "C" int SentPacketSize(event e) {
-  RTCPInstance* instance = (RTCPInstance*)e;
+extern "C" int SentPacketSize() {
+  RTCPInstance* instance = NULL;
   if (instance == NULL) return 0;
 
   return instance->sentPacketSize();
 }
 
-extern "C" int PacketType(packet p) {
-  RTCPInstance* instance = (RTCPInstance*)p;
-  if (instance == NULL) return PACKET_UNKNOWN_TYPE;
+extern "C" int PacketType() {
+  RTCPInstance* instance = NULL;
+  if (instance == NULL) return NULL;
 
   return instance->packetType();
 }
 
-extern "C" int ReceivedPacketSize(packet p) {
-  RTCPInstance* instance = (RTCPInstance*)p;
+extern "C" int ReceivedPacketSize() {
+  RTCPInstance* instance = NULL;
   if (instance == NULL) return 0;
 
   return instance->receivedPacketSize();
 }
 
-extern "C" int NewMember(packet p) {
-  RTCPInstance* instance = (RTCPInstance*)p;
+extern "C" int NewMember() {
+  RTCPInstance* instance = NULL;
   if (instance == NULL) return 0;
 
   return instance->checkNewSSRC();
 }
 
-extern "C" int NewSender(packet /*p*/) {
+extern "C" int NewSender() {
   return 0; // we don't yet recognize senders other than ourselves #####
 }
 
-extern "C" void AddMember(packet /*p*/) {
-  // Do nothing; all of the real work was done when NewMember() was called
+extern "C" void AddMember() {
 }
 
-extern "C" void AddSender(packet /*p*/) {
-  // we don't yet recognize senders other than ourselves #####
+extern "C" void AddSender() {
 }
 
-extern "C" void RemoveMember(packet p) {
-  RTCPInstance* instance = (RTCPInstance*)p;
+extern "C" void RemoveMember() {
+  RTCPInstance* instance = NULL;
   if (instance == NULL) return;
 
   instance->removeLastReceivedSSRC();
 }
 
-extern "C" void RemoveSender(packet /*p*/) {
-  // we don't yet recognize senders other than ourselves #####
+extern "C" void RemoveSender() {
 }
 
 extern "C" double drand30() {
