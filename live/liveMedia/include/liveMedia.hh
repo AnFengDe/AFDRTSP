@@ -28,7 +28,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "ByteStreamMultiFileSource.hh"
 #include "ByteStreamMemoryBufferSource.hh"
 #include "BasicUDPSource.hh"
-#include "SimpleRTPSource.hh"
 #include "DeviceSource.hh"
 #include "StreamReplicator.hh"
 #include "RTSPServerSupportingHTTPStreaming.hh"

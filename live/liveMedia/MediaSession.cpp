@@ -1087,7 +1087,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
       // Check "fCodecName" against the set of codecs that we support,
       // and create our RTP source accordingly
       // (Later make this code more efficient, as this set grows #####)
-      // (Also, add more fmts that can be implemented by SimpleRTPSource#####)
       Boolean createSimpleRTPSource = False; // by default; can be changed below
       Boolean doNormalMBitRule = False; // default behavior if "createSimpleRTPSource" is True
       if (  strcmp(fCodecName, "PCMU") == 0 // PCM u-law audio
@@ -1104,12 +1103,9 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 		   || strcmp(fCodecName, "SPEEX") == 0 // SPEEX audio
 		   || strcmp(fCodecName, "DAT12") == 0 // 12-bit nonlinear audio (RFC 3190)
 		   ) {
-	createSimpleRTPSource = True;
 	useSpecialRTPoffset = 0;
       } else if (useSpecialRTPoffset >= 0) {
 	// We don't know this RTP payload format, but try to receive
-	// it using a 'SimpleRTPSource' with the specified header offset:
-	createSimpleRTPSource = True;
       } else {
 	env().setResultMsg("RTP payload format unknown or not supported");
 	break;
@@ -1119,11 +1115,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 	char* mimeType
 	  = new char[strlen(mediumName()) + strlen(codecName()) + 2] ;
 	sprintf(mimeType, "%s/%s", mediumName(), codecName());
-	fReadSource = fRTPSource
-	  = SimpleRTPSource::createNew(env(), fRTPSocket, fRTPPayloadFormat,
-				       fRTPTimestampFrequency, mimeType,
-				       (unsigned)useSpecialRTPoffset,
-				       doNormalMBitRule);
 	delete[] mimeType;
       }
     }
