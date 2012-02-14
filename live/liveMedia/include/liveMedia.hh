@@ -25,7 +25,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #define _LIVEMEDIA_HH
 
 #include "BasicUDPSink.hh"
-#include "SimpleRTPSink.hh"
 #include "ByteStreamMultiFileSource.hh"
 #include "ByteStreamMemoryBufferSource.hh"
 #include "BasicUDPSource.hh"

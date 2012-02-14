@@ -11,7 +11,7 @@ all:	$(ALL)
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
 MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) FramedFileSource.$(OBJ) FramedFilter.$(OBJ) ByteStreamFileSource.$(OBJ) ByteStreamMultiFileSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ) StreamReplicator.$(OBJ)
-MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) SimpleRTPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
+MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
 RTP_SOURCE_OBJS = RTPSource.$(OBJ) MultiFramedRTPSource.$(OBJ) SimpleRTPSource.$(OBJ) 
 RTP_SINK_OBJS = RTPSink.$(OBJ) MultiFramedRTPSink.$(OBJ) VideoRTPSink.$(OBJ) TextRTPSink.$(OBJ)
@@ -78,8 +78,6 @@ include/VideoRTPSink.hh:	include/MultiFramedRTPSink.hh
 TextRTPSink.$(CPP):		include/TextRTPSink.hh
 include/TextRTPSink.hh:		include/MultiFramedRTPSink.hh
 RTPInterface.$(CPP):		include/RTPInterface.hh
-SimpleRTPSink.$(CPP):		include/SimpleRTPSink.hh
-include/SimpleRTPSink.hh:	include/MultiFramedRTPSink.hh
 TCPStreamSink.$(CPP):		include/TCPStreamSink.hh
 include/TCPStreamSink.hh:	include/MediaSink.hh
 OutputFile.$(CPP):		include/OutputFile.hh
@@ -111,7 +109,7 @@ our_md5hl.$(C):		our_md5.h
 Base64.$(CPP):	include/Base64.hh
 Locale.$(CPP):	include/Locale.hh
 
-include/liveMedia.hh:: include/BasicUDPSink.hh include/SimpleRTPSink.hh include/ByteStreamMultiFileSource.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh include/SimpleRTPSource.hh 
+include/liveMedia.hh:: include/BasicUDPSink.hh include/ByteStreamMultiFileSource.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh include/SimpleRTPSource.hh 
 
 include/liveMedia.hh::	include/DeviceSource.hh include/StreamReplicator.hh
 
