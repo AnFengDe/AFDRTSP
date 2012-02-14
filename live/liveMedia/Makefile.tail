@@ -13,7 +13,7 @@ all:	$(ALL)
 MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) FramedFileSource.$(OBJ) FramedFilter.$(OBJ) ByteStreamFileSource.$(OBJ) ByteStreamMultiFileSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ) StreamReplicator.$(OBJ)
 MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
-RTP_SOURCE_OBJS = RTPSource.$(OBJ) MultiFramedRTPSource.$(OBJ) 
+RTP_SOURCE_OBJS = RTPSource.$(OBJ) 
 RTP_SINK_OBJS = RTPSink.$(OBJ) MultiFramedRTPSink.$(OBJ) 
 RTP_INTERFACE_OBJS = RTPInterface.$(OBJ)
 RTP_OBJS = $(RTP_SOURCE_OBJS) $(RTP_SINK_OBJS) $(RTP_INTERFACE_OBJS)
@@ -45,8 +45,6 @@ include/FramedFilter.hh:	include/FramedSource.hh
 RTPSource.$(CPP):	include/RTPSource.hh
 include/RTPSource.hh:		include/FramedSource.hh include/RTPInterface.hh
 include/RTPInterface.hh:	include/Media.hh
-MultiFramedRTPSource.$(CPP):	include/MultiFramedRTPSource.hh
-include/MultiFramedRTPSource.hh:	include/RTPSource.hh
 ByteStreamFileSource.$(CPP):	include/ByteStreamFileSource.hh include/InputFile.hh
 include/ByteStreamFileSource.hh:	include/FramedFileSource.hh
 ByteStreamMultiFileSource.$(CPP):	include/ByteStreamMultiFileSource.hh
