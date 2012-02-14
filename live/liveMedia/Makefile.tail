@@ -14,7 +14,7 @@ MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) FramedFileSource.$(OBJ
 MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
 RTP_SOURCE_OBJS = RTPSource.$(OBJ) MultiFramedRTPSource.$(OBJ) SimpleRTPSource.$(OBJ) 
-RTP_SINK_OBJS = RTPSink.$(OBJ) MultiFramedRTPSink.$(OBJ) VideoRTPSink.$(OBJ) TextRTPSink.$(OBJ)
+RTP_SINK_OBJS = RTPSink.$(OBJ) MultiFramedRTPSink.$(OBJ) 
 RTP_INTERFACE_OBJS = RTPInterface.$(OBJ)
 RTP_OBJS = $(RTP_SOURCE_OBJS) $(RTP_SINK_OBJS) $(RTP_INTERFACE_OBJS)
 
@@ -73,10 +73,6 @@ RTPSink.$(CPP):		include/RTPSink.hh
 include/RTPSink.hh:		include/MediaSink.hh include/RTPInterface.hh
 MultiFramedRTPSink.$(CPP):	include/MultiFramedRTPSink.hh
 include/MultiFramedRTPSink.hh:		include/RTPSink.hh
-VideoRTPSink.$(CPP):		include/VideoRTPSink.hh
-include/VideoRTPSink.hh:	include/MultiFramedRTPSink.hh
-TextRTPSink.$(CPP):		include/TextRTPSink.hh
-include/TextRTPSink.hh:		include/MultiFramedRTPSink.hh
 RTPInterface.$(CPP):		include/RTPInterface.hh
 TCPStreamSink.$(CPP):		include/TCPStreamSink.hh
 include/TCPStreamSink.hh:	include/MediaSink.hh
