@@ -21,7 +21,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 //  For media streamers, use "ServerMediaSession" instead.)
 // C++ header
 
-/* NOTE: To support receiving your own custom RTP payload format, you must first define a new subclass of "MultiFramedRTPSource"
+/* NOTE: To support receiving your own custom RTP payload format, you must first define a new subclass of 
    (or "BasicUDPSource") that implements it.  Then define your own subclass of "MediaSession" and "MediaSubsession", as follows:
    - In your subclass of "MediaSession" (named, for example, "myMediaSession"):
        - Define and implement your own static member function
@@ -34,7 +34,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
            Boolean myMediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
 	     if (strcmp(fCodecName, "X-MY-RTP-PAYLOAD-FORMAT") == 0) {
 	       // This subsession uses our custom RTP payload format:
-	       fReadSource = fRTPSource = myRTPPayloadFormatRTPSource::createNew( <parameters> );
+	       fReadSource = fR-TPSource = myRTPPayloadFormatR-TPSource::createNew( <parameters> );
 	       return True;
 	     } else {
 	       // This subsession uses some other RTP payload format - perhaps one that we already implement:
@@ -159,7 +159,6 @@ public:
   unsigned numChannels() const { return fNumChannels; }
   float& scale() { return fScale; }
 
-  RTPSource* rtpSource() { return fRTPSource; }
   RTCPInstance* rtcpInstance() { return fRTCPInstance; }
   unsigned rtpTimestampFrequency() const { return fRTPTimestampFrequency; }
   FramedSource* readSource() { return fReadSource; }
@@ -173,11 +172,11 @@ public:
   double& _playEndTime() { return fPlayEndTime; }
 
   Boolean initiate(int useSpecialRTPoffset = -1);
-      // Creates a "RTPSource" for this subsession. (Has no effect if it's
+      // Creates a "TPSource" for this subsession. (Has no effect if it's
       // already been created.)  Returns True iff this succeeds.
-  void deInitiate(); // Destroys any previously created RTPSource
+  void deInitiate(); // Destroys any previously created TPSource
   Boolean setClientPortNum(unsigned short portNum);
-      // Sets the preferred client port number that any "RTPSource" for
+      // Sets the preferred client port number that any "TPSource" for
       // this subsession would use.  (By default, the client port number
       // is gotten from the original SDP description, or - if the SDP
       // description does not specfy a client port number - an ephemeral
@@ -269,7 +268,7 @@ protected:
   Boolean parseSDPAttribute_framerate(char const* sdpLine);
 
   virtual Boolean createSourceObjects(int useSpecialRTPoffset);
-    // create "fRTPSource" and "fReadSource" member objects, after we've been initialized via SDP
+    // create "fTPSource" and "fReadSource" member objects, after we've been initialized via SDP
 
 protected:
   // Linkage fields:
@@ -313,7 +312,7 @@ protected:
 
   // Fields set by initiate():
   Groupsock* fRTPSocket; Groupsock* fRTCPSocket; // works even for unicast
-  RTPSource* fRTPSource; RTCPInstance* fRTCPInstance;
+  RTCPInstance* fRTCPInstance;
   FramedSource* fReadSource;
 
   // Other fields:

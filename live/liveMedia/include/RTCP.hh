@@ -24,9 +24,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _RTP_SINK_HH
 #include "RTPSink.hh"
 #endif
-#ifndef _RTP_SOURCE_HH
-#include "RTPSource.hh"
-#endif
 
 class SDESItem {
 public:
@@ -47,7 +44,6 @@ public:
 				 unsigned totSessionBW, /* in kbps */
 				 unsigned char const* cname,
 				 RTPSink* sink,
-				 RTPSource const* source,
 				 Boolean isSSMSource = False);
 
   static Boolean lookupByName(UsageEnvironment& env, char const* instanceName,
@@ -62,7 +58,7 @@ public:
       // The handler is called once only; for subsequent "BYE"s,
       // "setByeHandler()" would need to be called again.
       // If "handleActiveParticipantsOnly" is True, then the handler is called
-      // only if the SSRC is for a known sender (if we have a "RTPSource"),
+      // only if the SSRC is for a known sender (if we have a "TPSource"),
       // or if the SSRC is for a known receiver (if we have a "RTPSink").
       // This prevents (for example) the handler for a multicast receiver being
       // called if some other multicast receiver happens to exit.
@@ -99,7 +95,7 @@ public:
 protected:
   RTCPInstance(UsageEnvironment& env, Groupsock* RTPgs, unsigned totSessionBW,
 	       unsigned char const* cname,
-	       RTPSink* sink, RTPSource const* source,
+	       RTPSink* sink, 
 	       Boolean isSSMSource);
       // called only by createNew()
   virtual ~RTCPInstance();
@@ -115,7 +111,7 @@ private:
       void enqueueCommonReportPrefix(unsigned char packetType, u_int32_t SSRC,
 				     unsigned numExtraWords = 0);
       void enqueueCommonReportSuffix();
-        void enqueueReportBlock(RTPReceptionStats* receptionStats);
+        void enqueueReportBlock();
   void addSDES();
   void addBYE();
 
@@ -135,7 +131,6 @@ private:
   RTPInterface fRTCPInterface;
   unsigned fTotSessionBW;
   RTPSink* fSink;
-  RTPSource const* fSource;
   Boolean fIsSSMSource;
 
   SDESItem fCNAME;
