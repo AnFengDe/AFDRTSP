@@ -39,21 +39,21 @@ ByteStreamMultiFileSource
       fFileNameArray[i] = strDup(fileNameArray[i]);
     }
 
-    // Next, set up our array of component ByteStreamFileSources
+    // Next, set up our array of component yteStreamFileSources
     // Don't actually create these yet; instead, do this on demand
-    fSourceArray = new ByteStreamFileSource*[fNumSources];
+    /*fSourceArray = NULL;//new yteStreamFileSource*[fNumSources];
     if (fSourceArray == NULL) return;
     for (i = 0; i < fNumSources; ++i) {
       fSourceArray[i] = NULL;
-    }
+    }*/
 }
 
 ByteStreamMultiFileSource::~ByteStreamMultiFileSource() {
   unsigned i;
   for (i = 0; i < fNumSources; ++i) {
-    Medium::close(fSourceArray[i]);
+    //Medium::close(fSourceArray[i]);
   }
-  delete[] fSourceArray;
+  //delete[] fSourceArray;
 
   for (i = 0; i < fNumSources; ++i) {
     delete[] (char*)(fFileNameArray[i]);
@@ -72,16 +72,17 @@ ByteStreamMultiFileSource* ByteStreamMultiFileSource
 }
 
 void ByteStreamMultiFileSource::doGetNextFrame() {
+#if 0 //for comment by chtian
   do {
     // First, check whether we've run out of sources:
     if (fCurrentlyReadSourceNumber >= fNumSources) break;
 
     fHaveStartedNewFile = False;
-    ByteStreamFileSource*& source
+    yteStreamFileSource*& source
       = fSourceArray[fCurrentlyReadSourceNumber];
     if (source == NULL) {
       // The current source hasn't been created yet.  Do this now:
-      source = ByteStreamFileSource::createNew(envir(),
+      source = yteStreamFileSource::createNew(envir(),
 		       fFileNameArray[fCurrentlyReadSourceNumber],
 		       fPreferredFrameSize, fPlayTimePerFrame);
       if (source == NULL) break;
@@ -97,6 +98,7 @@ void ByteStreamMultiFileSource::doGetNextFrame() {
 
   // An error occurred; consider ourselves closed:
   handleClosure(this);
+#endif
 }
 
 void ByteStreamMultiFileSource
@@ -123,11 +125,13 @@ void ByteStreamMultiFileSource::onSourceClosure1() {
   // This routine was called because the currently-read source was closed
   // (probably due to EOF).  Close this source down, and move to the
   // next one:
-  ByteStreamFileSource*& source
+#if 0 //for comment by chtian
+  yteStreamFileSource*& source
     = fSourceArray[fCurrentlyReadSourceNumber++];
   Medium::close(source);
   source = NULL;
 
   // Try reading again:
   doGetNextFrame();
+#endif
 }
