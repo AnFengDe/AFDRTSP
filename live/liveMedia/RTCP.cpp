@@ -119,10 +119,10 @@ static unsigned const preferredPacketSize = 1000; // bytes
 RTCPInstance::RTCPInstance(UsageEnvironment& env, Groupsock* RTCPgs,
 			   unsigned totSessionBW,
 			   unsigned char const* cname,
-			   RTPSink* sink, RTPSource const* source,
+			   RTPSink* sink, 
 			   Boolean isSSMSource)
   : Medium(env), fRTCPInterface(this, RTCPgs), fTotSessionBW(totSessionBW),
-    fSink(sink), fSource(source), fIsSSMSource(isSSMSource),
+    fSink(sink), fIsSSMSource(isSSMSource),
     fCNAME(RTCP_SDES_CNAME, cname), fOutgoingReportCount(1),
     fAveRTCPSize(0), fIsInitial(1), fPrevNumMembers(0),
     fLastSentSize(0), fLastReceivedSize(0), fLastReceivedSSRC(0),
@@ -198,9 +198,9 @@ RTCPInstance::~RTCPInstance() {
 RTCPInstance* RTCPInstance::createNew(UsageEnvironment& env, Groupsock* RTCPgs,
 				      unsigned totSessionBW,
 				      unsigned char const* cname,
-				      RTPSink* sink, RTPSource const* source,
+				      RTPSink* sink, 
 				      Boolean isSSMSource) {
-  return new RTCPInstance(env, RTCPgs, totSessionBW, cname, sink, source,
+  return new RTCPInstance(env, RTCPgs, totSessionBW, cname, sink, 
 			  isSSMSource);
 }
 
@@ -425,12 +425,6 @@ void RTCPInstance::incomingReportHandler1() {
 	  unsigned NTPmsw = ntohl(*(u_int32_t*)pkt); ADVANCE(4);
 	  unsigned NTPlsw = ntohl(*(u_int32_t*)pkt); ADVANCE(4);
 	  unsigned rtpTimestamp = ntohl(*(u_int32_t*)pkt); ADVANCE(4);
-	  if (fSource != NULL) {
-	    RTPReceptionStatsDB& receptionStats
-	      = fSource->receptionStatsDB();
-	    receptionStats.noteIncomingSR(reportSenderSSRC,
-					  NTPmsw, NTPlsw, rtpTimestamp);
-	  }
 	  ADVANCE(8); // skip over packet count, octet count
 
 	  // If a 'SR handler' was set, call it now:
@@ -512,8 +506,6 @@ void RTCPInstance::incomingReportHandler1() {
 	  // (Note: We don't call it immediately, in case it happens to cause "this" to be deleted.)
 	  if (fByeHandlerTask != NULL
 	      && (!fByeHandleActiveParticipantsOnly
-		  || (fSource != NULL
-		      && fSource->receptionStatsDB().lookup(reportSenderSSRC) != NULL)
 		  || (fSink != NULL
 		      && fSink->transmissionStatsDB().lookup(reportSenderSSRC) != NULL))) {
 	    callByeHandler = True;
@@ -661,7 +653,6 @@ void RTCPInstance::removeSSRC(u_int32_t ssrc, Boolean alsoRemoveStats) {
 
   if (alsoRemoveStats) {
     // Also, remove records of this SSRC from any reception or transmission stats
-    if (fSource != NULL) fSource->receptionStatsDB().removeRecord(ssrc);
     if (fSink != NULL) fSink->transmissionStatsDB().removeRecord(ssrc);
   }
 }
@@ -677,8 +668,6 @@ void RTCPInstance::addReport() {
   // have an associated sink or source:
   if (fSink != NULL) {
     addSR();
-  } else if (fSource != NULL) {
-    addRR();
   }
 }
 
@@ -709,9 +698,8 @@ void RTCPInstance::addSR() {
 }
 
 void RTCPInstance::addRR() {
-  // ASSERT: fSource != NULL
+  // ASSERT: Source != NULL
 
-  enqueueCommonReportPrefix(RTCP_PT_RR, fSource->SSRC());
   enqueueCommonReportSuffix();
 }
 
@@ -719,16 +707,6 @@ void RTCPInstance::enqueueCommonReportPrefix(unsigned char packetType,
 					     unsigned SSRC,
 					     unsigned numExtraWords) {
   unsigned numReportingSources;
-  if (fSource == NULL) {
-    numReportingSources = 0; // we don't receive anything
-  } else {
-    RTPReceptionStatsDB& allReceptionStats
-      = fSource->receptionStatsDB();
-    numReportingSources = allReceptionStats.numActiveSourcesSinceLastReset();
-    // This must be <32, to fit in 5 bits:
-    if (numReportingSources >= 32) { numReportingSources = 32; }
-    // Later: support adding more reports to handle >32 sources (unlikely)#####
-  }
 
   unsigned rtcpHdr = 0x80000000; // version 2, no padding
   rtcpHdr |= (numReportingSources<<24);
@@ -742,80 +720,11 @@ void RTCPInstance::enqueueCommonReportPrefix(unsigned char packetType,
 
 void RTCPInstance::enqueueCommonReportSuffix() {
   // Output the report blocks for each source:
-  if (fSource != NULL) {
-    RTPReceptionStatsDB& allReceptionStats
-      = fSource->receptionStatsDB();
-
-    RTPReceptionStatsDB::Iterator iterator(allReceptionStats);
-    while (1) {
-      RTPReceptionStats* receptionStats = iterator.next();
-      if (receptionStats == NULL) break;
-      enqueueReportBlock(receptionStats);
-    }
-
-    allReceptionStats.reset(); // because we have just generated a report
-  }
 }
 
 void
-RTCPInstance::enqueueReportBlock(RTPReceptionStats* stats) {
-  fOutBuf->enqueueWord(stats->SSRC());
+RTCPInstance::enqueueReportBlock() {
 
-  unsigned highestExtSeqNumReceived = stats->highestExtSeqNumReceived();
-
-  unsigned totNumExpected
-    = highestExtSeqNumReceived - stats->baseExtSeqNumReceived();
-  int totNumLost = totNumExpected - stats->totNumPacketsReceived();
-  // 'Clamp' this loss number to a 24-bit signed value:
-  if (totNumLost > 0x007FFFFF) {
-    totNumLost = 0x007FFFFF;
-  } else if (totNumLost < 0) {
-    if (totNumLost < -0x00800000) totNumLost = 0x00800000; // unlikely, but...
-    totNumLost &= 0x00FFFFFF;
-  }
-
-  unsigned numExpectedSinceLastReset
-    = highestExtSeqNumReceived - stats->lastResetExtSeqNumReceived();
-  int numLostSinceLastReset
-    = numExpectedSinceLastReset - stats->numPacketsReceivedSinceLastReset();
-  unsigned char lossFraction;
-  if (numExpectedSinceLastReset == 0 || numLostSinceLastReset < 0) {
-    lossFraction = 0;
-  } else {
-    lossFraction = (unsigned char)
-      ((numLostSinceLastReset << 8) / numExpectedSinceLastReset);
-  }
-
-  fOutBuf->enqueueWord((lossFraction<<24) | totNumLost);
-  fOutBuf->enqueueWord(highestExtSeqNumReceived);
-
-  fOutBuf->enqueueWord(stats->jitter());
-
-  unsigned NTPmsw = stats->lastReceivedSR_NTPmsw();
-  unsigned NTPlsw = stats->lastReceivedSR_NTPlsw();
-  unsigned LSR = ((NTPmsw&0xFFFF)<<16)|(NTPlsw>>16); // middle 32 bits
-  fOutBuf->enqueueWord(LSR);
-
-  // Figure out how long has elapsed since the last SR rcvd from this src:
-  struct timeval const& LSRtime = stats->lastReceivedSR_time(); // "last SR"
-  struct timeval timeNow, timeSinceLSR;
-  gettimeofday(&timeNow, NULL);
-  if (timeNow.tv_usec < LSRtime.tv_usec) {
-    timeNow.tv_usec += 1000000;
-    timeNow.tv_sec -= 1;
-  }
-  timeSinceLSR.tv_sec = timeNow.tv_sec - LSRtime.tv_sec;
-  timeSinceLSR.tv_usec = timeNow.tv_usec - LSRtime.tv_usec;
-  // The enqueued time is in units of 1/65536 seconds.
-  // (Note that 65536/1000000 == 1024/15625)
-  unsigned DLSR;
-  if (LSR == 0) {
-    DLSR = 0;
-  } else {
-    DLSR = (timeSinceLSR.tv_sec<<16)
-         | ( (((timeSinceLSR.tv_usec<<11)+15625)/31250) & 0xFFFF);
-  }
-  fOutBuf->enqueueWord(DLSR);
 }
 
 void RTCPInstance::addSDES() {
@@ -834,9 +743,7 @@ void RTCPInstance::addSDES() {
   rtcpHdr |= num4ByteWords;
   fOutBuf->enqueueWord(rtcpHdr);
 
-  if (fSource != NULL) {
-    fOutBuf->enqueueWord(fSource->SSRC());
-  } else if (fSink != NULL) {
+  if (fSink != NULL) {
     fOutBuf->enqueueWord(fSink->SSRC());
   }
 
@@ -855,9 +762,7 @@ void RTCPInstance::addBYE() {
   rtcpHdr |= 1; // 2 32-bit words total (i.e., with 1 SSRC)
   fOutBuf->enqueueWord(rtcpHdr);
 
-  if (fSource != NULL) {
-    fOutBuf->enqueueWord(fSource->SSRC());
-  } else if (fSink != NULL) {
+  if (fSink != NULL) {
     fOutBuf->enqueueWord(fSink->SSRC());
   }
 }

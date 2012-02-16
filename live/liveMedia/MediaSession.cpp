@@ -539,7 +539,7 @@ MediaSubsession::MediaSubsession(MediaSession& parent)
     fPlayStartTime(0.0), fPlayEndTime(0.0),
     fVideoWidth(0), fVideoHeight(0), fVideoFPS(0), fNumChannels(1), fScale(1.0f), fNPT_PTS_Offset(0.0f),
     fRTPSocket(NULL), fRTCPSocket(NULL),
-    fRTPSource(NULL), fRTCPInstance(NULL), fReadSource(NULL),
+     fRTCPInstance(NULL), fReadSource(NULL),
     fSessionId(NULL) {
   rtpInfo.seqNum = 0; rtpInfo.timestamp = 0; rtpInfo.infoIsNew = False;
 }
@@ -691,7 +691,7 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
       fRTCPSocket->changeDestinationParameters(fSourceFilterAddr,0,~0);
     }
 
-    // Create "fRTPSource" and "fReadSource":
+    // Create "fTPSource" and "fReadSource":
     if (!createSourceObjects(useSpecialRTPoffset)) break;
 
     if (fReadSource == NULL) {
@@ -700,22 +700,6 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
     }
 
     // Finally, create our RTCP instance. (It starts running automatically)
-    if (fRTPSource != NULL) {
-      // If bandwidth is specified, use it and add 5% for RTCP overhead.
-      // Otherwise make a guess at 500 kbps.
-      unsigned totSessionBandwidth
-	= fBandwidth ? fBandwidth + fBandwidth / 20 : 500;
-      fRTCPInstance = RTCPInstance::createNew(env(), fRTCPSocket,
-					      totSessionBandwidth,
-					      (unsigned char const*)
-					      fParent.CNAME(),
-					      NULL /* we're a client */,
-					      fRTPSource);
-      if (fRTCPInstance == NULL) {
-	env().setResultMsg("Failed to create RTCP instance");
-	break;
-      }
-    }
 
     return True;
   } while (0);
@@ -723,7 +707,7 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
   delete fRTPSocket; fRTPSocket = NULL;
   delete fRTCPSocket; fRTCPSocket = NULL;
   Medium::close(fRTCPInstance); fRTCPInstance = NULL;
-  Medium::close(fReadSource); fReadSource = fRTPSource = NULL;
+  Medium::close(fReadSource); 
   fClientPortNum = 0;
   return False;
 }
@@ -732,8 +716,8 @@ void MediaSubsession::deInitiate() {
   Medium::close(fRTCPInstance);
   fRTCPInstance = NULL;
 
-  Medium::close(fReadSource); // this is assumed to also close fRTPSource
-  fReadSource = NULL; fRTPSource = NULL;
+  Medium::close(fReadSource); // this is assumed to also close fTPSource
+  fReadSource = NULL; 
 
   delete fRTCPSocket; delete fRTPSocket;
   fRTCPSocket = fRTPSocket = NULL;
@@ -797,39 +781,38 @@ void MediaSubsession::setSessionId(char const* sessionId) {
 }
 
 double MediaSubsession::getNormalPlayTime(struct timeval const& presentationTime) {
-  if (rtpSource() == NULL || rtpSource()->timestampFrequency() == 0) return 0.0; // no RTP source, or bad freq!
 
-  // First, check whether our "RTPSource" object has already been synchronized using RTCP.
+  // First, check whether our "TPSource" object has already been synchronized using RTCP.
   // If it hasn't, then - as a special case - we need to use the RTP timestamp to compute the NPT.
-  if (!rtpSource()->hasBeenSynchronizedUsingRTCP()) {
-    if (!rtpInfo.infoIsNew) return 0.0; // the "rtpInfo" structure has not been filled in
-    u_int32_t timestampOffset = rtpSource()->curPacketRTPTimestamp() - rtpInfo.timestamp;
-    double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*scale();
-    double npt = playStartTime() + nptOffset;
+  //we have no rtpsource,so ....if (!rtpSource()->hasBeenSynchronizedUsingRTCP()) {
+    /*if (!rtpInfo.infoIsNew) */return 0.0; // the "rtpInfo" structure has not been filled in
+    //u_int32_t timestampOffset = rtpSource()->curPacketRTPTimestamp() - rtpInfo.timestamp;
+    //double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*scale();
+    //double npt = playStartTime() + nptOffset;
 
-    return npt;
-  } else {
+    //return npt;
+  //} else {
     // Common case: We have been synchronized using RTCP.  This means that the "presentationTime" parameter
     // will be accurate, and so we should use this to compute the NPT.
-    double ptsDouble = (double)(presentationTime.tv_sec + presentationTime.tv_usec/1000000.0);
+    //double ptsDouble = (double)(presentationTime.tv_sec + presentationTime.tv_usec/1000000.0);
 
-    if (rtpInfo.infoIsNew) {
+    //if (rtpInfo.infoIsNew) {
       // This is the first time we've been called with a synchronized presentation time since the "rtpInfo"
       // structure was last filled in.  Use this "presentationTime" to compute "fNPT_PTS_Offset":
-      if (seqNumLT(rtpSource()->curPacketRTPSeqNum(), rtpInfo.seqNum)) return -0.1; // sanity check; ignore old packets
-      u_int32_t timestampOffset = rtpSource()->curPacketRTPTimestamp() - rtpInfo.timestamp;
-      double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*scale();
-      double npt = playStartTime() + nptOffset;
-      fNPT_PTS_Offset = npt - ptsDouble*scale();
-      rtpInfo.infoIsNew = False; // for next time
+      //if (seqNumLT(rtpSource()->curPacketRTPSeqNum(), rtpInfo.seqNum)) return -0.1; // sanity check; ignore old packets
+      //u_int32_t timestampOffset = rtpSource()->curPacketRTPTimestamp() - rtpInfo.timestamp;
+      //double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*scale();
+      //double npt = playStartTime() + nptOffset;
+      //fNPT_PTS_Offset = npt - ptsDouble*scale();
+      //rtpInfo.infoIsNew = False; // for next time
 
-      return npt;
-    } else {
+      //return npt;
+    //} else {
       // Use the precomputed "fNPT_PTS_Offset" to compute the NPT from the PTS:
-      if (fNPT_PTS_Offset == 0.0) return 0.0; // error: The "rtpInfo" structure was apparently never filled in
-      return (double)(ptsDouble*scale() + fNPT_PTS_Offset);
-    }
-  }
+      //if (fNPT_PTS_Offset == 0.0) return 0.0; // error: The "rtpInfo" structure was apparently never filled in
+      //return (double)(ptsDouble*scale() + fNPT_PTS_Offset);
+    //}
+  //}
 }
 
 Boolean MediaSubsession::parseSDPLine_c(char const* sdpLine) {
@@ -1082,13 +1065,12 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
     if (strcmp(fProtocolName, "UDP") == 0) {
       // A UDP-packetized stream (*not* a RTP stream)
       fReadSource = BasicUDPSource::createNew(env(), fRTPSocket);
-      fRTPSource = NULL; // Note!
     } else {
       // Check "fCodecName" against the set of codecs that we support,
       // and create our RTP source accordingly
       // (Later make this code more efficient, as this set grows #####)
       Boolean createSimpleRTPSource = False; // by default; can be changed below
-      Boolean doNormalMBitRule = False; // default behavior if "createSimpleRTPSource" is True
+      Boolean doNormalMBitRule = False; // default behavior if "createSimpleTPSource" is True
       if (  strcmp(fCodecName, "PCMU") == 0 // PCM u-law audio
 		   || strcmp(fCodecName, "GSM") == 0 // GSM audio
 		   || strcmp(fCodecName, "PCMA") == 0 // PCM a-law audio
