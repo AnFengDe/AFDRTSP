@@ -10,7 +10,7 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) FramedFileSource.$(OBJ) FramedFilter.$(OBJ) ByteStreamMultiFileSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ)
+MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) FramedFileSource.$(OBJ) FramedFilter.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ)
 MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
 RTP_SINK_OBJS = RTPSink.$(OBJ) 
@@ -42,7 +42,6 @@ include/FramedFileSource.hh:	include/FramedSource.hh
 FramedFilter.$(CPP):	include/FramedFilter.hh
 include/FramedFilter.hh:	include/FramedSource.hh
 include/RTPInterface.hh:	include/Media.hh
-ByteStreamMultiFileSource.$(CPP):	include/ByteStreamMultiFileSource.hh
 ByteStreamMemoryBufferSource.$(CPP):	include/ByteStreamMemoryBufferSource.hh
 include/ByteStreamMemoryBufferSource.hh:	include/FramedSource.hh
 BasicUDPSource.$(CPP):		include/BasicUDPSource.hh
@@ -91,7 +90,7 @@ our_md5hl.$(C):		our_md5.h
 Base64.$(CPP):	include/Base64.hh
 Locale.$(CPP):	include/Locale.hh
 
-include/liveMedia.hh:: include/BasicUDPSink.hh include/ByteStreamMultiFileSource.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh 
+include/liveMedia.hh:: include/BasicUDPSink.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh 
 
 include/liveMedia.hh::	include/DeviceSource.hh 
 
