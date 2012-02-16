@@ -21,10 +21,10 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _BYTE_STREAM_MULTI_FILE_SOURCE_HH
 #define _BYTE_STREAM_MULTI_FILE_SOURCE_HH
 
-#ifndef _BYTE_STREAM_FILE_SOURCE_HH
-#include "ByteStreamFileSource.hh"
+#ifndef _FRAMED_FILE_SOURCE_HH
+#include "FramedFileSource.hh"
 #endif
-
+ 
 class ByteStreamMultiFileSource: public FramedSource {
 public:
   static ByteStreamMultiFileSource*
@@ -61,7 +61,6 @@ private:
   unsigned fCurrentlyReadSourceNumber;
   Boolean fHaveStartedNewFile;
   char const** fFileNameArray;
-  ByteStreamFileSource** fSourceArray;
 };
 
 #endif
