@@ -1064,7 +1064,7 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
     // First, check "fProtocolName"
     if (strcmp(fProtocolName, "UDP") == 0) {
       // A UDP-packetized stream (*not* a RTP stream)
-      fReadSource = BasicUDPSource::createNew(env(), fRTPSocket);
+      //fReadSource = asicUDPSource::createNew(env(), fRTPSocket);
     } else {
       // Check "fCodecName" against the set of codecs that we support,
       // and create our RTP source accordingly
