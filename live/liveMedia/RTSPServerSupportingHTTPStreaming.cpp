@@ -49,11 +49,11 @@ RTSPServerSupportingHTTPStreaming::createNewClientSession(unsigned sessionId, in
 RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
 ::RTSPClientSessionSupportingHTTPStreaming(RTSPServer& ourServer, unsigned sessionId, int clientSocket, struct sockaddr_in clientAddr)
   : RTSPClientSession(ourServer, sessionId, clientSocket, clientAddr),
-    fPlaylistSource(NULL), fTCPSink(NULL) {
+    fTCPSink(NULL) {
 }
 
 RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming::~RTSPClientSessionSupportingHTTPStreaming() {
-  Medium::close(fPlaylistSource);
+  //Medium::close(fPlaylistSource);
   Medium::close(fTCPSink);
 }
 
@@ -243,13 +243,13 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
 
   // Then, send the playlist.  Because it's large, we don't do so using "send()", because that might not send it all at once.
   // Instead, we stream the playlist over the TCP socket:
-  if (fPlaylistSource != NULL) { // sanity check
+  if (true) { // sanity check
     if (fTCPSink != NULL) fTCPSink->stopPlaying();
-    Medium::close(fPlaylistSource);
+    //Medium::close(fPlaylistSource);
   }
-  fPlaylistSource = ByteStreamMemoryBufferSource::createNew(envir(), (u_int8_t*)playlist, playlistLen);
+  //comment by chtian fPlaylistSource = yteStreamMemoryBufferSource::createNew(envir(), (u_int8_t*)playlist, playlistLen);
   if (fTCPSink == NULL) fTCPSink = TCPStreamSink::createNew(envir(), fClientOutputSocket);
-  fTCPSink->startPlaying(*fPlaylistSource, afterStreaming, this);
+  //fTCPSink->startPlaying(*fPlaylistSource, afterStreaming, this);
 }
 
 void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming::afterStreaming(void* clientData) {
