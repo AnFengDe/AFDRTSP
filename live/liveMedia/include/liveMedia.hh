@@ -27,7 +27,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "BasicUDPSink.hh"
 #include "ByteStreamMemoryBufferSource.hh"
 #include "BasicUDPSource.hh"
-#include "DeviceSource.hh"
 #include "RTSPServerSupportingHTTPStreaming.hh"
 #include "RTSPClient.hh"
 #include "PassiveServerMediaSubsession.hh"

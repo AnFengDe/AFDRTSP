@@ -10,7 +10,7 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ)
+MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) InputFile.$(OBJ)
 MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
 RTP_SINK_OBJS = RTPSink.$(OBJ) 
@@ -40,8 +40,6 @@ ByteStreamMemoryBufferSource.$(CPP):	include/ByteStreamMemoryBufferSource.hh
 include/ByteStreamMemoryBufferSource.hh:	include/FramedSource.hh
 BasicUDPSource.$(CPP):		include/BasicUDPSource.hh
 include/BasicUDPSource.hh:	include/FramedSource.hh
-DeviceSource.$(CPP):	include/DeviceSource.hh
-include/DeviceSource.hh:	include/FramedSource.hh
 StreamParser.hh:	include/FramedSource.hh
 InputFile.$(CPP):		include/InputFile.hh
 MediaSink.$(CPP):	include/MediaSink.hh
@@ -84,8 +82,6 @@ Base64.$(CPP):	include/Base64.hh
 Locale.$(CPP):	include/Locale.hh
 
 include/liveMedia.hh:: include/BasicUDPSink.hh include/ByteStreamMemoryBufferSource.hh include/BasicUDPSource.hh 
-
-include/liveMedia.hh::	include/DeviceSource.hh 
 
 include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh include/PassiveServerMediaSubsession.hh include/TCPStreamSink.hh 
 
