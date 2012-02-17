@@ -28,9 +28,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _RTP_SINK_HH
 #include "RTPSink.hh"
 #endif
-#ifndef _BASIC_UDP_SINK_HH
-#include "BasicUDPSink.hh"
-#endif
 #ifndef _RTCP_HH
 #include "RTCP.hh"
 #endif
@@ -130,7 +127,7 @@ class StreamState {
 public:
   StreamState(OnDemandServerMediaSubsession& master,
               Port const& serverRTPPort, Port const& serverRTCPPort,
-	      RTPSink* rtpSink, BasicUDPSink* udpSink,
+	      RTPSink* rtpSink, 
 	      unsigned totalBW, FramedSource* mediaSource,
 	      Groupsock* rtpGS, Groupsock* rtcpGS);
   virtual ~StreamState();
@@ -161,7 +158,6 @@ private:
   Port fServerRTPPort, fServerRTCPPort;
 
   RTPSink* fRTPSink;
-  BasicUDPSink* fUDPSink;
 
   float fStreamDuration;
   unsigned fTotalBW;

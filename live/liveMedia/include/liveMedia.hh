@@ -24,7 +24,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _LIVEMEDIA_HH
 #define _LIVEMEDIA_HH
 
-#include "BasicUDPSink.hh"
 #include "RTSPServerSupportingHTTPStreaming.hh"
 #include "RTSPClient.hh"
 #include "PassiveServerMediaSubsession.hh"

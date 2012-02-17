@@ -11,7 +11,7 @@ all:	$(ALL)
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
 MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) InputFile.$(OBJ)
-MISC_SINK_OBJS = MediaSink.$(OBJ) BasicUDPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
+MISC_SINK_OBJS = MediaSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
 RTP_SINK_OBJS = RTPSink.$(OBJ) 
 RTP_OBJS = $(RTP_SOURCE_OBJS) $(RTP_SINK_OBJS) $(RTP_INTERFACE_OBJS)
@@ -40,8 +40,6 @@ StreamParser.hh:	include/FramedSource.hh
 InputFile.$(CPP):		include/InputFile.hh
 MediaSink.$(CPP):	include/MediaSink.hh
 include/MediaSink.hh:		include/FramedSource.hh
-BasicUDPSink.$(CPP):	include/BasicUDPSink.hh
-include/BasicUDPSink.hh:	include/MediaSink.hh
 RTPSink.$(CPP):		include/RTPSink.hh
 include/RTPSink.hh:		include/MediaSink.hh 
 TCPStreamSink.$(CPP):		include/TCPStreamSink.hh
@@ -63,7 +61,7 @@ ServerMediaSession.$(CPP):	include/ServerMediaSession.hh
 PassiveServerMediaSubsession.$(CPP):	include/PassiveServerMediaSubsession.hh
 include/PassiveServerMediaSubsession.hh:	include/ServerMediaSession.hh include/RTPSink.hh include/RTCP.hh
 OnDemandServerMediaSubsession.$(CPP):	include/OnDemandServerMediaSubsession.hh
-include/OnDemandServerMediaSubsession.hh:	include/ServerMediaSession.hh include/RTPSink.hh include/BasicUDPSink.hh include/RTCP.hh
+include/OnDemandServerMediaSubsession.hh:	include/ServerMediaSession.hh include/RTPSink.hh include/RTCP.hh
 FileServerMediaSubsession.$(CPP):	include/FileServerMediaSubsession.hh
 include/FileServerMediaSubsession.hh:	include/OnDemandServerMediaSubsession.hh
 EBMLNumber.$(CPP): EBMLNumber.hh
@@ -74,8 +72,6 @@ our_md5.$(C):		our_md5.h
 our_md5hl.$(C):		our_md5.h
 Base64.$(CPP):	include/Base64.hh
 Locale.$(CPP):	include/Locale.hh
-
-include/liveMedia.hh:: include/BasicUDPSink.hh 
 
 include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh include/PassiveServerMediaSubsession.hh include/TCPStreamSink.hh 
 
