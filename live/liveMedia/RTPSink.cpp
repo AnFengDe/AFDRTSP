@@ -48,7 +48,7 @@ RTPSink::RTPSink(UsageEnvironment& env,
 		 unsigned rtpTimestampFrequency,
 		 char const* rtpPayloadFormatName,
 		 unsigned numChannels)
-  : MediaSink(env), fRTPInterface(this, rtpGS),
+  : MediaSink(env), 
     fRTPPayloadType(rtpPayloadType),
     fPacketCount(0), fOctetCount(0), fTotalOctetCount(0),
     fTimestampFrequency(rtpTimestampFrequency), fNextTimestampHasBeenPreset(True),

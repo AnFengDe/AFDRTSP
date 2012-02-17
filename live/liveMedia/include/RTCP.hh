@@ -77,19 +77,16 @@ public:
       // and a general "RR" handler function is set, then both will be called.)
   void unsetSpecificRRHandler(netAddressBits fromAddress, Port fromPort); // equivalent to setSpecificRRHandler(..., NULL, NULL);
 
-  Groupsock* RTCPgs() const { return fRTCPInterface.gs(); }
+  Groupsock* RTCPgs() const { return NULL; }
 
   void setStreamSocket(int sockNum, unsigned char streamChannelId);
   void addStreamSocket(int sockNum, unsigned char streamChannelId);
   void removeStreamSocket(int sockNum, unsigned char streamChannelId) {
-    fRTCPInterface.removeStreamSocket(sockNum, streamChannelId);
   }
     // hacks to allow sending RTP over TCP (RFC 2236, section 10.12)
 
-  void setAuxilliaryReadHandler(AuxHandlerFunc* handlerFunc,
+  void setAuxilliaryReadHandler(
                                 void* handlerClientData) {
-    fRTCPInterface.setAuxilliaryReadHandler(handlerFunc,
-					    handlerClientData);
   }
 
 protected:
@@ -128,7 +125,6 @@ private:
   unsigned char* fInBuf;
   unsigned fNumBytesAlreadyRead;
   OutPacketBuffer* fOutBuf;
-  RTPInterface fRTCPInterface;
   unsigned fTotSessionBW;
   RTPSink* fSink;
   Boolean fIsSSMSource;

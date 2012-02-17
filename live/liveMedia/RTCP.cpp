@@ -121,7 +121,7 @@ RTCPInstance::RTCPInstance(UsageEnvironment& env, Groupsock* RTCPgs,
 			   unsigned char const* cname,
 			   RTPSink* sink, 
 			   Boolean isSSMSource)
-  : Medium(env), fRTCPInterface(this, RTCPgs), fTotSessionBW(totSessionBW),
+  : Medium(env), fTotSessionBW(totSessionBW),
     fSink(sink), fIsSSMSource(isSSMSource),
     fCNAME(RTCP_SDES_CNAME, cname), fOutgoingReportCount(1),
     fAveRTCPSize(0), fIsInitial(1), fPrevNumMembers(0),
@@ -159,7 +159,6 @@ RTCPInstance::RTCPInstance(UsageEnvironment& env, Groupsock* RTCPgs,
   // Arrange to handle incoming reports from others:
   TaskScheduler::BackgroundHandlerProc* handler
     = (TaskScheduler::BackgroundHandlerProc*)&incomingReportHandler;
-  fRTCPInterface.startNetworkReading(handler);
 
   // Send our first report.
   onExpire(this);
@@ -175,7 +174,6 @@ RTCPInstance::~RTCPInstance() {
   fprintf(stderr, "RTCPInstance[%p]::~RTCPInstance()\n", this);
 #endif
   // Turn off background read handling:
-  fRTCPInterface.stopNetworkReading();
 
   // Begin by sending a BYE.  We have to do this immediately, without
   // 'reconsideration', because "this" is going away.
@@ -280,29 +278,23 @@ void RTCPInstance
 void RTCPInstance::setStreamSocket(int sockNum,
 				   unsigned char streamChannelId) {
   // Turn off background read handling:
-  fRTCPInterface.stopNetworkReading();
 
   // Switch to RTCP-over-TCP:
-  fRTCPInterface.setStreamSocket(sockNum, streamChannelId);
 
   // Turn background reading back on:
   TaskScheduler::BackgroundHandlerProc* handler
     = (TaskScheduler::BackgroundHandlerProc*)&incomingReportHandler;
-  fRTCPInterface.startNetworkReading(handler);
 }
 
 void RTCPInstance::addStreamSocket(int sockNum,
 				   unsigned char streamChannelId) {
   // First, turn off background read handling for the default (UDP) socket:
-  envir().taskScheduler().turnOffBackgroundReadHandling(fRTCPInterface.gs()->socketNum());
 
   // Add the RTCP-over-TCP interface:
-  fRTCPInterface.addStreamSocket(sockNum, streamChannelId);
 
   // Turn on background reading for this socket (in case it's not on already):
   TaskScheduler::BackgroundHandlerProc* handler
     = (TaskScheduler::BackgroundHandlerProc*)&incomingReportHandler;
-  fRTCPInterface.startNetworkReading(handler);
 }
 
 static unsigned const IP_UDP_HDR_SIZE = 28;
@@ -318,15 +310,10 @@ void RTCPInstance::incomingReportHandler(RTCPInstance* instance,
 void RTCPInstance::incomingReportHandler1() {
   do {
     Boolean callByeHandler = False;
-    int tcpReadStreamSocketNum = fRTCPInterface.nextTCPReadStreamSocketNum();
-    unsigned char tcpReadStreamChannelId = fRTCPInterface.nextTCPReadStreamChannelId();
     unsigned packetSize = 0;
     unsigned numBytesRead;
     struct sockaddr_in fromAddress;
     Boolean packetReadWasIncomplete;
-    Boolean readResult
-      = fRTCPInterface.handleRead(&fInBuf[fNumBytesAlreadyRead], maxPacketSize - fNumBytesAlreadyRead,
-				  numBytesRead, fromAddress, packetReadWasIncomplete);
     if (packetReadWasIncomplete) {
       fNumBytesAlreadyRead += numBytesRead;
       return; // more reads are needed to get the entire packet
@@ -334,7 +321,6 @@ void RTCPInstance::incomingReportHandler1() {
       packetSize = fNumBytesAlreadyRead + numBytesRead;
       fNumBytesAlreadyRead = 0; // for next time
     }
-    if (!readResult) break;
 
     // Ignore the packet if it was looped-back from ourself:
     Boolean packetWasFromOurHost = False;
@@ -369,7 +355,6 @@ void RTCPInstance::incomingReportHandler1() {
       // of some packets.  To avoid this possibility, we only reflect RTCP packets that we know for sure originated elsewhere.
       // (Note, though, that if we ever re-enable the code in "Groupsock::multicastSendOnly()", then we could remove the test for
       // "!packetWasFromOurHost".)
-      fRTCPInterface.sendPacket(pkt, packetSize);
       fHaveJustSentPacket = True;
       fLastPacketSentSize = packetSize;
     }
@@ -471,15 +456,15 @@ void RTCPInstance::incomingReportHandler1() {
 	    if (fSpecificRRHandlerTable != NULL) {
 	      netAddressBits fromAddr;
 	      portNumBits fromPortNum;
-	      if (tcpReadStreamSocketNum < 0) {
+	      if (0) {
 		// Normal case: We read the RTCP packet over UDP
 		fromAddr = fromAddress.sin_addr.s_addr;
 		fromPortNum = ntohs(fromAddress.sin_port);
 	      } else {
 		// Special case: We read the RTCP packet over TCP (interleaved)
 		// Hack: Use the TCP socket and channel id to look up the handler
-		fromAddr = tcpReadStreamSocketNum;
-		fromPortNum = tcpReadStreamChannelId;
+		fromAddr = 0;
+		fromPortNum = 0;
 	      }
 	      Port fromPort(fromPortNum);
 	      RRHandlerRecord* rrHandler
@@ -631,7 +616,6 @@ void RTCPInstance::sendBuiltPacket() {
   fprintf(stderr, "\n");
 #endif
   unsigned reportSize = fOutBuf->curPacketSize();
-  fRTCPInterface.sendPacket(fOutBuf->packet(), reportSize);
   fOutBuf->resetOffset();
 
   fLastSentSize = IP_UDP_HDR_SIZE + reportSize;
