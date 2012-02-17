@@ -10,7 +10,7 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) FramedFileSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ)
+MISC_SOURCE_OBJS = MediaSource.$(OBJ) FramedSource.$(OBJ) ByteStreamMemoryBufferSource.$(OBJ) BasicUDPSource.$(OBJ) DeviceSource.$(OBJ) InputFile.$(OBJ)
 MISC_SINK_OBJS = MediaSink.$(OBJ) FileSink.$(OBJ) BasicUDPSink.$(OBJ) TCPStreamSink.$(OBJ) OutputFile.$(OBJ)
 
 RTP_SINK_OBJS = RTPSink.$(OBJ) 
@@ -36,8 +36,6 @@ MediaSource.$(CPP):	include/MediaSource.hh
 include/MediaSource.hh:		include/Media.hh
 FramedSource.$(CPP):	include/FramedSource.hh
 include/FramedSource.hh:	include/MediaSource.hh
-FramedFileSource.$(CPP): include/FramedFileSource.hh
-include/FramedFileSource.hh:	include/FramedSource.hh
 ByteStreamMemoryBufferSource.$(CPP):	include/ByteStreamMemoryBufferSource.hh
 include/ByteStreamMemoryBufferSource.hh:	include/FramedSource.hh
 BasicUDPSource.$(CPP):		include/BasicUDPSource.hh
