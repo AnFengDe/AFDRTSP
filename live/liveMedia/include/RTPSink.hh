@@ -24,8 +24,11 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _MEDIA_SINK_HH
 #include "MediaSink.hh"
 #endif
-#ifndef _RTP_INTERFACE_HH
-#include "RTPInterface.hh"
+#ifndef _MEDIA_HH
+#include <Media.hh>
+#endif
+#ifndef _GROUPSOCK_HH
+#include "Groupsock.hh"
 #endif
 
 class RTPTransmissionStatsDB; // forward
@@ -43,8 +46,8 @@ public:
   unsigned octetCount() const {return fOctetCount;}
 
   // used by RTSP servers:
-  Groupsock const& groupsockBeingUsed() const { return *(fRTPInterface.gs()); }
-  Groupsock& groupsockBeingUsed() { return *(fRTPInterface.gs()); }
+  //Groupsock const& groupsockBeingUsed() const { return NULL; }
+  //Groupsock& groupsockBeingUsed() { return NULL; }
 
   unsigned char rtpPayloadType() const { return fRTPPayloadType; }
   unsigned rtpTimestampFrequency() const { return fTimestampFrequency; }
@@ -72,16 +75,12 @@ public:
   Boolean nextTimestampHasBeenPreset() const { return fNextTimestampHasBeenPreset; }
 
   void setStreamSocket(int sockNum, unsigned char streamChannelId) {
-    fRTPInterface.setStreamSocket(sockNum, streamChannelId);
   }
   void addStreamSocket(int sockNum, unsigned char streamChannelId) {
-    fRTPInterface.addStreamSocket(sockNum, streamChannelId);
   }
   void removeStreamSocket(int sockNum, unsigned char streamChannelId) {
-    fRTPInterface.removeStreamSocket(sockNum, streamChannelId);
   }
-  void setServerRequestAlternativeByteHandler(int socketNum, ServerRequestAlternativeByteHandler* handler, void* clientData) {
-    fRTPInterface.setServerRequestAlternativeByteHandler(socketNum, handler, clientData);
+  void setServerRequestAlternativeByteHandler(int socketNum, void* clientData) {
   }
     // hacks to allow sending RTP over TCP (RFC 2236, section 10.12)
 
@@ -99,7 +98,6 @@ protected:
 
   virtual ~RTPSink();
 
-  RTPInterface fRTPInterface;
   unsigned char fRTPPayloadType;
   unsigned fPacketCount, fOctetCount, fTotalOctetCount /*incl RTP hdr*/;
   struct timeval fTotalOctetCountStartTime;

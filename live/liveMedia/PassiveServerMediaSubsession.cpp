@@ -65,6 +65,7 @@ PassiveServerMediaSubsession::sdpLines() {
   if (fSDPLines == NULL ) {
     // Construct a set of SDP lines that describe this subsession:
     // Use the components from "rtpSink":
+#if 0
     Groupsock const& gs = fRTPSink.groupsockBeingUsed();
     AddressString groupAddressStr(gs.groupAddress());
     unsigned short portNum = ntohs(gs.port().num());
@@ -110,6 +111,7 @@ PassiveServerMediaSubsession::sdpLines() {
 
     fSDPLines = strDup(sdpLines);
     delete[] sdpLines;
+#endif
   }
 
   return fSDPLines;
@@ -130,6 +132,7 @@ void PassiveServerMediaSubsession
 		      Port& serverRTCPPort,
 		      void*& streamToken) {
   isMulticast = True;
+#if 0
   Groupsock& gs = fRTPSink.groupsockBeingUsed();
   if (destinationTTL == 255) destinationTTL = gs.ttl();
   if (destinationAddress == 0) { // normal case
@@ -152,6 +155,7 @@ void PassiveServerMediaSubsession
   // Make a record of this client's source - for RTCP RR handling:
   RTCPSourceRecord* source = new RTCPSourceRecord(clientAddress, clientRTCPPort);
   fClientRTCPSourceRecords->Add((char const*)clientSessionId, source);
+#endif
 }
 
 void PassiveServerMediaSubsession::startStream(unsigned clientSessionId,
@@ -160,7 +164,6 @@ void PassiveServerMediaSubsession::startStream(unsigned clientSessionId,
 					       void* rtcpRRHandlerClientData,
 					       unsigned short& rtpSeqNum,
 					       unsigned& rtpTimestamp,
-					       ServerRequestAlternativeByteHandler* /*serverRequestAlternativeByteHandler*/,
 					       void* /*serverRequestAlternativeByteHandlerClientData*/) {
   rtpSeqNum = fRTPSink.currentSeqNo();
   rtpTimestamp = fRTPSink.presetNextTimestamp();
@@ -170,7 +173,9 @@ void PassiveServerMediaSubsession::startStream(unsigned clientSessionId,
   unsigned streamBitrate = fRTCPInstance == NULL ? 50 : fRTCPInstance->totSessionBW(); // in kbps
   unsigned rtpBufSize = streamBitrate * 25 / 2; // 1 kbps * 0.1 s = 12.5 bytes
   if (rtpBufSize < 50 * 1024) rtpBufSize = 50 * 1024;
+#if 0
   increaseSendBufferTo(envir(), fRTPSink.groupsockBeingUsed().socketNum(), rtpBufSize);
+#endif
 
   // Set up the handler for incoming RTCP "RR" packets from this client:
   if (fRTCPInstance != NULL) {

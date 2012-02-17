@@ -33,9 +33,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _GROUPEID_HH
 #include "GroupEId.hh"
 #endif
-#ifndef _RTP_INTERFACE_HH
-#include "RTPInterface.hh" // for ServerRequestAlternativeByteHandler
-#endif
 
 class ServerMediaSubsession; // forward
 
@@ -140,7 +137,6 @@ public:
 			   void* rtcpRRHandlerClientData,
 			   unsigned short& rtpSeqNum,
 			   unsigned& rtpTimestamp,
-			   ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
 			   void* serverRequestAlternativeByteHandlerClientData) = 0;
   virtual void pauseStream(unsigned clientSessionId, void* streamToken);
   virtual void seekStream(unsigned clientSessionId, void* streamToken, double& seekNPT, double streamDuration, u_int64_t& numBytes);

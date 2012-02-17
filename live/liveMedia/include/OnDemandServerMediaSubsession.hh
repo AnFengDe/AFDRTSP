@@ -61,7 +61,6 @@ protected: // redefined virtual functions
 			   void* rtcpRRHandlerClientData,
 			   unsigned short& rtpSeqNum,
                            unsigned& rtpTimestamp,
-			   ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
                            void* serverRequestAlternativeByteHandlerClientData);
   virtual void pauseStream(unsigned clientSessionId, void* streamToken);
   virtual void seekStream(unsigned clientSessionId, void* streamToken, double& seekNPT, double streamDuration, u_int64_t& numBytes);
@@ -138,7 +137,6 @@ public:
 
   void startPlaying(Destinations* destinations,
 		    TaskFunc* rtcpRRHandler, void* rtcpRRHandlerClientData,
-		    ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
                     void* serverRequestAlternativeByteHandlerClientData);
   void pause();
   void endPlaying(Destinations* destinations);

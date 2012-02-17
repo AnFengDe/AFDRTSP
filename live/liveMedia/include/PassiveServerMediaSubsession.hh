@@ -63,7 +63,6 @@ protected: // redefined virtual functions
 			   void* rtcpRRHandlerClientData,
                            unsigned short& rtpSeqNum,
                            unsigned& rtpTimestamp,
-			   ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
                            void* serverRequestAlternativeByteHandlerClientData);
   virtual void deleteStream(unsigned clientSessionId, void*& streamToken);
 
