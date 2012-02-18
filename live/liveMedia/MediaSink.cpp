@@ -52,12 +52,7 @@ Boolean MediaSink::lookupByName(UsageEnvironment& env, char const* sinkName,
   return True;
 }
 
-Boolean MediaSink::sourceIsCompatibleWithUs(MediaSource& source) {
-  // We currently support only framed sources.
-  return False;
-}
-
-Boolean MediaSink::startPlaying(MediaSource& source,
+Boolean MediaSink::startPlaying(
 				afterPlayingFunc* afterFunc,
 				void* afterClientData) {
   // Make sure we're not already being played:
@@ -67,10 +62,6 @@ Boolean MediaSink::startPlaying(MediaSource& source,
   //}
 
   // Make sure our source is compatible:
-  if (!sourceIsCompatibleWithUs(source)) {
-    envir().setResultMsg("MediaSink::startPlaying(): source is not compatible!");
-    return False;
-  }
 
   fAfterFunc = afterFunc;
   fAfterClientData = afterClientData;

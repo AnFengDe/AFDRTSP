@@ -23,16 +23,17 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _NET_COMMON_H
 #include "NetCommon.h"
 #endif
-#ifndef _MEDIA_SOURCE_HH
-#include "MediaSource.hh"
+#ifndef _MEDIA_HH
+#include "Media.hh"
 #endif
+
 class MediaSink: public Medium {
 public:
   static Boolean lookupByName(UsageEnvironment& env, char const* sinkName,
 			      MediaSink*& resultSink);
 
   typedef void (afterPlayingFunc)(void* clientData);
-  Boolean startPlaying(MediaSource& source,
+  Boolean startPlaying(
 		       afterPlayingFunc* afterFunc,
 		       void* afterClientData);
   virtual void stopPlaying();
@@ -44,7 +45,6 @@ protected:
   MediaSink(UsageEnvironment& env); // abstract base class
   virtual ~MediaSink();
 
-  virtual Boolean sourceIsCompatibleWithUs(MediaSource& source);
       // called by startPlaying()
   virtual Boolean continuePlaying() = 0;
       // called by startPlaying()

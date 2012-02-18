@@ -10,7 +10,7 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-MISC_SOURCE_OBJS = MediaSource.$(OBJ) InputFile.$(OBJ)
+MISC_SOURCE_OBJS = InputFile.$(OBJ)
 MISC_SINK_OBJS = MediaSink.$(OBJ) OutputFile.$(OBJ)
 
 RTP_SINK_OBJS = RTPSink.$(OBJ) 
@@ -32,8 +32,6 @@ $(LIVEMEDIA_LIB): $(LIVEMEDIA_LIB_OBJS) \
 
 Media.$(CPP):		include/Media.hh
 include/Media.hh:	include/liveMedia_version.hh
-MediaSource.$(CPP):	include/MediaSource.hh
-include/MediaSource.hh:		include/Media.hh
 InputFile.$(CPP):		include/InputFile.hh
 MediaSink.$(CPP):	include/MediaSink.hh
 RTPSink.$(CPP):		include/RTPSink.hh
