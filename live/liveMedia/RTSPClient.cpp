@@ -987,7 +987,7 @@ Boolean RTSPClient::handleSETUPResponse(MediaSubsession& subsession, char const*
 	//subsession.rtpSource()->setStreamSocket(fInputSocketNum, subsession.rtpChannelId);
 	//subsession.rtpSource()->setServerRequestAlternativeByteHandler(fInputSocketNum, handleAlternativeRequestByte, this);
       //}
-      if (subsession.rtcpInstance() != NULL) subsession.rtcpInstance()->setStreamSocket(fInputSocketNum, subsession.rtcpChannelId);
+      //if (subsession.rtcpInstance() != NULL) subsession.rtcpInstance()->setStreamSocket(fInputSocketNum, subsession.rtcpChannelId);
     } else {
       // Normal case.
       // Set the RTP and RTCP sockets' destination address and port from the information in the SETUP response (if present):

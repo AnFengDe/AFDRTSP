@@ -45,11 +45,9 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #ifndef _MEDIA_SESSION_HH
 #define _MEDIA_SESSION_HH
-
-#ifndef _RTCP_HH
-#include "RTCP.hh"
+#ifndef _RTP_SINK_HH
+#include "RTPSink.hh"
 #endif
-
 class MediaSubsession; // forward
 
 class MediaSession: public Medium {
@@ -106,7 +104,7 @@ protected:
 
 protected:
   friend class MediaSubsessionIterator;
-  char* fCNAME; // used for RTCP
+  char* fCNAME; // used for TCP
 
   // Linkage fields:
   MediaSubsession* fSubsessionsHead;
@@ -159,7 +157,6 @@ public:
   unsigned numChannels() const { return fNumChannels; }
   float& scale() { return fScale; }
 
-  RTCPInstance* rtcpInstance() { return fRTCPInstance; }
   unsigned rtpTimestampFrequency() const { return fRTPTimestampFrequency; }
     // This is the source that client sinks read from.  It is usually
     // (but not necessarily) the same as "rtpSource()"
@@ -218,7 +215,7 @@ public:
       // Converts "fConnectionEndpointName" to an address (or 0 if unknown)
   void setDestinations(netAddressBits defaultDestAddress);
       // Uses "fConnectionEndpointName" and "serverPortNum" to set
-      // the destination address and port of the RTP and RTCP objects.
+      // the destination address and port of the RTP and TCP objects.
       // This is typically called by RTSP clients after doing "SETUP".
 
   char const* sessionId() const { return fSessionId; }
@@ -244,7 +241,7 @@ public:
   // This function is useful only if the "rtpInfo" structure was previously filled in
   // (e.g., by a "RTP-Info:" header in a RTSP response).
   // Also, for this function to work properly, the RTP stream's presentation times must (eventually) be
-  // synchronized via RTCP.
+  // synchronized via TCP.
   // (Note: If this function returns a negative number, then the result should be ignored by the caller.)
 
 protected:
@@ -311,7 +308,6 @@ protected:
 
   // Fields set by initiate():
   Groupsock* fRTPSocket; Groupsock* fRTCPSocket; // works even for unicast
-  RTCPInstance* fRTCPInstance;
 
   // Other fields:
   char* fSessionId; // used by RTSP

@@ -28,9 +28,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _RTP_SINK_HH
 #include "RTPSink.hh"
 #endif
-#ifndef _RTCP_HH
-#include "RTCP.hh"
-#endif
 
 class OnDemandServerMediaSubsession: public ServerMediaSubsession {
 protected: // we're a virtual base class
@@ -43,7 +40,6 @@ protected: // redefined virtual functions
   virtual void getStreamParameters(unsigned clientSessionId,
 				   netAddressBits clientAddress,
                                    Port const& clientRTPPort,
-                                   Port const& clientRTCPPort,
 				   int tcpSocketNum,
                                    unsigned char rtpChannelId,
                                    unsigned char rtcpChannelId,
@@ -51,7 +47,6 @@ protected: // redefined virtual functions
 				   u_int8_t& destinationTTL,
                                    Boolean& isMulticast,
                                    Port& serverRTPPort,
-                                   Port& serverRTCPPort,
                                    void*& streamToken);
   virtual void startStream(unsigned clientSessionId, void* streamToken,
 			   TaskFunc* rtcpRRHandler,
@@ -81,7 +76,7 @@ private:
   portNumBits fInitialPortNum;
   HashTable* fDestinationsHashTable; // indexed by client session id
   void* fLastStreamToken;
-  char fCNAME[100]; // for RTCP
+  char fCNAME[100]; // for TCP
   friend class StreamState;
 };
 
@@ -113,7 +108,7 @@ public:
 class StreamState {
 public:
   StreamState(OnDemandServerMediaSubsession& master,
-              Port const& serverRTPPort, Port const& serverRTCPPort,
+              Port const& serverRTPPort, 
 	      RTPSink* rtpSink, 
 	      unsigned totalBW,
 	      Groupsock* rtpGS, Groupsock* rtcpGS);
@@ -129,7 +124,6 @@ public:
   unsigned& referenceCount() { return fReferenceCount; }
 
   Port const& serverRTPPort() const { return fServerRTPPort; }
-  Port const& serverRTCPPort() const { return fServerRTCPPort; }
 
   RTPSink* rtpSink() const { return fRTPSink; }
 
@@ -140,17 +134,15 @@ private:
   Boolean fAreCurrentlyPlaying;
   unsigned fReferenceCount;
 
-  Port fServerRTPPort, fServerRTCPPort;
+  Port fServerRTPPort;
 
   RTPSink* fRTPSink;
 
   float fStreamDuration;
   unsigned fTotalBW;
-  RTCPInstance* fRTCPInstance;
 
 
   Groupsock* fRTPgs;
-  Groupsock* fRTCPgs;
 };
 
 #endif

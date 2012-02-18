@@ -25,15 +25,15 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 ////////// PassiveServerMediaSubsession //////////
 
 PassiveServerMediaSubsession*
-PassiveServerMediaSubsession::createNew(RTPSink& rtpSink,
-					RTCPInstance* rtcpInstance) {
-  return new PassiveServerMediaSubsession(rtpSink, rtcpInstance);
+PassiveServerMediaSubsession::createNew(RTPSink& rtpSink
+					) {
+  return new PassiveServerMediaSubsession(rtpSink);
 }
 
 PassiveServerMediaSubsession
-::PassiveServerMediaSubsession(RTPSink& rtpSink, RTCPInstance* rtcpInstance)
+::PassiveServerMediaSubsession(RTPSink& rtpSink)
   : ServerMediaSubsession(rtpSink.envir()),
-    fSDPLines(NULL), fRTPSink(rtpSink), fRTCPInstance(rtcpInstance) {
+    fSDPLines(NULL), fRTPSink(rtpSink) {
   fClientRTCPSourceRecords = HashTable::create(ONE_WORD_HASH_KEYS);
 }
 
@@ -121,7 +121,6 @@ void PassiveServerMediaSubsession
 ::getStreamParameters(unsigned clientSessionId,
 		      netAddressBits clientAddress,
 		      Port const& /*clientRTPPort*/,
-		      Port const& clientRTCPPort,
 		      int /*tcpSocketNum*/,
 		      unsigned char /*rtpChannelId*/,
 		      unsigned char /*rtcpChannelId*/,
@@ -129,7 +128,6 @@ void PassiveServerMediaSubsession
 		      u_int8_t& destinationTTL,
 		      Boolean& isMulticast,
 		      Port& serverRTPPort,
-		      Port& serverRTCPPort,
 		      void*& streamToken) {
   isMulticast = True;
 #if 0
@@ -170,7 +168,7 @@ void PassiveServerMediaSubsession::startStream(unsigned clientSessionId,
 
   // Try to use a big send buffer for RTP -  at least 0.1 second of
   // specified bandwidth and at least 50 KB
-  unsigned streamBitrate = fRTCPInstance == NULL ? 50 : fRTCPInstance->totSessionBW(); // in kbps
+  unsigned streamBitrate = 50; // in kbps
   unsigned rtpBufSize = streamBitrate * 25 / 2; // 1 kbps * 0.1 s = 12.5 bytes
   if (rtpBufSize < 50 * 1024) rtpBufSize = 50 * 1024;
 #if 0
@@ -178,11 +176,9 @@ void PassiveServerMediaSubsession::startStream(unsigned clientSessionId,
 #endif
 
   // Set up the handler for incoming RTCP "RR" packets from this client:
-  if (fRTCPInstance != NULL) {
+  if (NULL) {
     RTCPSourceRecord* source = (RTCPSourceRecord*)(fClientRTCPSourceRecords->Lookup((char const*)clientSessionId));
     if (source != NULL) {
-      fRTCPInstance->setSpecificRRHandler(source->addr, source->port,
-					  rtcpRRHandler, rtcpRRHandlerClientData);
     }
   }
 }
@@ -191,11 +187,8 @@ void PassiveServerMediaSubsession::deleteStream(unsigned clientSessionId, void*&
   // Lookup and remove the 'RTCPSourceRecord' for this client.  Also turn off RTCP "RR" handling:
   RTCPSourceRecord* source = (RTCPSourceRecord*)(fClientRTCPSourceRecords->Lookup((char const*)clientSessionId));
   if (source != NULL) {
-    if (fRTCPInstance != NULL) {
-      fRTCPInstance->unsetSpecificRRHandler(source->addr, source->port);
     }
 
     fClientRTCPSourceRecords->Remove((char const*)clientSessionId);
     delete source;
-  }
 }

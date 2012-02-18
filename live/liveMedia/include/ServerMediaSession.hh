@@ -118,7 +118,6 @@ public:
   virtual void getStreamParameters(unsigned clientSessionId, // in
 				   netAddressBits clientAddress, // in
 				   Port const& clientRTPPort, // in
-				   Port const& clientRTCPPort, // in
 				   int tcpSocketNum, // in (-1 means use UDP, not TCP)
 				   unsigned char rtpChannelId, // in (used if TCP)
 				   unsigned char rtcpChannelId, // in (used if TCP)
@@ -126,7 +125,6 @@ public:
 				   u_int8_t& destinationTTL, // in out
 				   Boolean& isMulticast, // out
 				   Port& serverRTPPort, // out
-				   Port& serverRTCPPort, // out
 				   void*& streamToken // out
 				   ) = 0;
   virtual void startStream(unsigned clientSessionId, void* streamToken,

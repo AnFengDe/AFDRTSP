@@ -29,17 +29,14 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _RTP_SINK_HH
 #include "RTPSink.hh"
 #endif
-#ifndef _RTCP_HH
-#include "RTCP.hh"
-#endif
 
 class PassiveServerMediaSubsession: public ServerMediaSubsession {
 public:
-  static PassiveServerMediaSubsession* createNew(RTPSink& rtpSink,
-						 RTCPInstance* rtcpInstance = NULL);
+  static PassiveServerMediaSubsession* createNew(RTPSink& rtpSink
+						 );
 
 protected:
-  PassiveServerMediaSubsession(RTPSink& rtpSink, RTCPInstance* rtcpInstance);
+  PassiveServerMediaSubsession(RTPSink& rtpSink);
       // called only by createNew();
   virtual ~PassiveServerMediaSubsession();
 
@@ -48,7 +45,6 @@ protected: // redefined virtual functions
   virtual void getStreamParameters(unsigned clientSessionId,
 				   netAddressBits clientAddress,
                                    Port const& clientRTPPort,
-                                   Port const& clientRTCPPort,
 				   int tcpSocketNum,
                                    unsigned char rtpChannelId,
                                    unsigned char rtcpChannelId,
@@ -56,7 +52,6 @@ protected: // redefined virtual functions
 				   u_int8_t& destinationTTL,
                                    Boolean& isMulticast,
                                    Port& serverRTPPort,
-                                   Port& serverRTCPPort,
                                    void*& streamToken);
   virtual void startStream(unsigned clientSessionId, void* streamToken,
 			   TaskFunc* rtcpRRHandler,
@@ -71,8 +66,7 @@ protected:
 
 private:
   RTPSink& fRTPSink;
-  RTCPInstance* fRTCPInstance;
-  HashTable* fClientRTCPSourceRecords; // indexed by client session id; used to implement RTCP "RR" handling
+  HashTable* fClientRTCPSourceRecords; // indexed by client session id; used to implement TCP "RR" handling
 };
 
 #endif

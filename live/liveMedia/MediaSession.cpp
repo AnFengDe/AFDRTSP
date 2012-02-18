@@ -64,7 +64,7 @@ MediaSession::MediaSession(UsageEnvironment& env)
     fControlPath(NULL) {
   fSourceFilterAddr.s_addr = 0;
 
-  // Get our host name, and use this for the RTCP CNAME:
+  // Get our host name, and use this for the TCP CNAME:
   const unsigned maxCNAMElen = 100;
   char CNAME[maxCNAMElen+1];
 #ifndef CRIS
@@ -538,8 +538,7 @@ MediaSubsession::MediaSubsession(MediaSession& parent)
     fConfig(NULL), fMode(NULL), fSpropParameterSets(NULL), fEmphasis(NULL), fChannelOrder(NULL),
     fPlayStartTime(0.0), fPlayEndTime(0.0),
     fVideoWidth(0), fVideoHeight(0), fVideoFPS(0), fNumChannels(1), fScale(1.0f), fNPT_PTS_Offset(0.0f),
-    fRTPSocket(NULL), fRTCPSocket(NULL),
-     fRTCPInstance(NULL),
+    fRTPSocket(NULL), 
     fSessionId(NULL) {
   rtpInfo.seqNum = 0; rtpInfo.timestamp = 0; rtpInfo.infoIsNew = False;
 }
@@ -576,7 +575,7 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
       break;
     }
 
-    // Create RTP and RTCP 'Groupsocks' on which to receive incoming data.
+    // Create RTP and TCP 'Groupsocks' on which to receive incoming data.
     // (Groupsocks will work even for unicast addresses)
     struct in_addr tempAddr;
     tempAddr.s_addr = connectionEndpointAddress();
@@ -595,22 +594,20 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
 	break;
       }
       
-      // Set our RTCP port to be the RTP port +1
+      // Set our TCP port to be the RTP port +1
       portNumBits const rtcpPortNum = fClientPortNum|1;
       if (isSSM()) {
-	fRTCPSocket = new Groupsock(env(), tempAddr, fSourceFilterAddr, rtcpPortNum);
       } else {
-	fRTCPSocket = new Groupsock(env(), tempAddr, rtcpPortNum, 255);
       }
-      if (fRTCPSocket == NULL) {
+      if ( NULL) {
 	char tmpBuf[100];
-	sprintf(tmpBuf, "Failed to create RTCP socket (port %d)", rtcpPortNum);
+	sprintf(tmpBuf, "Failed to create TCP socket (port %d)", rtcpPortNum);
 	env().setResultMsg(tmpBuf);
 	break;
       }
     } else {
       // Port numbers were not specified in advance, so we use ephemeral port numbers.
-      // Create sockets until we get a port-number pair (even: RTP; even+1: RTCP).
+      // Create sockets until we get a port-number pair (even: RTP; even+1: TCP).
       // We need to make sure that we don't keep trying to use the same bad port numbers over and over again.
       // so we store bad sockets in a table, and delete them all when we're done.
       HashTable* socketHashTable = HashTable::create(ONE_WORD_HASH_KEYS);
@@ -626,7 +623,7 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
 	  fRTPSocket = new Groupsock(env(), tempAddr, 0, 255);
 	}
 	if (fRTPSocket == NULL) {
-	  env().setResultMsg("MediaSession::initiate(): unable to create RTP and RTCP sockets");
+	  env().setResultMsg("MediaSession::initiate(): unable to create RTP and TCP sockets");
 	  break;
 	}
 
@@ -644,20 +641,17 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
 	  continue;
 	}
 
-	// Make sure we can use the next (i.e., odd) port number, for RTCP:
+	// Make sure we can use the next (i.e., odd) port number, for TCP:
 	portNumBits rtcpPortNum = fClientPortNum|1;
 	if (isSSM()) {
-	  fRTCPSocket = new Groupsock(env(), tempAddr, fSourceFilterAddr, rtcpPortNum);
 	} else {
-	  fRTCPSocket = new Groupsock(env(), tempAddr, rtcpPortNum, 255);
 	}
-	if (fRTCPSocket != NULL && fRTCPSocket->socketNum() >= 0) {
+	if (NULL) {
 	  // Success! Use these two sockets.
 	  success = True;
 	  break;
 	} else {
-	  // We couldn't create the RTCP socket (perhaps that port number's already in use elsewhere?).
-	  delete fRTCPSocket;
+	  // We couldn't create the TCP socket (perhaps that port number's already in use elsewhere?).
 
 	  // Record the first socket in our table, and keep trying:
 	  unsigned key = (unsigned)fClientPortNum;
@@ -674,7 +668,7 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
       }
       delete socketHashTable;
 
-      if (!success) break; // a fatal error occurred trying to create the RTP and RTCP sockets; we can't continue
+      if (!success) break; // a fatal error occurred trying to create the RTP and TCP sockets; we can't continue
     }
 
     // Try to use a big receive buffer for RTP - at least 0.1 second of
@@ -684,34 +678,29 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
       rtpBufSize = 50 * 1024;
     increaseReceiveBufferTo(env(), fRTPSocket->socketNum(), rtpBufSize);
 
-    // ASSERT: fRTPSocket != NULL && fRTCPSocket != NULL
+    // ASSERT: fRTPSocket != NULL && fTCPSocket != NULL
     if (isSSM()) {
-      // Special case for RTCP SSM: Send RTCP packets back to the source via unicast:
-      fRTCPSocket->changeDestinationParameters(fSourceFilterAddr,0,~0);
+      // Special case for TCP SSM: Send TCP packets back to the source via unicast:
     }
 
     // Create "fTPSource" and "fReadSource":
     if (!createSourceObjects(useSpecialRTPoffset)) break;
 
-    // Finally, create our RTCP instance. (It starts running automatically)
+    // Finally, create our TCP instance. (It starts running automatically)
 
     return True;
   } while (0);
 
   delete fRTPSocket; fRTPSocket = NULL;
-  delete fRTCPSocket; fRTCPSocket = NULL;
-  Medium::close(fRTCPInstance); fRTCPInstance = NULL;
   fClientPortNum = 0;
   return False;
 }
 
 void MediaSubsession::deInitiate() {
-  Medium::close(fRTCPInstance);
-  fRTCPInstance = NULL;
 
 
-  delete fRTCPSocket; delete fRTPSocket;
-  fRTCPSocket = fRTPSocket = NULL;
+  delete fRTPSocket;
+  fRTPSocket = NULL;
 }
 
 Boolean MediaSubsession::setClientPortNum(unsigned short portNum) {
@@ -758,11 +747,9 @@ void MediaSubsession::setDestinations(netAddressBits defaultDestAddress) {
     Port destPort(serverPortNum);
     fRTPSocket->changeDestinationParameters(destAddr, destPort, destTTL);
   }
-  if (fRTCPSocket != NULL && !isSSM()) {
-    // Note: For SSM sessions, the dest address for RTCP was already set.
+  if (NULL && !isSSM()) {
+    // Note: For SSM sessions, the dest address for TCP was already set.
     Port destPort(serverPortNum+1);
-    fRTCPSocket->
-      changeDestinationParameters(destAddr, destPort, destTTL);
   }
 }
 
@@ -773,9 +760,9 @@ void MediaSubsession::setSessionId(char const* sessionId) {
 
 double MediaSubsession::getNormalPlayTime(struct timeval const& presentationTime) {
 
-  // First, check whether our "TPSource" object has already been synchronized using RTCP.
+  // First, check whether our "TPSource" object has already been synchronized using TCP.
   // If it hasn't, then - as a special case - we need to use the RTP timestamp to compute the NPT.
-  //we have no rtpsource,so ....if (!rtpSource()->hasBeenSynchronizedUsingRTCP()) {
+  //we have no rtpsource,so ....if (!rtpSource()->hasBeenSynchronizedUsingTCP()) {
     /*if (!rtpInfo.infoIsNew) */return 0.0; // the "rtpInfo" structure has not been filled in
     //u_int32_t timestampOffset = rtpSource()->curPacketRTPTimestamp() - rtpInfo.timestamp;
     //double nptOffset = (timestampOffset/(double)(rtpSource()->timestampFrequency()))*scale();
@@ -783,7 +770,7 @@ double MediaSubsession::getNormalPlayTime(struct timeval const& presentationTime
 
     //return npt;
   //} else {
-    // Common case: We have been synchronized using RTCP.  This means that the "presentationTime" parameter
+    // Common case: We have been synchronized using TCP.  This means that the "presentationTime" parameter
     // will be accurate, and so we should use this to compute the NPT.
     //double ptsDouble = (double)(presentationTime.tv_sec + presentationTime.tv_usec/1000000.0);
 

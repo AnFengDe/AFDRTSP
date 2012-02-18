@@ -67,10 +67,6 @@ Boolean Medium::isSink() const {
   return False; // default implementation
 }
 
-Boolean Medium::isRTCPInstance() const {
-  return False; // default implementation
-}
-
 Boolean Medium::isRTSPClient() const {
   return False; // default implementation
 }
