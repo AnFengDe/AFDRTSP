@@ -48,13 +48,13 @@ RTSPServerSupportingHTTPStreaming::createNewClientSession(unsigned sessionId, in
 
 RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
 ::RTSPClientSessionSupportingHTTPStreaming(RTSPServer& ourServer, unsigned sessionId, int clientSocket, struct sockaddr_in clientAddr)
-  : RTSPClientSession(ourServer, sessionId, clientSocket, clientAddr),
-    fTCPSink(NULL) {
+  : RTSPClientSession(ourServer, sessionId, clientSocket, clientAddr)
+    {
 }
 
 RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming::~RTSPClientSessionSupportingHTTPStreaming() {
   //Medium::close(fPlaylistSource);
-  Medium::close(fTCPSink);
+  //Medium::close(fTCPSink);
 }
 
 static char const* lastModifiedHeader(char const* fileName) {
@@ -150,8 +150,8 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
       // Ask the media source to deliver - to the TCP sink - the desired data:
       FramedSource* mediaSource = subsession->getStreamSource(streamToken);
       if (mediaSource != NULL) {
-	if (fTCPSink == NULL) fTCPSink = TCPStreamSink::createNew(envir(), fClientOutputSocket);
-	fTCPSink->startPlaying(*mediaSource, afterStreaming, this);
+	//if (fTCPSink == NULL) fTCPSink = CPStreamSink::createNew(envir(), fClientOutputSocket);
+	//fTCPSink->startPlaying(*mediaSource, afterStreaming, this);
       }
     } while(0);
 
@@ -244,11 +244,11 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
   // Then, send the playlist.  Because it's large, we don't do so using "send()", because that might not send it all at once.
   // Instead, we stream the playlist over the TCP socket:
   if (true) { // sanity check
-    if (fTCPSink != NULL) fTCPSink->stopPlaying();
+    //if (fTCPSink != NULL) fTCPSink->stopPlaying();
     //Medium::close(fPlaylistSource);
   }
   //comment by chtian fPlaylistSource = yteStreamMemoryBufferSource::createNew(envir(), (u_int8_t*)playlist, playlistLen);
-  if (fTCPSink == NULL) fTCPSink = TCPStreamSink::createNew(envir(), fClientOutputSocket);
+  //if (fTCPSink == NULL) fTCPSink = CPStreamSink::createNew(envir(), fClientOutputSocket);
   //fTCPSink->startPlaying(*fPlaylistSource, afterStreaming, this);
 }
 

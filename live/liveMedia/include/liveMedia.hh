@@ -27,6 +27,5 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "RTSPServerSupportingHTTPStreaming.hh"
 #include "RTSPClient.hh"
 #include "PassiveServerMediaSubsession.hh"
-#include "TCPStreamSink.hh"
 
 #endif

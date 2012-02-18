@@ -24,9 +24,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _RTSP_SERVER_HH
 #include "RTSPServer.hh"
 #endif
-#ifndef _TCP_STREAM_SINK_HH
-#include "TCPStreamSink.hh"
-#endif
 
 class RTSPServerSupportingHTTPStreaming: public RTSPServer {
 public:
@@ -61,7 +58,6 @@ public: // should be protected, but some old compilers complain otherwise
     static void afterStreaming(void* clientData);
 
   private:
-    TCPStreamSink* fTCPSink;
   };
 };
 
