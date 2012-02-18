@@ -109,7 +109,7 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
       u_int8_t destinationTTL = 0;
       Boolean isMulticast = False;
       void* streamToken;
-      subsession->getStreamParameters(fOurSessionId, 0, clientRTPPort,clientRTCPPort, 0,0,0, destinationAddress,destinationTTL, isMulticast, serverRTPPort,serverRTCPPort, streamToken);
+      subsession->getStreamParameters(fOurSessionId, 0, clientRTPPort, 0,0,0, destinationAddress,destinationTTL, isMulticast, serverRTPPort,streamToken);
       
       // Set up our "fStreamStates", just as we would if we were handling a RTSP "SETUP":
       reclaimStreamStates();
