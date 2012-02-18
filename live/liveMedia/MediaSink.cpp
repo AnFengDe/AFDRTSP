@@ -54,6 +54,7 @@ Boolean MediaSink::lookupByName(UsageEnvironment& env, char const* sinkName,
 
 Boolean MediaSink::sourceIsCompatibleWithUs(MediaSource& source) {
   // We currently support only framed sources.
+  return False;
 }
 
 Boolean MediaSink::startPlaying(MediaSource& source,
