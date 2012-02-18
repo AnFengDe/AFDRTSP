@@ -16,7 +16,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // "liveMedia"
 // Copyright (c) 1996-2012 Live Networks, Inc.  All rights reserved.
 // A 'ServerMediaSubsession' object that represents an existing
-// 'RTPSink', rather than one that creates new 'RTPSink's on demand.
+// 'TPSink', rather than one that creates new 'TPSink's on demand.
 // Implementation
 
 #include "PassiveServerMediaSubsession.hh"
@@ -25,15 +25,16 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 ////////// PassiveServerMediaSubsession //////////
 
 PassiveServerMediaSubsession*
-PassiveServerMediaSubsession::createNew(RTPSink& rtpSink
+PassiveServerMediaSubsession::createNew(
 					) {
-  return new PassiveServerMediaSubsession(rtpSink);
+  UsageEnvironment* env = NULL; //only for modify to across compile by chtian
+  return new PassiveServerMediaSubsession(*env);
 }
 
 PassiveServerMediaSubsession
-::PassiveServerMediaSubsession(RTPSink& rtpSink)
-  : ServerMediaSubsession(rtpSink.envir()),
-    fSDPLines(NULL), fRTPSink(rtpSink) {
+::PassiveServerMediaSubsession(UsageEnvironment& env)
+  : ServerMediaSubsession(env),
+    fSDPLines(NULL) {
   fClientRTCPSourceRecords = HashTable::create(ONE_WORD_HASH_KEYS);
 }
 
@@ -66,17 +67,17 @@ PassiveServerMediaSubsession::sdpLines() {
     // Construct a set of SDP lines that describe this subsession:
     // Use the components from "rtpSink":
 #if 0
-    Groupsock const& gs = fRTPSink.groupsockBeingUsed();
+    Groupsock const& gs = fTPSink.groupsockBeingUsed();
     AddressString groupAddressStr(gs.groupAddress());
     unsigned short portNum = ntohs(gs.port().num());
     unsigned char ttl = gs.ttl();
-    unsigned char rtpPayloadType = fRTPSink.rtpPayloadType();
-    char const* mediaType = fRTPSink.sdpMediaType();
+    unsigned char rtpPayloadType = fTPSink.rtpPayloadType();
+    char const* mediaType = fTPSink.sdpMediaType();
     unsigned estBitrate
       = fRTCPInstance == NULL ? 50 : fRTCPInstance->totSessionBW();
-    char* rtpmapLine = fRTPSink.rtpmapLine();
+    char* rtpmapLine = fTPSink.rtpmapLine();
     char const* rangeLine = rangeSDPLine();
-    char const* auxSDPLine = fRTPSink.auxSDPLine();
+    char const* auxSDPLine = fTPSink.auxSDPLine();
     if (auxSDPLine == NULL) auxSDPLine = "";
 
     char const* const sdpFmt =
@@ -131,7 +132,7 @@ void PassiveServerMediaSubsession
 		      void*& streamToken) {
   isMulticast = True;
 #if 0
-  Groupsock& gs = fRTPSink.groupsockBeingUsed();
+  Groupsock& gs = fTPSink.groupsockBeingUsed();
   if (destinationTTL == 255) destinationTTL = gs.ttl();
   if (destinationAddress == 0) { // normal case
     destinationAddress = gs.groupAddress().s_addr;
@@ -163,8 +164,6 @@ void PassiveServerMediaSubsession::startStream(unsigned clientSessionId,
 					       unsigned short& rtpSeqNum,
 					       unsigned& rtpTimestamp,
 					       void* /*serverRequestAlternativeByteHandlerClientData*/) {
-  rtpSeqNum = fRTPSink.currentSeqNo();
-  rtpTimestamp = fRTPSink.presetNextTimestamp();
 
   // Try to use a big send buffer for RTP -  at least 0.1 second of
   // specified bandwidth and at least 50 KB
@@ -172,7 +171,7 @@ void PassiveServerMediaSubsession::startStream(unsigned clientSessionId,
   unsigned rtpBufSize = streamBitrate * 25 / 2; // 1 kbps * 0.1 s = 12.5 bytes
   if (rtpBufSize < 50 * 1024) rtpBufSize = 50 * 1024;
 #if 0
-  increaseSendBufferTo(envir(), fRTPSink.groupsockBeingUsed().socketNum(), rtpBufSize);
+  increaseSendBufferTo(envir(), fTPSink.groupsockBeingUsed().socketNum(), rtpBufSize);
 #endif
 
   // Set up the handler for incoming RTCP "RR" packets from this client:

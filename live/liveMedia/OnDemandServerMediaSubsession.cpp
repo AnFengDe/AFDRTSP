@@ -15,7 +15,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 **********/
 // "liveMedia"
 // Copyright (c) 1996-2012 Live Networks, Inc.  All rights reserved.
-// A 'ServerMediaSubsession' object that creates new, unicast, "RTPSink"s
+// A 'ServerMediaSubsession' object that creates new, unicast, "TPSink"s
 // on demand.
 // Implementation
 
@@ -51,7 +51,7 @@ OnDemandServerMediaSubsession::sdpLines() {
   if (fSDPLines == NULL) {
     // We need to construct a set of SDP lines that describe this
     // subsession (as a unicast stream).  To do so, we first create
-    // dummy (unused) source and "RTPSink" objects,
+    // dummy (unused) source and "TPSink" objects,
     // whose parameters we use for the SDP lines:
     unsigned estBitrate;
     return NULL; // file not found
@@ -82,10 +82,8 @@ void OnDemandServerMediaSubsession
   isMulticast = False;
 
   if (fLastStreamToken != NULL && fReuseFirstSource) {
-    // Special case: Rather than creating a new 'StreamState',
+    // Special case: Rather than creating a new 'treamState',
     // we reuse the one that we've already created:
-    serverRTPPort = ((StreamState*)fLastStreamToken)->serverRTPPort();
-    ++((StreamState*)fLastStreamToken)->referenceCount();
     streamToken = fLastStreamToken;
   } else {
     // Normal case: Create a new media source:
@@ -93,7 +91,6 @@ void OnDemandServerMediaSubsession
 
     // Create 'groupsock' and 'sink' objects for the destination,
     // using previously unused server port numbers:
-    RTPSink* rtpSink;
     Groupsock* rtpGroupsock;
     Groupsock* rtcpGroupsock;
     portNumBits serverPortNum;
@@ -109,7 +106,6 @@ void OnDemandServerMediaSubsession
       }
 
       rtcpGroupsock = NULL;
-      rtpSink = NULL;
     } else {
       // Normal case: We're streaming RTP (over UDP or TCP).  Create a pair of
       // groupsocks (RTP and TCP), with adjacent port numbers (RTP port number even):
@@ -150,10 +146,6 @@ void OnDemandServerMediaSubsession
     }
 
     // Set up the state of the stream.  The stream will get started later:
-    streamToken = fLastStreamToken
-      = new StreamState(*this, serverRTPPort, rtpSink,
-			streamBitrate, 
-			rtpGroupsock, rtcpGroupsock);
   }
 
   // Record these destinations as being for this client session id:
@@ -173,18 +165,8 @@ void OnDemandServerMediaSubsession::startStream(unsigned clientSessionId,
 						unsigned short& rtpSeqNum,
 						unsigned& rtpTimestamp,
 						void* serverRequestAlternativeByteHandlerClientData) {
-  StreamState* streamState = (StreamState*)streamToken;
   Destinations* destinations
     = (Destinations*)(fDestinationsHashTable->Lookup((char const*)clientSessionId));
-  if (streamState != NULL) {
-    streamState->startPlaying(destinations,
-			      rtcpRRHandler, rtcpRRHandlerClientData,
-			      serverRequestAlternativeByteHandlerClientData);
-    if (streamState->rtpSink() != NULL) {
-      rtpSeqNum = streamState->rtpSink()->currentSeqNo();
-      rtpTimestamp = streamState->rtpSink()->presetNextTimestamp();
-    }
-  }
 }
 
 void OnDemandServerMediaSubsession::pauseStream(unsigned /*clientSessionId*/,
@@ -193,8 +175,6 @@ void OnDemandServerMediaSubsession::pauseStream(unsigned /*clientSessionId*/,
   // the same source:
   if (fReuseFirstSource) return;
 
-  StreamState* streamState = (StreamState*)streamToken;
-  if (streamState != NULL) streamState->pause();
 }
 
 void OnDemandServerMediaSubsession::seekStream(unsigned /*clientSessionId*/,
@@ -205,7 +185,6 @@ void OnDemandServerMediaSubsession::seekStream(unsigned /*clientSessionId*/,
   // the same source:
   if (fReuseFirstSource) return;
 
-  StreamState* streamState = (StreamState*)streamToken;
 }
 
 void OnDemandServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
@@ -214,13 +193,10 @@ void OnDemandServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
   // from the same source:
   if (fReuseFirstSource) return;
 
-  StreamState* streamState = (StreamState*)streamToken;
 }
 
 void OnDemandServerMediaSubsession::deleteStream(unsigned clientSessionId,
 						 void*& streamToken) {
-  StreamState* streamState = (StreamState*)streamToken;
-
   // Look up (and remove) the destinations for this client session:
   Destinations* destinations
     = (Destinations*)(fDestinationsHashTable->Lookup((char const*)clientSessionId));
@@ -228,113 +204,20 @@ void OnDemandServerMediaSubsession::deleteStream(unsigned clientSessionId,
     fDestinationsHashTable->Remove((char const*)clientSessionId);
 
     // Stop streaming to these destinations:
-    if (streamState != NULL) streamState->endPlaying(destinations);
   }
 
-  // Delete the "StreamState" structure if it's no longer being used:
-  if (streamState != NULL) {
-    if (streamState->referenceCount() > 0) --streamState->referenceCount();
-    if (streamState->referenceCount() == 0) {
-      delete streamState;
-      streamToken = NULL;
-    }
-  }
+  // Delete the "treamState" structure if it's no longer being used:
 
   // Finally, delete the destinations themselves:
   delete destinations;
 }
 
 
-////////// StreamState implementation //////////
+////////// treamState implementation //////////
 
 static void afterPlayingStreamState(void* clientData) {
-  StreamState* streamState = (StreamState*)clientData;
-  if (streamState->streamDuration() == 0.0) {
-    // When the input stream ends, tear it down.  This will cause a TCP "BYE"
-    // to be sent to each client, teling it that the stream has ended.
-    // (Because the stream didn't have a known duration, there was no other
-    //  way for clients to know when the stream ended.)
-    streamState->reclaim();
-  }
   // Otherwise, keep the stream alive, in case a client wants to
   // subsequently re-play the stream starting from somewhere other than the end.
   // (This can be done only on streams that have a known duration.)
 }
 
-StreamState::StreamState(OnDemandServerMediaSubsession& master,
-                         Port const& serverRTPPort, 
-			 RTPSink* rtpSink, 
-			 unsigned totalBW, 
-			 Groupsock* rtpGS, Groupsock* rtcpGS)
-  : fMaster(master), fAreCurrentlyPlaying(False), fReferenceCount(1),
-    fServerRTPPort(serverRTPPort), 
-    fRTPSink(rtpSink), fStreamDuration(master.duration()),
-    fTotalBW(totalBW), 
-    fRTPgs(rtpGS) {
-}
-
-StreamState::~StreamState() {
-  reclaim();
-}
-
-void StreamState
-::startPlaying(Destinations* dests,
-	       TaskFunc* rtcpRRHandler, void* rtcpRRHandlerClientData,
-	       void* serverRequestAlternativeByteHandlerClientData) {
-  if (dests == NULL) return;
-
-  if (NULL && fRTPSink != NULL) {
-    // Create (and start) a 'TCP instance' for this RTP sink:
-        // Note: This starts TCP running automatically
-  }
-
-  if (dests->isTCP) {
-    // Change RTP and TCP to use the TCP socket instead of UDP:
-    if (fRTPSink != NULL) {
-      fRTPSink->addStreamSocket(dests->tcpSocketNum, dests->rtpChannelId);
-    }
-    if (NULL) {
-    }
-  } else {
-    // Tell the RTP and TCP 'groupsocks' about this destination
-    // (in case they don't already have it):
-    if (fRTPgs != NULL) fRTPgs->addDestination(dests->addr, dests->rtpPort);
-    if (NULL) {
-    }
-  }
-
-  if (!fAreCurrentlyPlaying ) {
-    if (fRTPSink != NULL) {
-      fAreCurrentlyPlaying = True;
-    }
-  }
-}
-
-void StreamState::pause() {
-  if (fRTPSink != NULL) fRTPSink->stopPlaying();
-  fAreCurrentlyPlaying = False;
-}
-
-void StreamState::endPlaying(Destinations* dests) {
-  if (dests->isTCP) {
-    if (fRTPSink != NULL) {
-      fRTPSink->removeStreamSocket(dests->tcpSocketNum, dests->rtpChannelId);
-    }
-    if (NULL) {
-    }
-  } else {
-    // Tell the RTP and TCP 'groupsocks' to stop using these destinations:
-    if (fRTPgs != NULL) fRTPgs->removeDestination(dests->addr, dests->rtpPort);
-    if (NULL) {
-    }
-  }
-}
-
-void StreamState::reclaim() {
-  // Delete allocated media objects
-  Medium::close(fRTPSink); fRTPSink = NULL;
-
-  if (fMaster.fLastStreamToken == this) fMaster.fLastStreamToken = NULL;
-
-  delete fRTPgs; fRTPgs = NULL;
-}

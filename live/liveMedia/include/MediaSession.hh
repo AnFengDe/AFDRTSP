@@ -45,9 +45,16 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #ifndef _MEDIA_SESSION_HH
 #define _MEDIA_SESSION_HH
-#ifndef _RTP_SINK_HH
-#include "RTPSink.hh"
+#ifndef _MEDIA_SINK_HH
+#include "MediaSink.hh"
 #endif
+#ifndef _MEDIA_HH
+#include <Media.hh>
+#endif
+#ifndef _GROUPSOCK_HH
+#include "Groupsock.hh"
+#endif
+
 class MediaSubsession; // forward
 
 class MediaSession: public Medium {

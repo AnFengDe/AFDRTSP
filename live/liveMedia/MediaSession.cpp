@@ -642,7 +642,6 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
 	}
 
 	// Make sure we can use the next (i.e., odd) port number, for TCP:
-	portNumBits rtcpPortNum = fClientPortNum|1;
 	if (isSSM()) {
 	} else {
 	}

@@ -15,7 +15,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 **********/
 // "liveMedia"
 // Copyright (c) 1996-2012 Live Networks, Inc.  All rights reserved.
-// A 'ServerMediaSubsession' object that creates new, unicast, "RTPSink"s
+// A 'ServerMediaSubsession' object that creates new, unicast, "TPSink"s
 // on demand.
 // C++ header
 
@@ -25,8 +25,14 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _SERVER_MEDIA_SESSION_HH
 #include "ServerMediaSession.hh"
 #endif
-#ifndef _RTP_SINK_HH
-#include "RTPSink.hh"
+#ifndef _MEDIA_SINK_HH
+#include "MediaSink.hh"
+#endif
+#ifndef _MEDIA_HH
+#include <Media.hh>
+#endif
+#ifndef _GROUPSOCK_HH
+#include "Groupsock.hh"
 #endif
 
 class OnDemandServerMediaSubsession: public ServerMediaSubsession {
@@ -77,7 +83,6 @@ private:
   HashTable* fDestinationsHashTable; // indexed by client session id
   void* fLastStreamToken;
   char fCNAME[100]; // for TCP
-  friend class StreamState;
 };
 
 
@@ -103,46 +108,6 @@ public:
   Port rtcpPort;
   int tcpSocketNum;
   unsigned char rtpChannelId, rtcpChannelId;
-};
-
-class StreamState {
-public:
-  StreamState(OnDemandServerMediaSubsession& master,
-              Port const& serverRTPPort, 
-	      RTPSink* rtpSink, 
-	      unsigned totalBW,
-	      Groupsock* rtpGS, Groupsock* rtcpGS);
-  virtual ~StreamState();
-
-  void startPlaying(Destinations* destinations,
-		    TaskFunc* rtcpRRHandler, void* rtcpRRHandlerClientData,
-                    void* serverRequestAlternativeByteHandlerClientData);
-  void pause();
-  void endPlaying(Destinations* destinations);
-  void reclaim();
-
-  unsigned& referenceCount() { return fReferenceCount; }
-
-  Port const& serverRTPPort() const { return fServerRTPPort; }
-
-  RTPSink* rtpSink() const { return fRTPSink; }
-
-  float streamDuration() const { return fStreamDuration; }
-
-private:
-  OnDemandServerMediaSubsession& fMaster;
-  Boolean fAreCurrentlyPlaying;
-  unsigned fReferenceCount;
-
-  Port fServerRTPPort;
-
-  RTPSink* fRTPSink;
-
-  float fStreamDuration;
-  unsigned fTotalBW;
-
-
-  Groupsock* fRTPgs;
 };
 
 #endif

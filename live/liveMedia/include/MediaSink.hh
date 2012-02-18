@@ -39,8 +39,6 @@ public:
   virtual void stopPlaying();
 
   // Test for specific types of sink:
-  virtual Boolean isRTPSink() const;
-
 protected:
   MediaSink(UsageEnvironment& env); // abstract base class
   virtual ~MediaSink();

@@ -16,7 +16,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // "liveMedia"
 // Copyright (c) 1996-2012 Live Networks, Inc.  All rights reserved.
 // A 'ServerMediaSubsession' object that represents an existing
-// 'RTPSink', rather than one that creates new 'RTPSink's on demand.
+// 'TPSink', rather than one that creates new 'TPSink's on demand.
 // C++ header
 
 #ifndef _PASSIVE_SERVER_MEDIA_SUBSESSION_HH
@@ -26,17 +26,13 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "ServerMediaSession.hh"
 #endif
 
-#ifndef _RTP_SINK_HH
-#include "RTPSink.hh"
-#endif
-
 class PassiveServerMediaSubsession: public ServerMediaSubsession {
 public:
-  static PassiveServerMediaSubsession* createNew(RTPSink& rtpSink
+  static PassiveServerMediaSubsession* createNew(
 						 );
 
 protected:
-  PassiveServerMediaSubsession(RTPSink& rtpSink);
+  PassiveServerMediaSubsession(UsageEnvironment& env);
       // called only by createNew();
   virtual ~PassiveServerMediaSubsession();
 
@@ -65,7 +61,6 @@ protected:
   char* fSDPLines;
 
 private:
-  RTPSink& fRTPSink;
   HashTable* fClientRTCPSourceRecords; // indexed by client session id; used to implement TCP "RR" handling
 };
 

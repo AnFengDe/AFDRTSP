@@ -88,9 +88,6 @@ void MediaSink::onSourceClosure(void* clientData) {
   }
 }
 
-Boolean MediaSink::isRTPSink() const {
-  return False; // default implementation
-}
 
 ////////// OutPacketBuffer //////////
 
