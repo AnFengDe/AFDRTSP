@@ -875,10 +875,10 @@ void RTSPServer::RTSPClientSession
 #endif
 
     subsession->getStreamParameters(fOurSessionId, fClientAddr.sin_addr.s_addr,
-				    clientRTPPort, clientRTCPPort,
+				    clientRTPPort, 
 				    tcpSocketNum, rtpChannelId, rtcpChannelId,
 				    destinationAddress, destinationTTL, fIsMulticast,
-				    serverRTPPort, serverRTCPPort,
+				    serverRTPPort, 
 				    fStreamStates[streamNum].streamToken);
     SendingInterfaceAddr = origSendingInterfaceAddr;
     ReceivingInterfaceAddr = origReceivingInterfaceAddr;
