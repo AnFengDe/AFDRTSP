@@ -20,11 +20,6 @@ cd ../BasicUsageEnvironment
 /bin/rm -f Makefile
 cat Makefile.head ../win32config Makefile.tail > BasicUsageEnvironment.mak
 
-cd ../testProgs
-/bin/rm -f testProgs.mak
-/bin/rm -f Makefile
-cat Makefile.head ../win32config Makefile.tail > testProgs.mak
-
 cd ../mediaServer
 /bin/rm -f mediaServer.mak
 /bin/rm -f Makefile

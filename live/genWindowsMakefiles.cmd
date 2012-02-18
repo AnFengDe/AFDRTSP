@@ -14,9 +14,6 @@ type Makefile.head ..\win32config Makefile.tail > UsageEnvironment.mak
 cd ../BasicUsageEnvironment
 del /Q BasicUsageEnvironment.mak
 type Makefile.head ..\win32config Makefile.tail > BasicUsageEnvironment.mak
-cd ../testProgs
-del /Q testProgs.mak
-type Makefile.head ..\win32config Makefile.tail > testProgs.mak
 cd ../mediaServer
 del /Q mediaServer.mak
 type Makefile.head ..\win32config Makefile.tail > mediaServer.mak
