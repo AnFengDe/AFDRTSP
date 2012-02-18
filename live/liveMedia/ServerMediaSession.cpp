@@ -341,10 +341,6 @@ void ServerMediaSubsession::seekStream(unsigned /*clientSessionId*/,
   // default implementation: do nothing
   numBytes = 0;
 }
-FramedSource* ServerMediaSubsession::getStreamSource(void* /*streamToken*/) {
-  // default implementation: return NULL
-  return NULL;
-}
 void ServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
 					   void* /*streamToken*/, float /*scale*/) {
   // default implementation: do nothing

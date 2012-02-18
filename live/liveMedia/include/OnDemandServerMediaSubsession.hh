@@ -62,28 +62,15 @@ protected: // redefined virtual functions
   virtual void pauseStream(unsigned clientSessionId, void* streamToken);
   virtual void seekStream(unsigned clientSessionId, void* streamToken, double& seekNPT, double streamDuration, u_int64_t& numBytes);
   virtual void setStreamScale(unsigned clientSessionId, void* streamToken, float scale);
-  virtual FramedSource* getStreamSource(void* streamToken);
   virtual void deleteStream(unsigned clientSessionId, void*& streamToken);
 
 protected: // new virtual functions, possibly redefined by subclasses
-  virtual char const* getAuxSDPLine(RTPSink* rtpSink,
-				    FramedSource* inputSource);
-  virtual void seekStreamSource(FramedSource* inputSource, double& seekNPT, double streamDuration, u_int64_t& numBytes);
     // "streamDuration", if >0.0, specifies how much data to stream, past "seekNPT".  (If <=0.0, all remaining data is streamed.)
-  virtual void setStreamSourceScale(FramedSource* inputSource, float scale);
-  virtual void closeStreamSource(FramedSource *inputSource);
 
 protected: // new virtual functions, defined by all subclasses
-  virtual FramedSource* createNewStreamSource(unsigned clientSessionId,
-					      unsigned& estBitrate) = 0;
       // "estBitrate" is the stream's estimated bitrate, in kbps
-  virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock,
-				    unsigned char rtpPayloadTypeIfDynamic,
-				    FramedSource* inputSource) = 0;
 
 private:
-  void setSDPLinesFromRTPSink(RTPSink* rtpSink, FramedSource* inputSource,
-			      unsigned estBitrate);
       // used to implement "sdpLines()"
 
 protected:
@@ -128,7 +115,7 @@ public:
   StreamState(OnDemandServerMediaSubsession& master,
               Port const& serverRTPPort, Port const& serverRTCPPort,
 	      RTPSink* rtpSink, 
-	      unsigned totalBW, FramedSource* mediaSource,
+	      unsigned totalBW,
 	      Groupsock* rtpGS, Groupsock* rtcpGS);
   virtual ~StreamState();
 
@@ -148,8 +135,6 @@ public:
 
   float streamDuration() const { return fStreamDuration; }
 
-  FramedSource* mediaSource() const { return fMediaSource; }
-
 private:
   OnDemandServerMediaSubsession& fMaster;
   Boolean fAreCurrentlyPlaying;
@@ -163,7 +148,6 @@ private:
   unsigned fTotalBW;
   RTCPInstance* fRTCPInstance;
 
-  FramedSource* fMediaSource;
 
   Groupsock* fRTPgs;
   Groupsock* fRTCPgs;

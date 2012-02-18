@@ -25,7 +25,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 ////////// MediaSink //////////
 
 MediaSink::MediaSink(UsageEnvironment& env)
-  : Medium(env), fSource(NULL) {
+  : Medium(env) {
 }
 
 MediaSink::~MediaSink() {
@@ -54,24 +54,22 @@ Boolean MediaSink::lookupByName(UsageEnvironment& env, char const* sinkName,
 
 Boolean MediaSink::sourceIsCompatibleWithUs(MediaSource& source) {
   // We currently support only framed sources.
-  return source.isFramedSource();
 }
 
 Boolean MediaSink::startPlaying(MediaSource& source,
 				afterPlayingFunc* afterFunc,
 				void* afterClientData) {
   // Make sure we're not already being played:
-  if (fSource != NULL) {
-    envir().setResultMsg("This sink is already being played");
+  //if (fSource != NULL) {
+  //  envir().setResultMsg("This sink is already being played");
     return False;
-  }
+  //}
 
   // Make sure our source is compatible:
   if (!sourceIsCompatibleWithUs(source)) {
     envir().setResultMsg("MediaSink::startPlaying(): source is not compatible!");
     return False;
   }
-  fSource = (FramedSource*)&source;
 
   fAfterFunc = afterFunc;
   fAfterClientData = afterClientData;
@@ -80,19 +78,19 @@ Boolean MediaSink::startPlaying(MediaSource& source,
 
 void MediaSink::stopPlaying() {
   // First, tell the source that we're no longer interested:
-  if (fSource != NULL) fSource->stopGettingFrames();
+  //if (fSource != NULL) fSource->stopGettingFrames();
 
   // Cancel any pending tasks:
   envir().taskScheduler().unscheduleDelayedTask(nextTask());
   nextTask() = NULL;
 
-  fSource = NULL; // indicates that we can be played again
+  //fSource = NULL; // indicates that we can be played again
   fAfterFunc = NULL;
 }
 
 void MediaSink::onSourceClosure(void* clientData) {
   MediaSink* sink = (MediaSink*)clientData;
-  sink->fSource = NULL; // indicates that we can be played again
+  //sink->fSource = NULL; // indicates that we can be played again
   if (sink->fAfterFunc != NULL) {
     (*(sink->fAfterFunc))(sink->fAfterClientData);
   }

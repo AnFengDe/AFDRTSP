@@ -161,7 +161,6 @@ public:
 
   RTCPInstance* rtcpInstance() { return fRTCPInstance; }
   unsigned rtpTimestampFrequency() const { return fRTPTimestampFrequency; }
-  FramedSource* readSource() { return fReadSource; }
     // This is the source that client sinks read from.  It is usually
     // (but not necessarily) the same as "rtpSource()"
 
@@ -313,7 +312,6 @@ protected:
   // Fields set by initiate():
   Groupsock* fRTPSocket; Groupsock* fRTCPSocket; // works even for unicast
   RTCPInstance* fRTCPInstance;
-  FramedSource* fReadSource;
 
   // Other fields:
   char* fSessionId; // used by RTSP

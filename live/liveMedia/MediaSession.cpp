@@ -472,14 +472,14 @@ Boolean MediaSession
   MediaSubsessionIterator iter(*this);
   MediaSubsession* subsession;
   while ((subsession = iter.next()) != NULL) {
-    Boolean wasAlreadyInitiated = subsession->readSource() != NULL;
+    Boolean wasAlreadyInitiated = NULL;
     if (!wasAlreadyInitiated) {
       // Try to create a source for this subsession:
       if (!subsession->initiate(useSpecialRTPoffset)) return False;
     }
 
     // Make sure the source's MIME type is one that we handle:
-    if (strcmp(subsession->readSource()->MIMEtype(), mimeType) != 0) {
+    if (0) {
       if (!wasAlreadyInitiated) subsession->deInitiate();
       continue;
     }
@@ -539,7 +539,7 @@ MediaSubsession::MediaSubsession(MediaSession& parent)
     fPlayStartTime(0.0), fPlayEndTime(0.0),
     fVideoWidth(0), fVideoHeight(0), fVideoFPS(0), fNumChannels(1), fScale(1.0f), fNPT_PTS_Offset(0.0f),
     fRTPSocket(NULL), fRTCPSocket(NULL),
-     fRTCPInstance(NULL), fReadSource(NULL),
+     fRTCPInstance(NULL),
     fSessionId(NULL) {
   rtpInfo.seqNum = 0; rtpInfo.timestamp = 0; rtpInfo.infoIsNew = False;
 }
@@ -569,7 +569,6 @@ double MediaSubsession::playEndTime() const {
 }
 
 Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
-  if (fReadSource != NULL) return True; // has already been initiated
 
   do {
     if (fCodecName == NULL) {
@@ -694,11 +693,6 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
     // Create "fTPSource" and "fReadSource":
     if (!createSourceObjects(useSpecialRTPoffset)) break;
 
-    if (fReadSource == NULL) {
-      env().setResultMsg("Failed to create read source");
-      break;
-    }
-
     // Finally, create our RTCP instance. (It starts running automatically)
 
     return True;
@@ -707,7 +701,6 @@ Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
   delete fRTPSocket; fRTPSocket = NULL;
   delete fRTCPSocket; fRTCPSocket = NULL;
   Medium::close(fRTCPInstance); fRTCPInstance = NULL;
-  Medium::close(fReadSource); 
   fClientPortNum = 0;
   return False;
 }
@@ -716,15 +709,13 @@ void MediaSubsession::deInitiate() {
   Medium::close(fRTCPInstance);
   fRTCPInstance = NULL;
 
-  Medium::close(fReadSource); // this is assumed to also close fTPSource
-  fReadSource = NULL; 
 
   delete fRTCPSocket; delete fRTPSocket;
   fRTCPSocket = fRTPSocket = NULL;
 }
 
 Boolean MediaSubsession::setClientPortNum(unsigned short portNum) {
-  if (fReadSource != NULL) {
+  if ( NULL) {
     env().setResultMsg("A read source has already been created");
     return False;
   }

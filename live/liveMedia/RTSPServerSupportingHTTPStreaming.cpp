@@ -148,11 +148,6 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
       fResponseBuffer[0] = '\0'; // We've already sent the response.  This tells the calling code not to send it again.
       
       // Ask the media source to deliver - to the TCP sink - the desired data:
-      FramedSource* mediaSource = subsession->getStreamSource(streamToken);
-      if (mediaSource != NULL) {
-	//if (fTCPSink == NULL) fTCPSink = CPStreamSink::createNew(envir(), fClientOutputSocket);
-	//fTCPSink->startPlaying(*mediaSource, afterStreaming, this);
-      }
     } while(0);
 
     delete[] streamName;

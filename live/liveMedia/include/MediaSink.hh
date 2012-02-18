@@ -20,11 +20,12 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #ifndef _MEDIA_SINK_HH
 #define _MEDIA_SINK_HH
-
-#ifndef _FRAMED_SOURCE_HH
-#include "FramedSource.hh"
+#ifndef _NET_COMMON_H
+#include "NetCommon.h"
 #endif
-
+#ifndef _MEDIA_SOURCE_HH
+#include "MediaSource.hh"
+#endif
 class MediaSink: public Medium {
 public:
   static Boolean lookupByName(UsageEnvironment& env, char const* sinkName,
@@ -39,8 +40,6 @@ public:
   // Test for specific types of sink:
   virtual Boolean isRTPSink() const;
 
-  FramedSource* source() const {return fSource;}
-
 protected:
   MediaSink(UsageEnvironment& env); // abstract base class
   virtual ~MediaSink();
@@ -53,8 +52,6 @@ protected:
   static void onSourceClosure(void* clientData);
       // should be called (on ourselves) by continuePlaying() when it
       // discovers that the source we're playing from has closed.
-
-  FramedSource* fSource;
 
 private:
   // redefined virtual functions:

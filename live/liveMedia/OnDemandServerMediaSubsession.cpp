@@ -54,19 +54,12 @@ OnDemandServerMediaSubsession::sdpLines() {
     // dummy (unused) source and "RTPSink" objects,
     // whose parameters we use for the SDP lines:
     unsigned estBitrate;
-    FramedSource* inputSource = createNewStreamSource(0, estBitrate);
-    if (inputSource == NULL) return NULL; // file not found
+    return NULL; // file not found
 
     struct in_addr dummyAddr;
     dummyAddr.s_addr = 0;
     Groupsock dummyGroupsock(envir(), dummyAddr, 0, 0);
     unsigned char rtpPayloadType = 96 + trackNumber()-1; // if dynamic
-    RTPSink* dummyRTPSink
-      = createNewRTPSink(&dummyGroupsock, rtpPayloadType, inputSource);
-
-    setSDPLinesFromRTPSink(dummyRTPSink, inputSource, estBitrate);
-    Medium::close(dummyRTPSink);
-    closeStreamSource(inputSource);
   }
 
   return fSDPLines;
@@ -100,8 +93,6 @@ void OnDemandServerMediaSubsession
   } else {
     // Normal case: Create a new media source:
     unsigned streamBitrate;
-    FramedSource* mediaSource
-      = createNewStreamSource(clientSessionId, streamBitrate);
 
     // Create 'groupsock' and 'sink' objects for the destination,
     // using previously unused server port numbers:
@@ -148,7 +139,6 @@ void OnDemandServerMediaSubsession
       }
 
       unsigned char rtpPayloadType = 96 + trackNumber()-1; // if dynamic
-      rtpSink = createNewRTPSink(rtpGroupsock, rtpPayloadType, mediaSource);
     }
 
     // Turn off the destinations for each groupsock.  They'll get set later
@@ -167,7 +157,7 @@ void OnDemandServerMediaSubsession
     // Set up the state of the stream.  The stream will get started later:
     streamToken = fLastStreamToken
       = new StreamState(*this, serverRTPPort, serverRTCPPort, rtpSink,
-			streamBitrate, mediaSource,
+			streamBitrate, 
 			rtpGroupsock, rtcpGroupsock);
   }
 
@@ -221,9 +211,6 @@ void OnDemandServerMediaSubsession::seekStream(unsigned /*clientSessionId*/,
   if (fReuseFirstSource) return;
 
   StreamState* streamState = (StreamState*)streamToken;
-  if (streamState != NULL && streamState->mediaSource() != NULL) {
-    seekStreamSource(streamState->mediaSource(), seekNPT, streamDuration, numBytes);
-  }
 }
 
 void OnDemandServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
@@ -233,16 +220,6 @@ void OnDemandServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
   if (fReuseFirstSource) return;
 
   StreamState* streamState = (StreamState*)streamToken;
-  if (streamState != NULL && streamState->mediaSource() != NULL) {
-    setStreamSourceScale(streamState->mediaSource(), scale);
-  }
-}
-
-FramedSource* OnDemandServerMediaSubsession::getStreamSource(void* streamToken) {
-  if (streamToken == NULL) return NULL;
-
-  StreamState* streamState = (StreamState*)streamToken;
-  return streamState->mediaSource();
 }
 
 void OnDemandServerMediaSubsession::deleteStream(unsigned clientSessionId,
@@ -272,71 +249,6 @@ void OnDemandServerMediaSubsession::deleteStream(unsigned clientSessionId,
   delete destinations;
 }
 
-char const* OnDemandServerMediaSubsession
-::getAuxSDPLine(RTPSink* rtpSink, FramedSource* /*inputSource*/) {
-  // Default implementation:
-  return rtpSink == NULL ? NULL : rtpSink->auxSDPLine();
-}
-
-void OnDemandServerMediaSubsession::seekStreamSource(FramedSource* /*inputSource*/,
-						     double& /*seekNPT*/, double /*streamDuration*/, u_int64_t& numBytes) {
-  // Default implementation: Do nothing
-}
-
-void OnDemandServerMediaSubsession
-::setStreamSourceScale(FramedSource* /*inputSource*/, float /*scale*/) {
-  // Default implementation: Do nothing
-}
-
-void OnDemandServerMediaSubsession::closeStreamSource(FramedSource *inputSource) {
-  Medium::close(inputSource);
-}
-
-void OnDemandServerMediaSubsession
-::setSDPLinesFromRTPSink(RTPSink* rtpSink, FramedSource* inputSource, unsigned estBitrate) {
-  if (rtpSink == NULL) return;
-
-  char const* mediaType = rtpSink->sdpMediaType();
-  unsigned char rtpPayloadType = rtpSink->rtpPayloadType();
-  AddressString ipAddressStr(fServerAddressForSDP);
-  char* rtpmapLine = rtpSink->rtpmapLine();
-  char const* rangeLine = rangeSDPLine();
-  char const* auxSDPLine = getAuxSDPLine(rtpSink, inputSource);
-  if (auxSDPLine == NULL) auxSDPLine = "";
-
-  char const* const sdpFmt =
-    "m=%s %u RTP/AVP %d\r\n"
-    "c=IN IP4 %s\r\n"
-    "b=AS:%u\r\n"
-    "%s"
-    "%s"
-    "%s"
-    "a=control:%s\r\n";
-  unsigned sdpFmtSize = strlen(sdpFmt)
-    + strlen(mediaType) + 5 /* max short len */ + 3 /* max char len */
-    + strlen(ipAddressStr.val())
-    + 20 /* max int len */
-    + strlen(rtpmapLine)
-    + strlen(rangeLine)
-    + strlen(auxSDPLine)
-    + strlen(trackId());
-  char* sdpLines = new char[sdpFmtSize];
-  sprintf(sdpLines, sdpFmt,
-	  mediaType, // m= <media>
-	  fPortNumForSDP, // m= <port>
-	  rtpPayloadType, // m= <fmt list>
-	  ipAddressStr.val(), // c= address
-	  estBitrate, // b=AS:<bandwidth>
-	  rtpmapLine, // a=rtpmap:... (if present)
-	  rangeLine, // a=range:... (if present)
-	  auxSDPLine, // optional extra SDP line
-	  trackId()); // a=control:<track-id>
-  delete[] (char*)rangeLine; delete[] rtpmapLine;
-
-  fSDPLines = strDup(sdpLines);
-  delete[] sdpLines;
-}
-
 
 ////////// StreamState implementation //////////
 
@@ -357,13 +269,13 @@ static void afterPlayingStreamState(void* clientData) {
 StreamState::StreamState(OnDemandServerMediaSubsession& master,
                          Port const& serverRTPPort, Port const& serverRTCPPort,
 			 RTPSink* rtpSink, 
-			 unsigned totalBW, FramedSource* mediaSource,
+			 unsigned totalBW, 
 			 Groupsock* rtpGS, Groupsock* rtcpGS)
   : fMaster(master), fAreCurrentlyPlaying(False), fReferenceCount(1),
     fServerRTPPort(serverRTPPort), fServerRTCPPort(serverRTCPPort),
     fRTPSink(rtpSink), fStreamDuration(master.duration()),
     fTotalBW(totalBW), fRTCPInstance(NULL) /* created later */,
-    fMediaSource(mediaSource), fRTPgs(rtpGS), fRTCPgs(rtcpGS) {
+    fRTPgs(rtpGS), fRTCPgs(rtcpGS) {
 }
 
 StreamState::~StreamState() {
@@ -406,9 +318,8 @@ void StreamState
     }
   }
 
-  if (!fAreCurrentlyPlaying && fMediaSource != NULL) {
+  if (!fAreCurrentlyPlaying ) {
     if (fRTPSink != NULL) {
-      fRTPSink->startPlaying(*fMediaSource, afterPlayingStreamState, this);
       fAreCurrentlyPlaying = True;
     }
   }
@@ -443,7 +354,6 @@ void StreamState::reclaim() {
   Medium::close(fRTCPInstance) /* will send a RTCP BYE */; fRTCPInstance = NULL;
   Medium::close(fRTPSink); fRTPSink = NULL;
 
-  fMaster.closeStreamSource(fMediaSource); fMediaSource = NULL;
   if (fMaster.fLastStreamToken == this) fMaster.fLastStreamToken = NULL;
 
   delete fRTPgs; fRTPgs = NULL;
