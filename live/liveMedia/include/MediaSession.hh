@@ -45,9 +45,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #ifndef _MEDIA_SESSION_HH
 #define _MEDIA_SESSION_HH
-#ifndef _MEDIA_SINK_HH
-#include "MediaSink.hh"
-#endif
 #ifndef _MEDIA_HH
 #include <Media.hh>
 #endif
@@ -232,7 +229,6 @@ public:
   // (They are responsible for all storage management on these fields)
   unsigned short serverPortNum; // in host byte order (used by RTSP)
   unsigned char rtpChannelId, rtcpChannelId; // used by RTSP (for RTP/TCP)
-  MediaSink* sink; // callers can use this to keep track of who's playing us
   void* miscPtr; // callers can use this for whatever they want
 
   // Parameters set from a RTSP "RTP-Info:" header:

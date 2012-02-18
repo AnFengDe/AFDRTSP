@@ -25,9 +25,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _SERVER_MEDIA_SESSION_HH
 #include "ServerMediaSession.hh"
 #endif
-#ifndef _MEDIA_SINK_HH
-#include "MediaSink.hh"
-#endif
 #ifndef _MEDIA_HH
 #include <Media.hh>
 #endif
