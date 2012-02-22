@@ -59,14 +59,6 @@ void Medium::close(Medium* medium) {
   close(medium->envir(), medium->name());
 }
 
-Boolean Medium::isSource() const {
-  return False; // default implementation
-}
-
-Boolean Medium::isSink() const {
-  return False; // default implementation
-}
-
 Boolean Medium::isRTSPClient() const {
   return False; // default implementation
 }

@@ -61,8 +61,6 @@ public:
   char const* name() const {return fMediumName;}
 
   // Test for specific types of media:
-  virtual Boolean isSource() const;
-  virtual Boolean isSink() const;
   virtual Boolean isRTSPClient() const;
   virtual Boolean isRTSPServer() const;
   virtual Boolean isMediaSession() const;
