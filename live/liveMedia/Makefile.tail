@@ -10,9 +10,6 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-MISC_SOURCE_OBJS = InputFile.$(OBJ)
-MISC_SINK_OBJS = OutputFile.$(OBJ)
-
 RTSP_OBJS = RTSPServer.$(OBJ) RTSPClient.$(OBJ) RTSPCommon.$(OBJ) RTSPServerSupportingHTTPStreaming.$(OBJ)
 
 SESSION_OBJS = MediaSession.$(OBJ) ServerMediaSession.$(OBJ) PassiveServerMediaSubsession.$(OBJ) OnDemandServerMediaSubsession.$(OBJ) 
@@ -28,8 +25,6 @@ $(LIVEMEDIA_LIB): $(LIVEMEDIA_LIB_OBJS) \
 
 Media.$(CPP):		include/Media.hh
 include/Media.hh:	include/liveMedia_version.hh
-InputFile.$(CPP):		include/InputFile.hh
-OutputFile.$(CPP):		include/OutputFile.hh
 RTSPServer.$(CPP):	include/RTSPServer.hh include/RTSPCommon.hh include/Base64.hh
 include/RTSPServer.hh:		include/ServerMediaSession.hh include/DigestAuthentication.hh include/RTSPCommon.hh
 include/ServerMediaSession.hh:	include/Media.hh 
