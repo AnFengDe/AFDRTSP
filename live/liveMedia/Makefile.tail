@@ -14,7 +14,7 @@ RTSP_OBJS = RTSPServer.$(OBJ) RTSPClient.$(OBJ) RTSPCommon.$(OBJ) RTSPServerSupp
 
 SESSION_OBJS = MediaSession.$(OBJ) ServerMediaSession.$(OBJ) PassiveServerMediaSubsession.$(OBJ) OnDemandServerMediaSubsession.$(OBJ) 
 
-MISC_OBJS = BitVector.$(OBJ) DigestAuthentication.$(OBJ) our_md5.$(OBJ) our_md5hl.$(OBJ) Base64.$(OBJ) Locale.$(OBJ)
+MISC_OBJS = DigestAuthentication.$(OBJ) our_md5.$(OBJ) our_md5hl.$(OBJ) Base64.$(OBJ) Locale.$(OBJ)
 
 LIVEMEDIA_LIB_OBJS = Media.$(OBJ) $(MISC_SOURCE_OBJS) $(MISC_SINK_OBJS) $(MISC_FILTER_OBJS) $(RTSP_OBJS) $(SESSION_OBJS) $(QUICKTIME_OBJS) $(TRANSPORT_STREAM_TRICK_PLAY_OBJS) $(MATROSKA_OBJS) $(MISC_OBJS)
 
@@ -39,7 +39,6 @@ PassiveServerMediaSubsession.$(CPP):	include/PassiveServerMediaSubsession.hh
 include/PassiveServerMediaSubsession.hh:	include/ServerMediaSession.hh 
 OnDemandServerMediaSubsession.$(CPP):	include/OnDemandServerMediaSubsession.hh
 include/OnDemandServerMediaSubsession.hh:	include/ServerMediaSession.hh 
-BitVector.$(CPP):	BitVector.hh
 DigestAuthentication.$(CPP):	include/DigestAuthentication.hh our_md5.h
 our_md5.$(C):		our_md5.h
 our_md5hl.$(C):		our_md5.h
