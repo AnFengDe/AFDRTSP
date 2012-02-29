@@ -46,9 +46,9 @@ typedef unsigned UNSIGNED32;
 
 /* MD5 context. */
 typedef struct MD5Context {
-  UNSIGNED32 state[4];	/* state (ABCD) */
-  UNSIGNED32 count[2];	/* number of bits, modulo 2^64 (lsb first) */
-  unsigned char buffer[64];	/* input buffer */
+  UNSIGNED32 state[4];        /* state (ABCD) */
+  UNSIGNED32 count[2];        /* number of bits, modulo 2^64 (lsb first) */
+  unsigned char buffer[64];        /* input buffer */
 } MD5_CTX;
 
 EXTERN void   our_MD5Init (MD5_CTX *);

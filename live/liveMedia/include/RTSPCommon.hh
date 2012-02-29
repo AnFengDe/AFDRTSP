@@ -39,15 +39,15 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #define RTSP_PARAM_STRING_MAX 200
 
 Boolean parseRTSPRequestString(char const *reqStr, unsigned reqStrSize,
-			       char *resultCmdName,
-			       unsigned resultCmdNameMaxSize,
-			       char* resultURLPreSuffix,
-			       unsigned resultURLPreSuffixMaxSize,
-			       char* resultURLSuffix,
-			       unsigned resultURLSuffixMaxSize,
-			       char* resultCSeq,
-			       unsigned resultCSeqMaxSize,
-			       unsigned& contentLength);
+                               char *resultCmdName,
+                               unsigned resultCmdNameMaxSize,
+                               char* resultURLPreSuffix,
+                               unsigned resultURLPreSuffixMaxSize,
+                               char* resultURLSuffix,
+                               unsigned resultURLSuffixMaxSize,
+                               char* resultCSeq,
+                               unsigned resultCSeqMaxSize,
+                               unsigned& contentLength);
 
 Boolean parseRangeParam(char const* paramStr, double& rangeStart, double& rangeEnd);
 Boolean parseRangeHeader(char const* buf, double& rangeStart, double& rangeEnd);

@@ -46,7 +46,7 @@ Scope::Scope(const Scope& orig) {
 Scope& Scope::operator=(const Scope& rightSide) {
   if (&rightSide != this) {
     if (publicKey() == NULL
-	|| strcmp(publicKey(), rightSide.publicKey()) != 0) {
+        || strcmp(publicKey(), rightSide.publicKey()) != 0) {
       clean();
       assign(rightSide.ttl(), rightSide.publicKey());
     } else { // need to assign TTL only
@@ -68,8 +68,8 @@ unsigned Scope::publicKeySize() const {
 ////////// GroupEId //////////
 
 GroupEId::GroupEId(struct in_addr const& groupAddr,
-		   portNumBits portNum, Scope const& scope,
-		   unsigned numSuccessiveGroupAddrs) {
+                   portNumBits portNum, Scope const& scope,
+                   unsigned numSuccessiveGroupAddrs) {
   struct in_addr sourceFilterAddr;
   sourceFilterAddr.s_addr = ~0; // indicates no source filter
 
@@ -77,9 +77,9 @@ GroupEId::GroupEId(struct in_addr const& groupAddr,
 }
 
 GroupEId::GroupEId(struct in_addr const& groupAddr,
-		   struct in_addr const& sourceFilterAddr,
-		   portNumBits portNum,
-		   unsigned numSuccessiveGroupAddrs) {
+                   struct in_addr const& sourceFilterAddr,
+                   portNumBits portNum,
+                   unsigned numSuccessiveGroupAddrs) {
   init(groupAddr, sourceFilterAddr, portNum, 255, numSuccessiveGroupAddrs);
 }
 
@@ -92,10 +92,10 @@ Boolean GroupEId::isSSM() const {
 
 
 void GroupEId::init(struct in_addr const& groupAddr,
-		    struct in_addr const& sourceFilterAddr,
-		    portNumBits portNum,
-		    Scope const& scope,
-		    unsigned numSuccessiveGroupAddrs) {
+                    struct in_addr const& sourceFilterAddr,
+                    portNumBits portNum,
+                    Scope const& scope,
+                    unsigned numSuccessiveGroupAddrs) {
   fGroupAddress = groupAddr;
   fSourceFilterAddress = sourceFilterAddr;
   fNumSuccessiveGroupAddrs = numSuccessiveGroupAddrs;

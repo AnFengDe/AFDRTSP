@@ -28,7 +28,7 @@ static const int MILLION = 1000000;
 int Timeval::operator>=(const Timeval& arg2) const {
   return seconds() > arg2.seconds()
     || (seconds() == arg2.seconds()
-	&& useconds() >= arg2.useconds());
+        && useconds() >= arg2.useconds());
 }
 
 void Timeval::operator+=(const DelayInterval& arg2) {

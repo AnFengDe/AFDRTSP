@@ -35,26 +35,26 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 class OnDemandServerMediaSubsession: public ServerMediaSubsession {
 protected: // we're a virtual base class
   OnDemandServerMediaSubsession(UsageEnvironment& env, Boolean reuseFirstSource,
-				portNumBits initialPortNum = 6970);
+                        	portNumBits initialPortNum = 6970);
   virtual ~OnDemandServerMediaSubsession();
 
 protected: // redefined virtual functions
   virtual char const* sdpLines();
   virtual void getStreamParameters(unsigned clientSessionId,
-				   netAddressBits clientAddress,
+                                   netAddressBits clientAddress,
                                    Port const& clientRTPPort,
-				   int tcpSocketNum,
+                                   int tcpSocketNum,
                                    unsigned char rtpChannelId,
                                    unsigned char rtcpChannelId,
                                    netAddressBits& destinationAddress,
-				   u_int8_t& destinationTTL,
+                                   u_int8_t& destinationTTL,
                                    Boolean& isMulticast,
                                    Port& serverRTPPort,
                                    void*& streamToken);
   virtual void startStream(unsigned clientSessionId, void* streamToken,
-			   TaskFunc* rtcpRRHandler,
-			   void* rtcpRRHandlerClientData,
-			   unsigned short& rtpSeqNum,
+                           TaskFunc* rtcpRRHandler,
+                           void* rtcpRRHandlerClientData,
+                           unsigned short& rtpSeqNum,
                            unsigned& rtpTimestamp,
                            void* serverRequestAlternativeByteHandlerClientData);
   virtual void pauseStream(unsigned clientSessionId, void* streamToken);

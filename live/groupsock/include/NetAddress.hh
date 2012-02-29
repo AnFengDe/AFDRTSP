@@ -41,7 +41,7 @@ typedef u_int32_t netAddressBits;
 class NetAddress {
     public:
 	NetAddress(u_int8_t const* data,
-		   unsigned length = 4 /* default: 32 bits */);
+                   unsigned length = 4 /* default: 32 bits */);
 	NetAddress(unsigned length = 4); // sets address data to all-zeros
 	NetAddress(NetAddress const& orig);
 	NetAddress& operator=(NetAddress const& rightSide);
@@ -49,7 +49,7 @@ class NetAddress {
 
 	unsigned length() const { return fLength; }
 	u_int8_t const* data() const // always in network byte order
-		{ return fData; }
+                { return fData; }
 
     private:
 	void assign(u_int8_t const* data, unsigned length);
@@ -70,15 +70,15 @@ class NetAddressList {
 
 	NetAddress const* firstAddress() const;
 
-	// Used to iterate through the addresses in a list:
+        // Used to iterate through the addresses in a list:
 	class Iterator {
-	    public:
-		Iterator(NetAddressList const& addressList);
-		NetAddress const* nextAddress(); // NULL iff none
-	    private:
-		NetAddressList const& fAddressList;
-		unsigned fNextIndex;
-	};
+            public:
+        	Iterator(NetAddressList const& addressList);
+        	NetAddress const* nextAddress(); // NULL iff none
+            private:
+        	NetAddressList const& fAddressList;
+        	unsigned fNextIndex;
+        };
 
     private:
 	void assign(netAddressBits numAddresses, NetAddress** addressArray);
@@ -96,7 +96,7 @@ class Port {
 	Port(portNumBits num /* in host byte order */);
 
 	portNumBits num() const // in network byte order
-		{ return fPortNum; }
+                { return fPortNum; }
 
     private:
 	portNumBits fPortNum; // stored in network byte order
@@ -115,25 +115,25 @@ class AddressPortLookupTable {
 	virtual ~AddressPortLookupTable();
 
 	void* Add(netAddressBits address1, netAddressBits address2,
-		  Port port, void* value);
-		// Returns the old value if different, otherwise 0
+                  Port port, void* value);
+                // Returns the old value if different, otherwise 0
 	Boolean Remove(netAddressBits address1, netAddressBits address2,
-		       Port port);
+                       Port port);
 	void* Lookup(netAddressBits address1, netAddressBits address2,
-		     Port port);
-		// Returns 0 if not found
+                     Port port);
+                // Returns 0 if not found
 
-	// Used to iterate through the entries in the table
+        // Used to iterate through the entries in the table
 	class Iterator {
-	    public:
-		Iterator(AddressPortLookupTable& table);
-		virtual ~Iterator();
+            public:
+        	Iterator(AddressPortLookupTable& table);
+        	virtual ~Iterator();
 
-		void* next(); // NULL iff none
+        	void* next(); // NULL iff none
 
-	    private:
-		HashTable::Iterator* fIter;
-	};
+            private:
+        	HashTable::Iterator* fIter;
+        };
 
     private:
 	friend class Iterator;

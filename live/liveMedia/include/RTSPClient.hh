@@ -36,15 +36,15 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 class RTSPClient: public Medium {
 public:
   static RTSPClient* createNew(UsageEnvironment& env, char const* rtspURL,
-			       int verbosityLevel = 0,
-			       char const* applicationName = NULL,
-			       portNumBits tunnelOverHTTPPortNum = 0);
+                               int verbosityLevel = 0,
+                               char const* applicationName = NULL,
+                               portNumBits tunnelOverHTTPPortNum = 0);
   // If "tunnelOverHTTPPortNum" is non-zero, we tunnel RTSP (and RTP)
   // over a HTTP connection with the given port number, using the technique
   // described in Apple's document <http://developer.apple.com/documentation/QuickTime/QTSS/Concepts/chapter_2_section_14.html>
 
   typedef void (responseHandler)(RTSPClient* rtspClient,
-				 int resultCode, char* resultString);
+                                 int resultCode, char* resultString);
       // A function that is called in response to a RTSP command.  The parameters are as follows:
       //     "rtspClient": The "RTSPClient" object on which the original command was issued.
       //     "resultCode": If zero, then the command completed successfully.  If non-zero, then the command did not complete
@@ -79,22 +79,22 @@ public:
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
 
   unsigned sendSetupCommand(MediaSubsession& subsession, responseHandler* responseHandler,
-			    Boolean streamOutgoing = False,
-			    Boolean streamUsingTCP = False,
-			    Boolean forceMulticastOnUnspecified = False,
-			    Authenticator* authenticator = NULL);
+                            Boolean streamOutgoing = False,
+                            Boolean streamUsingTCP = False,
+                            Boolean forceMulticastOnUnspecified = False,
+                            Authenticator* authenticator = NULL);
       // Issues a RTSP "SETUP" command, then returns the "CSeq" sequence number that was used in the command.
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
 
   unsigned sendPlayCommand(MediaSession& session, responseHandler* responseHandler,
-			   double start = 0.0f, double end = -1.0f, float scale = 1.0f,
-			   Authenticator* authenticator = NULL);
+                           double start = 0.0f, double end = -1.0f, float scale = 1.0f,
+                           Authenticator* authenticator = NULL);
       // Issues an aggregate RTSP "PLAY" command on "session", then returns the "CSeq" sequence number that was used in the command.
       // (Note: start=-1 means 'resume'; end=-1 means 'play to end')
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
   unsigned sendPlayCommand(MediaSubsession& subsession, responseHandler* responseHandler,
-			   double start = 0.0f, double end = -1.0f, float scale = 1.0f,
-			   Authenticator* authenticator = NULL);
+                           double start = 0.0f, double end = -1.0f, float scale = 1.0f,
+                           Authenticator* authenticator = NULL);
       // Issues a RTSP "PLAY" command on "subsession", then returns the "CSeq" sequence number that was used in the command.
       // (Note: start=-1 means 'resume'; end=-1 means 'play to end')
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
@@ -121,13 +121,13 @@ public:
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
 
   unsigned sendSetParameterCommand(MediaSession& session, responseHandler* responseHandler,
-				   char const* parameterName, char const* parameterValue,
-				   Authenticator* authenticator = NULL);
+                                   char const* parameterName, char const* parameterValue,
+                                   Authenticator* authenticator = NULL);
       // Issues an aggregate RTSP "SET_PARAMETER" command on "session", then returns the "CSeq" sequence number that was used in the command.
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
 
   unsigned sendGetParameterCommand(MediaSession& session, responseHandler* responseHandler, char const* parameterName,
-				   Authenticator* authenticator = NULL);
+                                   Authenticator* authenticator = NULL);
       // Issues an aggregate RTSP "GET_PARAMETER" command on "session", then returns the "CSeq" sequence number that was used in the command.
       // (The "responseHandler" and "authenticator" parameters are as described for "sendDescribeCommand".)
 
@@ -140,11 +140,11 @@ public:
   int socketNum() const { return fInputSocketNum; }
 
   static Boolean lookupByName(UsageEnvironment& env,
-			      char const* sourceName,
-			      RTSPClient*& resultClient);
+                              char const* sourceName,
+                              RTSPClient*& resultClient);
 
   static Boolean parseRTSPURL(UsageEnvironment& env, char const* url,
-			      char*& username, char*& password, NetAddress& address, portNumBits& portNum, char const** urlSuffix = NULL);
+                              char*& username, char*& password, NetAddress& address, portNumBits& portNum, char const** urlSuffix = NULL);
       // Parses "url" as "rtsp://[<username>[:<password>]@]<server-address-or-name>[:<port>][/<stream-name>]"
       // (Note that the returned "username" and "password" are either NULL, or heap-allocated strings that the caller must later delete[].)
 
@@ -159,7 +159,7 @@ public:
 
 protected:
   RTSPClient(UsageEnvironment& env, char const* rtspURL,
-	     int verbosityLevel, char const* applicationName, portNumBits tunnelOverHTTPPortNum);
+             int verbosityLevel, char const* applicationName, portNumBits tunnelOverHTTPPortNum);
       // called only by createNew();
   virtual ~RTSPClient();
 
@@ -173,8 +173,8 @@ public: // Some compilers complain if this is "private:"
   class RequestRecord {
   public:
     RequestRecord(unsigned cseq, char const* commandName, responseHandler* handler,
-		  MediaSession* session = NULL, MediaSubsession* subsession = NULL, u_int32_t booleanFlags = 0,
-		  double start = 0.0f, double end = -1.0f, float scale = 1.0f, char const* contentStr = NULL);
+                  MediaSession* session = NULL, MediaSubsession* subsession = NULL, u_int32_t booleanFlags = 0,
+                  double start = 0.0f, double end = -1.0f, float scale = 1.0f, char const* contentStr = NULL);
     virtual ~RequestRecord();
 
     RequestRecord*& next() { return fNext; }
@@ -230,12 +230,12 @@ private:
   void handleIncomingRequest();
   static Boolean checkForHeader(char const* line, char const* headerName, unsigned headerNameLength, char const*& headerParams);
   Boolean parseTransportParams(char const* paramsStr,
-			       char*& serverAddressStr, portNumBits& serverPortNum,
-			       unsigned char& rtpChannelId, unsigned char& rtcpChannelId);
+                               char*& serverAddressStr, portNumBits& serverPortNum,
+                               unsigned char& rtpChannelId, unsigned char& rtcpChannelId);
   Boolean parseScaleParam(char const* paramStr, float& scale);
   Boolean parseRTPInfoParams(char const*& paramStr, u_int16_t& seqNum, u_int32_t& timestamp);
   Boolean handleSETUPResponse(MediaSubsession& subsession, char const* sessionParamsStr, char const* transportParamsStr,
-			      Boolean streamUsingTCP);
+                              Boolean streamUsingTCP);
   Boolean handlePLAYResponse(MediaSession& session, MediaSubsession& subsession,
                              char const* scaleParamsStr, char const* rangeParamsStr, char const* rtpInfoParamsStr);
   Boolean handleTEARDOWNResponse(MediaSession& session, MediaSubsession& subsession);
@@ -246,9 +246,9 @@ private:
   static void handleAlternativeRequestByte(void*, u_int8_t requestByte);
   void handleAlternativeRequestByte1(u_int8_t requestByte);
   void constructSubsessionURL(MediaSubsession const& subsession,
-			      char const*& prefix,
-			      char const*& separator,
-			      char const*& suffix);
+                              char const*& prefix,
+                              char const*& separator,
+                              char const*& suffix);
 
   // Support for tunneling RTSP-over-HTTP:
   Boolean setupHTTPTunneling1(); // send the HTTP "GET"
@@ -298,47 +298,47 @@ public:
   char* describeURL(char const* url, Authenticator* authenticator = NULL,
                     Boolean allowKasennaProtocol = False, int timeout = -1);
   char* describeWithPassword(char const* url,
-			     char const* username, char const* password,
-			     Boolean allowKasennaProtocol = False, 
-			     int timeout = -1);
+                             char const* username, char const* password,
+                             Boolean allowKasennaProtocol = False, 
+                             int timeout = -1);
   char* sendOptionsCmd(char const* url,
-		       char* username = NULL, char* password = NULL,
-		       Authenticator* authenticator = NULL,
-		       int timeout = -1);
+                       char* username = NULL, char* password = NULL,
+                       Authenticator* authenticator = NULL,
+                       int timeout = -1);
   Boolean announceSDPDescription(char const* url,
-				 char const* sdpDescription,
-				 Authenticator* authenticator = NULL,
-				 int timeout = -1);
+                                 char const* sdpDescription,
+                                 Authenticator* authenticator = NULL,
+                                 int timeout = -1);
   Boolean announceWithPassword(char const* url, char const* sdpDescription,
-			       char const* username, char const* password, int timeout = -1);
+                               char const* username, char const* password, int timeout = -1);
   Boolean setupMediaSubsession(MediaSubsession& subsession,
-			       Boolean streamOutgoing = False,
-			       Boolean streamUsingTCP = False,
-			       Boolean forceMulticastOnUnspecified = False);
+                               Boolean streamOutgoing = False,
+                               Boolean streamUsingTCP = False,
+                               Boolean forceMulticastOnUnspecified = False);
   Boolean playMediaSession(MediaSession& session,
-			   double start = 0.0f, double end = -1.0f,
-			   float scale = 1.0f);
+                           double start = 0.0f, double end = -1.0f,
+                           float scale = 1.0f);
   Boolean playMediaSubsession(MediaSubsession& subsession,
-			      double start = 0.0f, double end = -1.0f,
-			      float scale = 1.0f,
-			      Boolean hackForDSS = False);
+                              double start = 0.0f, double end = -1.0f,
+                              float scale = 1.0f,
+                              Boolean hackForDSS = False);
   Boolean pauseMediaSession(MediaSession& session);
   Boolean pauseMediaSubsession(MediaSubsession& subsession);
   Boolean recordMediaSubsession(MediaSubsession& subsession);
   Boolean setMediaSessionParameter(MediaSession& session,
-				   char const* parameterName,
-				   char const* parameterValue);
+                                   char const* parameterName,
+                                   char const* parameterValue);
   Boolean getMediaSessionParameter(MediaSession& session,
-				   char const* parameterName,
-				   char*& parameterValue);
+                                   char const* parameterName,
+                                   char*& parameterValue);
   Boolean teardownMediaSession(MediaSession& session);
   Boolean teardownMediaSubsession(MediaSubsession& subsession);
 
   static Boolean parseRTSPURLUsernamePassword(char const* url,
-					      char*& username, char*& password);
+                                              char*& username, char*& password);
 private: // used to implement the old interface:
   static void responseHandlerForSyncInterface(RTSPClient* rtspClient,
-					      int responseCode, char* responseString);
+                                              int responseCode, char* responseString);
   void responseHandlerForSyncInterface1(int responseCode, char* responseString);
   static void timeoutHandlerForSyncInterface(void* rtspClient);
   void timeoutHandlerForSyncInterface1();

@@ -25,16 +25,16 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include <time.h> // for "strftime()" and "gmtime()"
 
 Boolean parseRTSPRequestString(char const* reqStr,
-			       unsigned reqStrSize,
-			       char* resultCmdName,
-			       unsigned resultCmdNameMaxSize,
-			       char* resultURLPreSuffix,
-			       unsigned resultURLPreSuffixMaxSize,
-			       char* resultURLSuffix,
-			       unsigned resultURLSuffixMaxSize,
-			       char* resultCSeq,
-			       unsigned resultCSeqMaxSize,
-			       unsigned& contentLength) {
+                               unsigned reqStrSize,
+                               char* resultCmdName,
+                               unsigned resultCmdNameMaxSize,
+                               char* resultURLPreSuffix,
+                               unsigned resultURLPreSuffixMaxSize,
+                               char* resultURLSuffix,
+                               unsigned resultURLSuffixMaxSize,
+                               char* resultCSeq,
+                               unsigned resultCSeqMaxSize,
+                               unsigned& contentLength) {
   // This parser is currently rather dumb; it should be made smarter #####
   contentLength = 0; // default value
 
@@ -58,18 +58,18 @@ Boolean parseRTSPRequestString(char const* reqStr,
   while (j < reqStrSize && (reqStr[j] == ' ' || reqStr[j] == '\t')) ++j; // skip over any additional white space
   for (; (int)j < (int)(reqStrSize-8); ++j) {
     if ((reqStr[j] == 'r' || reqStr[j] == 'R')
-	&& (reqStr[j+1] == 't' || reqStr[j+1] == 'T')
-	&& (reqStr[j+2] == 's' || reqStr[j+2] == 'S')
-	&& (reqStr[j+3] == 'p' || reqStr[j+3] == 'P')
-	&& reqStr[j+4] == ':' && reqStr[j+5] == '/') {
+        && (reqStr[j+1] == 't' || reqStr[j+1] == 'T')
+        && (reqStr[j+2] == 's' || reqStr[j+2] == 'S')
+        && (reqStr[j+3] == 'p' || reqStr[j+3] == 'P')
+        && reqStr[j+4] == ':' && reqStr[j+5] == '/') {
       j += 6;
       if (reqStr[j] == '/') {
-	// This is a "rtsp://" URL; skip over the host:port part that follows:
-	++j;
+        // This is a "rtsp://" URL; skip over the host:port part that follows:
+        ++j;
 	while (j < reqStrSize && reqStr[j] != '/' && reqStr[j] != ' ') ++j;
       } else {
-	// This is a "rtsp:/" URL; back up to the "/":
-	--j;
+        // This is a "rtsp:/" URL; back up to the "/":
+        --j;
       }
       i = j;
       break;
@@ -118,9 +118,9 @@ Boolean parseRTSPRequestString(char const* reqStr,
       for (n = 0; n < resultCSeqMaxSize-1 && j < reqStrSize; ++n,++j) {
 	char c = reqStr[j];
 	if (c == '\r' || c == '\n') {
-	  parseSucceeded = True;
-	  break;
-	}
+          parseSucceeded = True;
+          break;
+        }
 
 	resultCSeq[n] = c;
       }

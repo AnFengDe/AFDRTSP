@@ -232,8 +232,8 @@ AddressPortLookupTable::~AddressPortLookupTable() {
 }
 
 void* AddressPortLookupTable::Add(netAddressBits address1,
-				  netAddressBits address2,
-				  Port port, void* value) {
+                                  netAddressBits address2,
+                                  Port port, void* value) {
   int key[3];
   key[0] = (int)address1;
   key[1] = (int)address2;
@@ -242,8 +242,8 @@ void* AddressPortLookupTable::Add(netAddressBits address1,
 }
 
 void* AddressPortLookupTable::Lookup(netAddressBits address1,
-				     netAddressBits address2,
-				     Port port) {
+                                     netAddressBits address2,
+                                     Port port) {
   int key[3];
   key[0] = (int)address1;
   key[1] = (int)address2;
@@ -252,8 +252,8 @@ void* AddressPortLookupTable::Lookup(netAddressBits address1,
 }
 
 Boolean AddressPortLookupTable::Remove(netAddressBits address1,
-				       netAddressBits address2,
-				       Port port) {
+                                       netAddressBits address2,
+                                       Port port) {
   int key[3];
   key[0] = (int)address1;
   key[1] = (int)address2;

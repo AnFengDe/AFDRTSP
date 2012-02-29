@@ -25,7 +25,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 RTSPServerSupportingHTTPStreaming*
 RTSPServerSupportingHTTPStreaming::createNew(UsageEnvironment& env, Port rtspPort,
-					     UserAuthenticationDatabase* authDatabase, unsigned reclamationTestSeconds) {
+                                             UserAuthenticationDatabase* authDatabase, unsigned reclamationTestSeconds) {
   int ourSocket = setUpOurSocket(env, rtspPort);
   if (ourSocket == -1) return NULL;
 
@@ -34,7 +34,7 @@ RTSPServerSupportingHTTPStreaming::createNew(UsageEnvironment& env, Port rtspPor
 
 RTSPServerSupportingHTTPStreaming
 ::RTSPServerSupportingHTTPStreaming(UsageEnvironment& env, int ourSocket, Port rtspPort,
-				    UserAuthenticationDatabase* authDatabase, unsigned reclamationTestSeconds)
+                                    UserAuthenticationDatabase* authDatabase, unsigned reclamationTestSeconds)
   : RTSPServer(env, ourSocket, rtspPort, authDatabase, reclamationTestSeconds) {
 }
 
@@ -97,7 +97,7 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
       ServerMediaSubsessionIterator iter(*session);
       ServerMediaSubsession* subsession = iter.next();
       if (subsession == NULL) {
-	// Treat an 'empty' ServerMediaSession the same as one that doesn't exist at all:
+        // Treat an 'empty' ServerMediaSession the same as one that doesn't exist at all:
 	handleHTTPCmd_notFound();
 	break;
       }
@@ -125,24 +125,24 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
       unsigned numTSBytesToStream = (unsigned)numBytes;
       
       if (numTSBytesToStream == 0) {
-	// For some reason, we do not know the size of the requested range.  We can't handle this request:
+        // For some reason, we do not know the size of the requested range.  We can't handle this request:
 	handleHTTPCmd_notSupported();
 	break;
       }
       
       // Construct our response:
       snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-	       "HTTP/1.1 200 OK\r\n"
-	       "%s"
-	       "Server: LIVE555 Streaming Media v%s\r\n"
-	       "%s"
-	       "Content-Length: %d\r\n"
-	       "Content-Type: text/plain; charset=ISO-8859-1\r\n"
-	       "\r\n",
-	       dateHeader(),
-	       LIVEMEDIA_LIBRARY_VERSION_STRING,
-	       lastModifiedHeader(streamName),
-	       numTSBytesToStream);
+               "HTTP/1.1 200 OK\r\n"
+               "%s"
+               "Server: LIVE555 Streaming Media v%s\r\n"
+               "%s"
+               "Content-Length: %d\r\n"
+               "Content-Type: text/plain; charset=ISO-8859-1\r\n"
+               "\r\n",
+               dateHeader(),
+               LIVEMEDIA_LIBRARY_VERSION_STRING,
+               lastModifiedHeader(streamName),
+               numTSBytesToStream);
       // Send the response now, because we're about to add more data (from the source):
       send(fClientOutputSocket, (char const*)fResponseBuffer, strlen((char*)fResponseBuffer), 0);
       fResponseBuffer[0] = '\0'; // We've already sent the response.  This tells the calling code not to send it again.
@@ -220,17 +220,17 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
 
   // Construct our response:
   snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-	   "HTTP/1.1 200 OK\r\n"
-	   "%s"
-	   "Server: LIVE555 Streaming Media v%s\r\n"
-	   "%s"
-	   "Content-Length: %d\r\n"
-	   "Content-Type: application/vnd.apple.mpegurl\r\n"
-	   "\r\n",
-	   dateHeader(),
-	   LIVEMEDIA_LIBRARY_VERSION_STRING,
-	   lastModifiedHeader(urlSuffix),
-	   playlistLen);
+           "HTTP/1.1 200 OK\r\n"
+           "%s"
+           "Server: LIVE555 Streaming Media v%s\r\n"
+           "%s"
+           "Content-Length: %d\r\n"
+           "Content-Type: application/vnd.apple.mpegurl\r\n"
+           "\r\n",
+           dateHeader(),
+           LIVEMEDIA_LIBRARY_VERSION_STRING,
+           lastModifiedHeader(urlSuffix),
+           playlistLen);
 
   // Send the response header now, because we're about to add more data (the playlist):
   send(fClientOutputSocket, (char const*)fResponseBuffer, strlen((char*)fResponseBuffer), 0);

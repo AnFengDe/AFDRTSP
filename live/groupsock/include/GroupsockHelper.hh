@@ -27,43 +27,43 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 int setupDatagramSocket(UsageEnvironment& env, Port port);
 int setupStreamSocket(UsageEnvironment& env,
-		      Port port, Boolean makeNonBlocking = True);
+                      Port port, Boolean makeNonBlocking = True);
 
 int readSocket(UsageEnvironment& env,
-	       int socket, unsigned char* buffer, unsigned bufferSize,
-	       struct sockaddr_in& fromAddress);
+               int socket, unsigned char* buffer, unsigned bufferSize,
+               struct sockaddr_in& fromAddress);
 
 Boolean writeSocket(UsageEnvironment& env,
-		    int socket, struct in_addr address, Port port,
-		    u_int8_t ttlArg,
-		    unsigned char* buffer, unsigned bufferSize);
+                    int socket, struct in_addr address, Port port,
+                    u_int8_t ttlArg,
+                    unsigned char* buffer, unsigned bufferSize);
 
 unsigned getSendBufferSize(UsageEnvironment& env, int socket);
 unsigned getReceiveBufferSize(UsageEnvironment& env, int socket);
 unsigned setSendBufferTo(UsageEnvironment& env,
-			 int socket, unsigned requestedSize);
+                         int socket, unsigned requestedSize);
 unsigned setReceiveBufferTo(UsageEnvironment& env,
-			    int socket, unsigned requestedSize);
+                            int socket, unsigned requestedSize);
 unsigned increaseSendBufferTo(UsageEnvironment& env,
-			      int socket, unsigned requestedSize);
+                              int socket, unsigned requestedSize);
 unsigned increaseReceiveBufferTo(UsageEnvironment& env,
-				 int socket, unsigned requestedSize);
+                                 int socket, unsigned requestedSize);
 
 Boolean makeSocketNonBlocking(int sock);
 Boolean makeSocketBlocking(int sock);
 
 Boolean socketJoinGroup(UsageEnvironment& env, int socket,
-			netAddressBits groupAddress);
+                	netAddressBits groupAddress);
 Boolean socketLeaveGroup(UsageEnvironment&, int socket,
-			 netAddressBits groupAddress);
+                         netAddressBits groupAddress);
 
 // source-specific multicast join/leave
 Boolean socketJoinGroupSSM(UsageEnvironment& env, int socket,
-			   netAddressBits groupAddress,
-			   netAddressBits sourceFilterAddr);
+                           netAddressBits groupAddress,
+                           netAddressBits sourceFilterAddr);
 Boolean socketLeaveGroupSSM(UsageEnvironment&, int socket,
-			    netAddressBits groupAddress,
-			    netAddressBits sourceFilterAddr);
+                            netAddressBits groupAddress,
+                            netAddressBits sourceFilterAddr);
 
 Boolean getSourcePort(UsageEnvironment& env, int socket, Port& port);
 
