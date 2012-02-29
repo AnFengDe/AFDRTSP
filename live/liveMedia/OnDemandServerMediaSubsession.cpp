@@ -85,12 +85,10 @@ void OnDemandServerMediaSubsession
     streamToken = fLastStreamToken;
   } else {
     // Normal case: Create a new media source:
-    unsigned streamBitrate;
 
     // Create 'groupsock' and 'sink' objects for the destination,
     // using previously unused server port numbers:
     Groupsock* rtpGroupsock;
-    Groupsock* rtcpGroupsock;
     portNumBits serverPortNum;
     if (0) {
       // We're streaming raw UDP (not RTP). Create a single groupsock:
@@ -103,7 +101,6 @@ void OnDemandServerMediaSubsession
 	if (rtpGroupsock->socketNum() >= 0) break; // success
       }
 
-      rtcpGroupsock = NULL;
     } else {
       // Normal case: We're streaming RTP (over UDP or TCP).  Create a pair of
       // groupsocks (RTP and TCP), with adjacent port numbers (RTP port number even):
@@ -120,7 +117,6 @@ void OnDemandServerMediaSubsession
 
 	if ( 0) {
 	  delete rtpGroupsock;
-	  delete rtcpGroupsock;
 	  continue; // try again
 	}
 
@@ -131,12 +127,11 @@ void OnDemandServerMediaSubsession
     // Turn off the destinations for each groupsock.  They'll get set later
     // (unless TCP is used instead):
     if (rtpGroupsock != NULL) rtpGroupsock->removeAllDestinations();
-    if (rtcpGroupsock != NULL) rtcpGroupsock->removeAllDestinations();
 
     if (rtpGroupsock != NULL) {
       // Try to use a big send buffer for RTP -  at least 0.1 second of
       // specified bandwidth and at least 50 KB
-      unsigned rtpBufSize = streamBitrate * 25 / 2; // 1 kbps * 0.1 s = 12.5 bytes
+      unsigned rtpBufSize = 25 / 2; // 1 kbps * 0.1 s = 12.5 bytes
       if (rtpBufSize < 50 * 1024) rtpBufSize = 50 * 1024;
       increaseSendBufferTo(envir(), rtpGroupsock->socketNum(), rtpBufSize);
     }
