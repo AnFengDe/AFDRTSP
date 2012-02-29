@@ -120,7 +120,7 @@ DelayInterval const DELAY_DAY = 24*DELAY_HOUR;
 class EventTime: public Timeval {
 public:
   EventTime(unsigned secondsSinceEpoch = 0,
-	    unsigned usecondsSinceEpoch = 0)
+            unsigned usecondsSinceEpoch = 0)
     // We use the Unix standard epoch: January 1, 1970
     : Timeval(secondsSinceEpoch, usecondsSinceEpoch) {}
 };

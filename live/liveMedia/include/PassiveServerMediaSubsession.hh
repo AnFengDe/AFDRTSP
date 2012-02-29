@@ -29,7 +29,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 class PassiveServerMediaSubsession: public ServerMediaSubsession {
 public:
   static PassiveServerMediaSubsession* createNew(
-						 );
+                                                 );
 
 protected:
   PassiveServerMediaSubsession(UsageEnvironment& env);
@@ -39,19 +39,19 @@ protected:
 protected: // redefined virtual functions
   virtual char const* sdpLines();
   virtual void getStreamParameters(unsigned clientSessionId,
-				   netAddressBits clientAddress,
+                                   netAddressBits clientAddress,
                                    Port const& clientRTPPort,
-				   int tcpSocketNum,
+                                   int tcpSocketNum,
                                    unsigned char rtpChannelId,
                                    unsigned char rtcpChannelId,
                                    netAddressBits& destinationAddress,
-				   u_int8_t& destinationTTL,
+                                   u_int8_t& destinationTTL,
                                    Boolean& isMulticast,
                                    Port& serverRTPPort,
                                    void*& streamToken);
   virtual void startStream(unsigned clientSessionId, void* streamToken,
-			   TaskFunc* rtcpRRHandler,
-			   void* rtcpRRHandlerClientData,
+                           TaskFunc* rtcpRRHandler,
+                           void* rtcpRRHandlerClientData,
                            unsigned short& rtpSeqNum,
                            unsigned& rtpTimestamp,
                            void* serverRequestAlternativeByteHandlerClientData);

@@ -26,7 +26,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 PassiveServerMediaSubsession*
 PassiveServerMediaSubsession::createNew(
-					) {
+                                        ) {
   UsageEnvironment* env = NULL; //only for modify to across compile by chtian
   return new PassiveServerMediaSubsession(*env);
 }
@@ -98,16 +98,16 @@ PassiveServerMediaSubsession::sdpLines() {
       + strlen(trackId());
     char* sdpLines = new char[sdpFmtSize];
     sprintf(sdpLines, sdpFmt,
-	    mediaType, // m= <media>
-	    portNum, // m= <port>
-	    rtpPayloadType, // m= <fmt list>
-	    groupAddressStr.val(), // c= <connection address>
-	    ttl, // c= TTL
-	    estBitrate, // b=AS:<bandwidth>
-	    rtpmapLine, // a=rtpmap:... (if present)
-	    rangeLine, // a=range:... (if present)
-	    auxSDPLine, // optional extra SDP line
-	    trackId()); // a=control:<track-id>
+            mediaType, // m= <media>
+            portNum, // m= <port>
+            rtpPayloadType, // m= <fmt list>
+            groupAddressStr.val(), // c= <connection address>
+            ttl, // c= TTL
+            estBitrate, // b=AS:<bandwidth>
+            rtpmapLine, // a=rtpmap:... (if present)
+            rangeLine, // a=range:... (if present)
+            auxSDPLine, // optional extra SDP line
+            trackId()); // a=control:<track-id>
     delete[] (char*)rangeLine; delete[] rtpmapLine;
 
     fSDPLines = strDup(sdpLines);
@@ -120,16 +120,16 @@ PassiveServerMediaSubsession::sdpLines() {
 
 void PassiveServerMediaSubsession
 ::getStreamParameters(unsigned clientSessionId,
-		      netAddressBits clientAddress,
-		      Port const& /*clientRTPPort*/,
-		      int /*tcpSocketNum*/,
-		      unsigned char /*rtpChannelId*/,
-		      unsigned char /*rtcpChannelId*/,
-		      netAddressBits& destinationAddress,
-		      u_int8_t& destinationTTL,
-		      Boolean& isMulticast,
-		      Port& serverRTPPort,
-		      void*& streamToken) {
+                      netAddressBits clientAddress,
+                      Port const& /*clientRTPPort*/,
+                      int /*tcpSocketNum*/,
+                      unsigned char /*rtpChannelId*/,
+                      unsigned char /*rtcpChannelId*/,
+                      netAddressBits& destinationAddress,
+                      u_int8_t& destinationTTL,
+                      Boolean& isMulticast,
+                      Port& serverRTPPort,
+                      void*& streamToken) {
   isMulticast = True;
 #if 0
   Groupsock& gs = fTPSink.groupsockBeingUsed();
@@ -158,12 +158,12 @@ void PassiveServerMediaSubsession
 }
 
 void PassiveServerMediaSubsession::startStream(unsigned clientSessionId,
-					       void* /*streamToken*/,
-					       TaskFunc* rtcpRRHandler,
-					       void* rtcpRRHandlerClientData,
-					       unsigned short& rtpSeqNum,
-					       unsigned& rtpTimestamp,
-					       void* /*serverRequestAlternativeByteHandlerClientData*/) {
+                                               void* /*streamToken*/,
+                                               TaskFunc* rtcpRRHandler,
+                                               void* rtcpRRHandlerClientData,
+                                               unsigned short& rtpSeqNum,
+                                               unsigned& rtpTimestamp,
+                                               void* /*serverRequestAlternativeByteHandlerClientData*/) {
 
   // Try to use a big send buffer for RTP -  at least 0.1 second of
   // specified bandwidth and at least 50 KB

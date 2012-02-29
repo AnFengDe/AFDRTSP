@@ -36,13 +36,13 @@ class Scope {
     	Scope(u_int8_t ttl = 0, const char* publicKey = NULL);
     	Scope(const Scope& orig);
     	Scope& operator=(const Scope& rightSide);
-	~Scope();
+        ~Scope();
 
 	u_int8_t ttl() const
-		{ return fTTL; }
+                { return fTTL; }
 
 	const char* publicKey() const
-		{ return fPublicKey; }
+                { return fPublicKey; }
 	unsigned publicKeySize() const;
 
     private:
@@ -56,13 +56,13 @@ class Scope {
 class GroupEId {
 public:
   GroupEId(struct in_addr const& groupAddr,
-	   portNumBits portNum, Scope const& scope,
-	   unsigned numSuccessiveGroupAddrs = 1);
+           portNumBits portNum, Scope const& scope,
+           unsigned numSuccessiveGroupAddrs = 1);
       // used for a 'source-independent multicast' group
   GroupEId(struct in_addr const& groupAddr,
-	   struct in_addr const& sourceFilterAddr,
-	   portNumBits portNum,
-	   unsigned numSuccessiveGroupAddrs = 1);
+           struct in_addr const& sourceFilterAddr,
+           portNumBits portNum,
+           unsigned numSuccessiveGroupAddrs = 1);
       // used for a 'source-specific multicast' group
   GroupEId(); // used only as a temp constructor prior to initialization
 
@@ -82,10 +82,10 @@ public:
 
 private:
   void init(struct in_addr const& groupAddr,
-	    struct in_addr const& sourceFilterAddr,
-	    portNumBits portNum,
-	    Scope const& scope,
-	    unsigned numSuccessiveGroupAddrs);
+            struct in_addr const& sourceFilterAddr,
+            portNumBits portNum,
+            Scope const& scope,
+            unsigned numSuccessiveGroupAddrs);
 
 private:
   struct in_addr fGroupAddress;

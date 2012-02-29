@@ -36,7 +36,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 class UserAuthenticationDatabase {
 public:
   UserAuthenticationDatabase(char const* realm = NULL,
-			     Boolean passwordsAreMD5 = False);
+                             Boolean passwordsAreMD5 = False);
     // If "passwordsAreMD5" is True, then each password stored into, or removed from,
     // the database is actually the value computed
     // by md5(<username>:<realm>:<actual-password>)
@@ -62,8 +62,8 @@ protected:
 class RTSPServer: public Medium {
 public:
   static RTSPServer* createNew(UsageEnvironment& env, Port ourPort = 554,
-			       UserAuthenticationDatabase* authDatabase = NULL,
-			       unsigned reclamationTestSeconds = 65);
+                               UserAuthenticationDatabase* authDatabase = NULL,
+                               unsigned reclamationTestSeconds = 65);
       // If ourPort.num() == 0, we'll choose the port number
       // Note: The caller is responsible for reclaiming "authDatabase"
       // If "reclamationTestSeconds" > 0, then the "RTSPClientSession" state for
@@ -72,7 +72,7 @@ public:
       //     client are received in at least "reclamationTestSeconds" seconds.
 
   static Boolean lookupByName(UsageEnvironment& env, char const* name,
-			      RTSPServer*& resultServer);
+                              RTSPServer*& resultServer);
 
   void addServerMediaSession(ServerMediaSession* serverMediaSession);
   virtual ServerMediaSession* lookupServerMediaSession(char const* streamName);
@@ -103,15 +103,15 @@ public:
 
 protected:
   RTSPServer(UsageEnvironment& env,
-	     int ourSocket, Port ourPort,
-	     UserAuthenticationDatabase* authDatabase,
-	     unsigned reclamationTestSeconds);
+             int ourSocket, Port ourPort,
+             UserAuthenticationDatabase* authDatabase,
+             unsigned reclamationTestSeconds);
       // called only by createNew();
   virtual ~RTSPServer();
 
   static int setUpOurSocket(UsageEnvironment& env, Port& ourPort);
   virtual Boolean specialClientAccessCheck(int clientSocket, struct sockaddr_in& clientAddr,
-					   char const* urlSuffix);
+                                           char const* urlSuffix);
       // a hook that allows subclassed servers to do server-specific access checking
       // on each client (e.g., based on client IP address), without using
       // digest authentication.
@@ -124,7 +124,7 @@ public: // should be protected, but some old compilers complain otherwise
   class RTSPClientSession {
   public:
     RTSPClientSession(RTSPServer& ourServer, unsigned sessionId,
-		      int clientSocket, struct sockaddr_in clientAddr);
+                      int clientSocket, struct sockaddr_in clientAddr);
     virtual ~RTSPClientSession();
   protected:
     // Make the handler functions for each command virtual, to allow subclasses to redefine them:
@@ -134,29 +134,29 @@ public: // should be protected, but some old compilers complain otherwise
     virtual void handleCmd_unsupportedTransport(char const* cseq);
     virtual void handleCmd_OPTIONS(char const* cseq);
     virtual void handleCmd_DESCRIBE(char const* cseq,
-				    char const* urlPreSuffix, char const* urlSuffix,
-				    char const* fullRequestStr);
+                                    char const* urlPreSuffix, char const* urlSuffix,
+                                    char const* fullRequestStr);
     virtual void handleCmd_SETUP(char const* cseq,
-				 char const* urlPreSuffix, char const* urlSuffix,
-				 char const* fullRequestStr);
+                                 char const* urlPreSuffix, char const* urlSuffix,
+                                 char const* fullRequestStr);
     virtual void handleCmd_withinSession(char const* cmdName,
-					 char const* urlPreSuffix, char const* urlSuffix,
-					 char const* cseq, char const* fullRequestStr);
+                                         char const* urlPreSuffix, char const* urlSuffix,
+                                         char const* cseq, char const* fullRequestStr);
     virtual void handleCmd_TEARDOWN(ServerMediaSubsession* subsession,
-				    char const* cseq);
+                                    char const* cseq);
     virtual void handleCmd_PLAY(ServerMediaSubsession* subsession,
-				char const* cseq, char const* fullRequestStr);
+                        	char const* cseq, char const* fullRequestStr);
     virtual void handleCmd_PAUSE(ServerMediaSubsession* subsession,
-				 char const* cseq);
+                                 char const* cseq);
     virtual void handleCmd_GET_PARAMETER(ServerMediaSubsession* subsession,
-					 char const* cseq, char const* fullRequestStr);
+                                         char const* cseq, char const* fullRequestStr);
     virtual void handleCmd_SET_PARAMETER(ServerMediaSubsession* subsession,
-					 char const* cseq, char const* fullRequestStr);
+                                         char const* cseq, char const* fullRequestStr);
     // Support for optional RTSP-over-HTTP tunneling:
     virtual Boolean parseHTTPRequestString(char* resultCmdName, unsigned resultCmdNameMaxSize,
-					   char* urlSuffix, unsigned urlSuffixMaxSize,
-					   char* sessionCookie, unsigned sessionCookieMaxSize,
-					   char* acceptStr, unsigned acceptStrMaxSize);
+                                           char* urlSuffix, unsigned urlSuffixMaxSize,
+                                           char* sessionCookie, unsigned sessionCookieMaxSize,
+                                           char* acceptStr, unsigned acceptStrMaxSize);
     virtual void handleHTTPCmd_notSupported();
     virtual void handleHTTPCmd_notFound();
     virtual void handleHTTPCmd_TunnelingGET(char const* sessionCookie);

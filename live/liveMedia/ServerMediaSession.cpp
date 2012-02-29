@@ -29,15 +29,15 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 ServerMediaSession* ServerMediaSession
 ::createNew(UsageEnvironment& env,
-	    char const* streamName, char const* info,
-	    char const* description, Boolean isSSM, char const* miscSDPLines) {
+            char const* streamName, char const* info,
+            char const* description, Boolean isSSM, char const* miscSDPLines) {
   return new ServerMediaSession(env, streamName, info, description,
-				isSSM, miscSDPLines);
+                        	isSSM, miscSDPLines);
 }
 
 Boolean ServerMediaSession
 ::lookupByName(UsageEnvironment& env, char const* mediumName,
-	       ServerMediaSession*& resultSession) {
+               ServerMediaSession*& resultSession) {
   resultSession = NULL; // unless we succeed
 
   Medium* medium;
@@ -56,10 +56,10 @@ static char const* const libNameStr = "LIVE555 Streaming Media v";
 char const* const libVersionStr = LIVEMEDIA_LIBRARY_VERSION_STRING;
 
 ServerMediaSession::ServerMediaSession(UsageEnvironment& env,
-				       char const* streamName,
-				       char const* info,
-				       char const* description,
-				       Boolean isSSM, char const* miscSDPLines)
+                                       char const* streamName,
+                                       char const* info,
+                                       char const* description,
+                                       Boolean isSSM, char const* miscSDPLines)
   : Medium(env), fIsSSM(isSSM), fSubsessionsHead(NULL),
     fSubsessionsTail(NULL), fSubsessionCounter(0),
     fReferenceCount(0), fDeleteWhenUnreferenced(False) {
@@ -210,7 +210,7 @@ char* ServerMediaSession::generateSDPDescription() {
     unsigned sdpLength = 0;
     ServerMediaSubsession* subsession;
     for (subsession = fSubsessionsHead; subsession != NULL;
-	 subsession = subsession->fNext) {
+         subsession = subsession->fNext) {
       char const* sdpLines = subsession->sdpLines();
       if (sdpLines == NULL) break; // the media's not available
       sdpLength += strlen(sdpLines);
@@ -258,22 +258,22 @@ char* ServerMediaSession::generateSDPDescription() {
 
     // Generate the SDP prefix (session-level lines):
     sprintf(sdp, sdpPrefixFmt,
-	    fCreationTime.tv_sec, fCreationTime.tv_usec, // o= <session id>
-	    1, // o= <version> // (needs to change if params are modified)
-	    ipAddressStr.val(), // o= <address>
-	    fDescriptionSDPString, // s= <description>
-	    fInfoSDPString, // i= <info>
-	    libNameStr, libVersionStr, // a=tool:
-	    sourceFilterLine, // a=source-filter: incl (if a SSM session)
-	    rangeLine, // a=range: line
-	    fDescriptionSDPString, // a=x-qt-text-nam: line
-	    fInfoSDPString, // a=x-qt-text-inf: line
-	    fMiscSDPLines); // miscellaneous session SDP lines (if any)
+            fCreationTime.tv_sec, fCreationTime.tv_usec, // o= <session id>
+            1, // o= <version> // (needs to change if params are modified)
+            ipAddressStr.val(), // o= <address>
+            fDescriptionSDPString, // s= <description>
+            fInfoSDPString, // i= <info>
+            libNameStr, libVersionStr, // a=tool:
+            sourceFilterLine, // a=source-filter: incl (if a SSM session)
+            rangeLine, // a=range: line
+            fDescriptionSDPString, // a=x-qt-text-nam: line
+            fInfoSDPString, // a=x-qt-text-inf: line
+            fMiscSDPLines); // miscellaneous session SDP lines (if any)
 
     // Then, add the (media-level) lines for each subsession:
     char* mediaSDP = sdp;
     for (subsession = fSubsessionsHead; subsession != NULL;
-	 subsession = subsession->fNext) {
+         subsession = subsession->fNext) {
       mediaSDP += strlen(mediaSDP);
       sprintf(mediaSDP, "%s", subsession->sdpLines());
     }
@@ -333,20 +333,20 @@ char const* ServerMediaSubsession::trackId() {
 }
 
 void ServerMediaSubsession::pauseStream(unsigned /*clientSessionId*/,
-					void* /*streamToken*/) {
+                                	void* /*streamToken*/) {
   // default implementation: do nothing
 }
 void ServerMediaSubsession::seekStream(unsigned /*clientSessionId*/,
-				       void* /*streamToken*/, double& /*seekNPT*/, double /*streamDuration*/, u_int64_t& numBytes) {
+                                       void* /*streamToken*/, double& /*seekNPT*/, double /*streamDuration*/, u_int64_t& numBytes) {
   // default implementation: do nothing
   numBytes = 0;
 }
 void ServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
-					   void* /*streamToken*/, float /*scale*/) {
+                                           void* /*streamToken*/, float /*scale*/) {
   // default implementation: do nothing
 }
 void ServerMediaSubsession::deleteStream(unsigned /*clientSessionId*/,
-					 void*& /*streamToken*/) {
+                                         void*& /*streamToken*/) {
   // default implementation: do nothing
 }
 
@@ -361,7 +361,7 @@ float ServerMediaSubsession::duration() const {
 }
 
 void ServerMediaSubsession::setServerAddressAndPortForSDP(netAddressBits addressBits,
-							  portNumBits portBits) {
+                                                          portNumBits portBits) {
   fServerAddressForSDP = addressBits;
   fPortNumForSDP = portBits;
 }

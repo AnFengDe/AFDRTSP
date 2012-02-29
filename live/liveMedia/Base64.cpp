@@ -38,7 +38,7 @@ static void initBase64DecodeTable() {
 }
 
 unsigned char* base64Decode(char* in, unsigned& resultSize,
-			    Boolean trimTrailingZeros) {
+                            Boolean trimTrailingZeros) {
   static Boolean haveInitedBase64DecodeTable = False;
   if (!haveInitedBase64DecodeTable) {
     initBase64DecodeTable();

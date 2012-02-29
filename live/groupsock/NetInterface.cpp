@@ -49,7 +49,7 @@ DirectedNetInterface::~DirectedNetInterface() {
 ////////// DirectedNetInterfaceSet //////////
 
 DirectedNetInterfaceSet::DirectedNetInterfaceSet()
-	: fTable(HashTable::create(ONE_WORD_HASH_KEYS)) {
+        : fTable(HashTable::create(ONE_WORD_HASH_KEYS)) {
 }
 
 DirectedNetInterfaceSet::~DirectedNetInterfaceSet() {
@@ -124,7 +124,7 @@ SocketLookupTable::~SocketLookupTable() {
 }
 
 Socket* SocketLookupTable::Fetch(UsageEnvironment& env, Port port,
-				 Boolean& isNew) {
+                                 Boolean& isNew) {
   isNew = False;
   Socket* sock;
   do {

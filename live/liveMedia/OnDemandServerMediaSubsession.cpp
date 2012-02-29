@@ -24,8 +24,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 OnDemandServerMediaSubsession
 ::OnDemandServerMediaSubsession(UsageEnvironment& env,
-				Boolean reuseFirstSource,
-				portNumBits initialPortNum)
+                        	Boolean reuseFirstSource,
+                        	portNumBits initialPortNum)
   : ServerMediaSubsession(env),
     fSDPLines(NULL), fReuseFirstSource(reuseFirstSource), fInitialPortNum(initialPortNum), fLastStreamToken(NULL) {
   fDestinationsHashTable = HashTable::create(ONE_WORD_HASH_KEYS);
@@ -65,16 +65,16 @@ OnDemandServerMediaSubsession::sdpLines() {
 
 void OnDemandServerMediaSubsession
 ::getStreamParameters(unsigned clientSessionId,
-		      netAddressBits clientAddress,
-		      Port const& clientRTPPort,
-		      int tcpSocketNum,
-		      unsigned char rtpChannelId,
-		      unsigned char rtcpChannelId,
-		      netAddressBits& destinationAddress,
-		      u_int8_t& /*destinationTTL*/,
-		      Boolean& isMulticast,
-		      Port& serverRTPPort,
-		      void*& streamToken) {
+                      netAddressBits clientAddress,
+                      Port const& clientRTPPort,
+                      int tcpSocketNum,
+                      unsigned char rtpChannelId,
+                      unsigned char rtcpChannelId,
+                      netAddressBits& destinationAddress,
+                      u_int8_t& /*destinationTTL*/,
+                      Boolean& isMulticast,
+                      Port& serverRTPPort,
+                      void*& streamToken) {
   if (destinationAddress == 0) destinationAddress = clientAddress;
   struct in_addr destinationAddr; destinationAddr.s_addr = destinationAddress;
   isMulticast = False;
@@ -111,9 +111,9 @@ void OnDemandServerMediaSubsession
 	serverRTPPort = serverPortNum;
 	rtpGroupsock = new Groupsock(envir(), dummyAddr, serverRTPPort, 255);
 	if (rtpGroupsock->socketNum() < 0) {
-	  delete rtpGroupsock;
-	  continue; // try again
-	}
+          delete rtpGroupsock;
+          continue; // try again
+        }
 
 	if ( 0) {
 	  delete rtpGroupsock;
@@ -150,16 +150,16 @@ void OnDemandServerMediaSubsession
 }
 
 void OnDemandServerMediaSubsession::startStream(unsigned clientSessionId,
-						void* streamToken,
-						TaskFunc* rtcpRRHandler,
-						void* rtcpRRHandlerClientData,
-						unsigned short& rtpSeqNum,
-						unsigned& rtpTimestamp,
-						void* serverRequestAlternativeByteHandlerClientData) {
+                                        	void* streamToken,
+                                        	TaskFunc* rtcpRRHandler,
+                                        	void* rtcpRRHandlerClientData,
+                                        	unsigned short& rtpSeqNum,
+                                        	unsigned& rtpTimestamp,
+                                        	void* serverRequestAlternativeByteHandlerClientData) {
 }
 
 void OnDemandServerMediaSubsession::pauseStream(unsigned /*clientSessionId*/,
-						void* streamToken) {
+                                        	void* streamToken) {
   // Pausing isn't allowed if multiple clients are receiving data from
   // the same source:
   if (fReuseFirstSource) return;
@@ -167,7 +167,7 @@ void OnDemandServerMediaSubsession::pauseStream(unsigned /*clientSessionId*/,
 }
 
 void OnDemandServerMediaSubsession::seekStream(unsigned /*clientSessionId*/,
-					       void* streamToken, double& seekNPT, double streamDuration, u_int64_t& numBytes) {
+                                               void* streamToken, double& seekNPT, double streamDuration, u_int64_t& numBytes) {
   numBytes = 0; // by default: unknown
 
   // Seeking isn't allowed if multiple clients are receiving data from
@@ -177,7 +177,7 @@ void OnDemandServerMediaSubsession::seekStream(unsigned /*clientSessionId*/,
 }
 
 void OnDemandServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
-						   void* streamToken, float scale) {
+                                                   void* streamToken, float scale) {
   // Changing the scale factor isn't allowed if multiple clients are receiving data
   // from the same source:
   if (fReuseFirstSource) return;
@@ -185,7 +185,7 @@ void OnDemandServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
 }
 
 void OnDemandServerMediaSubsession::deleteStream(unsigned clientSessionId,
-						 void*& streamToken) {
+                                                 void*& streamToken) {
   // Look up (and remove) the destinations for this client session:
   Destinations* destinations
     = (Destinations*)(fDestinationsHashTable->Lookup((char const*)clientSessionId));
