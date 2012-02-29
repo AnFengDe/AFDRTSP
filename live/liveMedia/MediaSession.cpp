@@ -1047,7 +1047,6 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
       // and create our RTP source accordingly
       // (Later make this code more efficient, as this set grows #####)
       Boolean createSimpleRTPSource = False; // by default; can be changed below
-      Boolean doNormalMBitRule = False; // default behavior if "createSimpleTPSource" is True
       if (  strcmp(fCodecName, "PCMU") == 0 // PCM u-law audio
                    || strcmp(fCodecName, "GSM") == 0 // GSM audio
                    || strcmp(fCodecName, "PCMA") == 0 // PCM a-law audio
