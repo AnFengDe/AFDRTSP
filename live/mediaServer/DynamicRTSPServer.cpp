@@ -85,7 +85,6 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
   if (extension == NULL) return NULL;
 
   ServerMediaSession* sms = NULL;
-  Boolean const reuseSource = False;
 
   return sms;
 }

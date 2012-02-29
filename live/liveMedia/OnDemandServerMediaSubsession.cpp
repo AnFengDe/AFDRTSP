@@ -53,13 +53,11 @@ OnDemandServerMediaSubsession::sdpLines() {
     // subsession (as a unicast stream).  To do so, we first create
     // dummy (unused) source and "TPSink" objects,
     // whose parameters we use for the SDP lines:
-    unsigned estBitrate;
     return NULL; // file not found
 
     struct in_addr dummyAddr;
     dummyAddr.s_addr = 0;
     Groupsock dummyGroupsock(envir(), dummyAddr, 0, 0);
-    unsigned char rtpPayloadType = 96 + trackNumber()-1; // if dynamic
   }
 
   return fSDPLines;
@@ -128,8 +126,6 @@ void OnDemandServerMediaSubsession
 
 	break; // success
       }
-
-      unsigned char rtpPayloadType = 96 + trackNumber()-1; // if dynamic
     }
 
     // Turn off the destinations for each groupsock.  They'll get set later
@@ -165,8 +161,6 @@ void OnDemandServerMediaSubsession::startStream(unsigned clientSessionId,
 						unsigned short& rtpSeqNum,
 						unsigned& rtpTimestamp,
 						void* serverRequestAlternativeByteHandlerClientData) {
-  Destinations* destinations
-    = (Destinations*)(fDestinationsHashTable->Lookup((char const*)clientSessionId));
 }
 
 void OnDemandServerMediaSubsession::pauseStream(unsigned /*clientSessionId*/,
