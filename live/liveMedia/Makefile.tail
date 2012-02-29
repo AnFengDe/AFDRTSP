@@ -39,7 +39,6 @@ PassiveServerMediaSubsession.$(CPP):	include/PassiveServerMediaSubsession.hh
 include/PassiveServerMediaSubsession.hh:	include/ServerMediaSession.hh 
 OnDemandServerMediaSubsession.$(CPP):	include/OnDemandServerMediaSubsession.hh
 include/OnDemandServerMediaSubsession.hh:	include/ServerMediaSession.hh 
-EBMLNumber.$(CPP): EBMLNumber.hh
 BitVector.$(CPP):	BitVector.hh
 DigestAuthentication.$(CPP):	include/DigestAuthentication.hh our_md5.h
 our_md5.$(C):		our_md5.h
