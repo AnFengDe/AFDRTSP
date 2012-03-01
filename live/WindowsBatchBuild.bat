@@ -15,6 +15,10 @@ cd ../BasicUsageEnvironment
 del *.obj *.lib
 nmake /B /f BasicUsageEnvironment.mak
 
+cd ../testProgs
+del *.obj *.lib *.exe
+nmake /B /f testProgs.mak
+
 cd ../mediaServer
 del *.obj *.lib
 nmake /B /f mediaServer.mak
