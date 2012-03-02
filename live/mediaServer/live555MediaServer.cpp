@@ -25,7 +25,7 @@ int hello(char* sName)
   printf("Hello, Mr.%s\n", sName);
   return 0;
 }
-#if 0
+
 int main(int argc, char** argv) {
   // Begin by setting up our usage environment:
   TaskScheduler* scheduler = BasicTaskScheduler::createNew();
@@ -84,4 +84,3 @@ int main(int argc, char** argv) {
 
   return 0; // only to prevent compiler warning
 }
-#endif
