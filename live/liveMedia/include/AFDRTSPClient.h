@@ -18,20 +18,37 @@
 #ifndef _AFDRTSPCLIENT_H_
 #define _AFDRTSPCLIENT_H_
 
-const void* CreateRTSPClientSession();
+/**
+ * \brief   Create RTSP client session
+ *
+ * \return  RTSP client session handle, the handle will be auto release 
+ *          when call Stop function. If return NULL, means create fail.
+ */
+const int create_new();
 
-int Play(const void* pSession, const char* sURL);
+/**
+ * \brief   Open stream by url, this function will call method below:
+ *          OPTIONS, DESCRIBE, SETUP, PLAY
+ *          the methode call is asynchronous, if you want to process response 
+ *          yourself, you must set callback function for it.
+ *
+ * \param   handle
+ * \param   url like rtsp://60.168.1.20/record.mp4
+ *
+ * \return  less than zero means failure, otherwise is success.
+ */
+int play(const int handle, const char* url);
 
-int Pause(const void* pSession);
+int pause(const int handle);
 
-int Resume(const void* pSession);
+int resume(const int handle);
 
-int Play(const void* pSession, double fPercent);
+int play(const int handle, double percent);
 
-int Fast(const void* pSession, double fScale);
+int fast(const int handle, double scale);
 
-int Slow(const void* pSession, double fScale);
+int slow(const int handle, double scale);
 
-int Stop(const void* pSession);
+int stop(const int handle);
 
 #endif

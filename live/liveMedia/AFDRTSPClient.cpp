@@ -15,21 +15,44 @@
  * **********/
 // Copyright (c) 2012, AnFengDe Info Ltd.  All rights reserved
 
-#include "AFDRTSPClient.h"
+const int create_new()
+{
+    return NULL;
+}
 
-const void* CreateRTSPClientSession();
+int play(const int handle, const char* url)
+{
+    return NULL;
+}
 
-int Play(const void* pSession, const char* sURL);
+int pause(const int handle)
+{
+    return NULL;
+}
 
-int Pause(const void* pSession);
+int resume(const int handle)
+{
+    return NULL;
+}
 
-int Resume(const void* pSession);
+int play(const int handle, double percent)
+{
+    return NULL;
+}
 
-int Play(const void* pSession, double fPercent);
+int fast(const int handle, double scale)
+{
+    return NULL;
+}
 
-int Fast(const void* pSession, double fScale);
+int slow(const int handle, double scale)
+{
+    return NULL;
+}
 
-int Slow(const void* pSession, double fScale);
+int stop(const int handle)
+{
+    return NULL;
+}
 
-int Stop(const void* pSession);
-
+#endif
