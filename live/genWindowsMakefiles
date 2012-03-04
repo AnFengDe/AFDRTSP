@@ -25,6 +25,11 @@ cd ../testProgs
 cat Makefile.head ../config.$1 Makefile.tail > Makefile
 chmod a-w Makefile
 
+cd ../AFDRTSP
+/bin/rm -f Makefile
+cat Makefile.head ../config.$1 Makefile.tail > Makefile
+chmod a-w Makefile
+
 cd ../mediaServer
 /bin/rm -f mediaServer.mak
 /bin/rm -f Makefile

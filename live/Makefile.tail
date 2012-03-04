@@ -7,6 +7,8 @@ BASIC_USAGE_ENVIRONMENT_DIR = BasicUsageEnvironment
 
 TESTPROGS_DIR = testProgs
 
+AFDRTSP_DIR = AFDRTSP
+
 MEDIA_SERVER_DIR = mediaServer
 
 all:
@@ -15,6 +17,7 @@ all:
 	cd $(USAGE_ENVIRONMENT_DIR) ; $(MAKE)
 	cd $(BASIC_USAGE_ENVIRONMENT_DIR) ; $(MAKE)
 	cd $(TESTPROGS_DIR) ; $(MAKE)
+	cd $(AFDRTSP_DIR) ; $(MAKE)
 	cd $(MEDIA_SERVER_DIR) ; $(MAKE)
 
 clean:
@@ -23,4 +26,5 @@ clean:
 	cd $(USAGE_ENVIRONMENT_DIR) ; $(MAKE) clean
 	cd $(BASIC_USAGE_ENVIRONMENT_DIR) ; $(MAKE) clean
 	cd $(TESTPROGS_DIR) ; $(MAKE) clean
+	cd $(AFDRTSP_DIR) ; $(MAKE) clean
 	cd $(MEDIA_SERVER_DIR) ; $(MAKE) clean

@@ -19,6 +19,10 @@ cd ../testProgs
 del *.obj *.lib *.exe
 nmake /B /f testProgs.mak
 
+cd ../AFDRTSP
+del *.obj *.lib *.exe
+nmake /B /f AFDRTSP.mak
+
 cd ../mediaServer
 del *.obj *.lib
 nmake /B /f mediaServer.mak
