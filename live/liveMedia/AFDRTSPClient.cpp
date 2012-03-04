@@ -14,10 +14,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * **********/
 // Copyright (c) 2012, AnFengDe Info Ltd.  All rights reserved
+#include <stdio.h>
+//#include "liveMedia.hh"
+//#include "BasicUsageEnvironment.hh"
 
 const int create_new()
 {
-    return NULL;
+  // Begin by setting up our usage environment:
+  //TaskScheduler* scheduler = BasicTaskScheduler::createNew();
+  //UsageEnvironment* env = BasicUsageEnvironment::createNew(*scheduler);
+  return NULL;
 }
 
 int play(const int handle, const char* url)
@@ -55,4 +61,3 @@ int stop(const int handle)
     return NULL;
 }
 
-#endif
