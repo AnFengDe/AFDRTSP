@@ -14,16 +14,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * **********/
 // Copyright (c) 2012, AnFengDe Info Ltd.  All rights reserved
-#include <stdio.h>
-//#include "liveMedia.hh"
-//#include "BasicUsageEnvironment.hh"
+//#include <stdio.h>
+#include "liveMedia.hh"
+#include "BasicUsageEnvironment.hh"
 
-const int create_new()
+TaskScheduler* g_scheduler = NULL;
+UsageEnvironment* g_env = NULL;
+
+const int create_new(const char* url, int verbosity = 0, const char* appname = NULL)
 {
-  // Begin by setting up our usage environment:
-  //TaskScheduler* scheduler = BasicTaskScheduler::createNew();
-  //UsageEnvironment* env = BasicUsageEnvironment::createNew(*scheduler);
-  return NULL;
+    // Create enviroment when first call
+    if ( NULL == g_scheduler )
+    {
+        g_scheduler = BasicTaskScheduler::createNew();
+        g_env = BasicUsageEnvironment::createNew(*g_scheduler);
+    }
+
+    //openURL(env, program, rtspurl)
+    RTSPClient* client = RTSPClient::createNew(*g_env, url, verbosity, appname);
+    // todo: env scheduler must in standalone thread
+    //env->taskScheduler().doEventLoop();
+
+    return NULL;
 }
 
 int play(const int handle, const char* url)
