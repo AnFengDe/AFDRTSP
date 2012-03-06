@@ -19,12 +19,29 @@
 #define _AFDRTSPCLIENT_H_
 
 /**
+ * \brief   init rtsp client runtime envrionment
+ *
+ * \return  return true while success, otherwise is false
+ */
+bool init();
+
+/**
+ * \brief   cleanup rtsp client runtime envrionment,close all session automatically
+ *
+ * \return  return true while success, otherwise is false
+ */
+bool cleanup();
+
+/**
  * \brief   Create RTSP client session
+ * \param   url rtsp url , like rtsp://192.168.1.20/record.mp4
+ * \param   verbosity 0 or 1, the swither of log output, defalut is 0
+ * \param   appname , the application name, default is NULL
  *
  * \return  RTSP client session handle, the handle will be auto release 
  *          when call Stop function. If return NULL, means create fail.
  */
-const int create_new();
+const void* create_new(const char* url, int verbosity = 0, const char* appname = NULL);
 
 /**
  * \brief   Open stream by url, this function will call method below:

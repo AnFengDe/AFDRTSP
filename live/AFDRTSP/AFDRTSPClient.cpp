@@ -18,24 +18,54 @@
 #include "liveMedia.hh"
 #include "BasicUsageEnvironment.hh"
 
-TaskScheduler* g_scheduler = NULL;
-UsageEnvironment* g_env = NULL;
+bool                g_init_flag = false;
+TaskScheduler*      g_scheduler = NULL;
+UsageEnvironment*   g_env       = NULL;
 
-const int create_new(const char* url, int verbosity = 0, const char* appname = NULL)
+bool init()
 {
+    if (true == g_init_flag) return g_init_flag;
+
+    g_scheduler = BasicTaskScheduler::createNew();
+    if (NULL == g_scheduler) return g_init_flag;
+
+    g_env = BasicUsageEnvironment::createNew(*g_scheduler);
+    if (NULL == g_env) return g_init_flag;
+
+    g_init_flag = true;
+    return g_init_flag;
+}
+
+bool cleanup()
+{
+    if (false == g_init_flag) return true;
+    
+    //todo:clean up thread, global variable
+
+    g_init_flag = false;
+    return true;
+}
+
+const void* create_new(const char* url, int verbosity, const char* appname)
+{
+    RTSPClient* client = NULL;
     // Create enviroment when first call
     if ( NULL == g_scheduler )
     {
         g_scheduler = BasicTaskScheduler::createNew();
         g_env = BasicUsageEnvironment::createNew(*g_scheduler);
+
+        //openURL(env, program, rtspurl)
+        client = RTSPClient::createNew(*g_env, url, verbosity, appname);
+        // todo: env scheduler must in standalone thread
+        //env->taskScheduler().doEventLoop();
     }
-
-    //openURL(env, program, rtspurl)
-    RTSPClient* client = RTSPClient::createNew(*g_env, url, verbosity, appname);
-    // todo: env scheduler must in standalone thread
-    //env->taskScheduler().doEventLoop();
-
-    return NULL;
+    else
+    {
+        client = RTSPClient::createNew(*g_env, url, verbosity, appname);
+    }
+   
+    return (client);
 }
 
 int play(const int handle, const char* url)
