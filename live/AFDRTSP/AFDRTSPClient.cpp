@@ -32,6 +32,8 @@ bool init()
     g_env = BasicUsageEnvironment::createNew(*g_scheduler);
     if (NULL == g_env) return g_init_flag;
 
+    //startup thread for process eventloop
+
     g_init_flag = true;
     return g_init_flag;
 }
