@@ -1,0 +1,27 @@
+##### End of variables to change
+CPLUSPLUS_FLAGS = $(COMPILE_OPTS) -Wall -DJTHREAD_COMPILING=1
+LIB = libjthread.$(LIB_SUFFIX)
+ALL = $(LIB)
+all:	$(ALL)
+
+OBJS = $(JTHREAD_SRC)/jmutex.$(OBJ) $(JTHREAD_SRC)/jthread.$(OBJ) 
+LINK_OBJS = jmutex.$(OBJ) jthread.$(OBJ)
+
+libjthread.$(LIB_SUFFIX): $(OBJS)
+	$(LIBRARY_LINK)$@ $(LIBRARY_LINK_OPTS) \
+		$(LINK_OBJS)
+
+.$(C).$(OBJ):
+	$(C_COMPILER) -c $(C_FLAGS) $<       
+
+.$(CPP).$(OBJ):
+	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
+
+$(JTHREAD_SRC)/jmutex.$(CPP):	src/jmutex.h
+$(JTHREAD_SRC)/jthread.$(CPP):	src/jthread.h
+src/jthread.h:	src/jmutex.h
+
+clean:
+	-rm -rf $(JTHREAD_SRC)/*.$(OBJ) $(ALL) core *.core *~ src/*~
+
+##### Any additional, platform-specific rules come here:

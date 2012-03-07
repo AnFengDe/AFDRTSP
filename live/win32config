@@ -41,7 +41,7 @@ LIBS_FOR_GUI_APPLICATION =
 MULTIMEDIA_LIBS =	winmm.lib
 EXE =			.exe
 PLATFORM = Windows
-
+JTHREAD_SRC = src\win32
 rc32 = "$(TOOLS32)\bin\rc"
 .rc.res:
 	$(rc32) $<
