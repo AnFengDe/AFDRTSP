@@ -15,6 +15,10 @@ cd ../BasicUsageEnvironment
 del *.obj *.lib
 nmake /B /f BasicUsageEnvironment.mak
 
+cd ../jthread-1.3.1
+del *.obj *.lib *.exe
+nmake /B /f jthread.mak
+
 cd ../AFDRTSP
 del *.obj *.lib *.exe
 nmake /B /f AFDRTSP.mak

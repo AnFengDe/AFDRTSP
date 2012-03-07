@@ -18,6 +18,10 @@ cd ../BasicUsageEnvironment
 del /Q BasicUsageEnvironment.mak
 type Makefile.head ..\win32config Makefile.tail > BasicUsageEnvironment.mak
 
+cd ../jthread-1.3.1
+del /Q jthread.mak
+type Makefile.head ..\win32config Makefile.tail > jthread.mak
+
 cd ../AFDRTSP
 del /Q AFDRTSP.mak
 type Makefile.head ..\win32config Makefile.tail > AFDRTSP.mak

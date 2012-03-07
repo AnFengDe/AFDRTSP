@@ -1,5 +1,5 @@
 ##### End of variables to change
-CPLUSPLUS_FLAGS = $(COMPILE_OPTS) -Wall -DJTHREAD_COMPILING=1
+CPLUSPLUS_FLAGS = $(COMPILE_OPTS) -DJTHREAD_COMPILING=1
 LIB = libjthread.$(LIB_SUFFIX)
 ALL = $(LIB)
 all:	$(ALL)
@@ -22,6 +22,6 @@ $(JTHREAD_SRC)/jthread.$(CPP):	src/jthread.h
 src/jthread.h:	src/jmutex.h
 
 clean:
-	-rm -rf $(JTHREAD_SRC)/*.$(OBJ) $(ALL) core *.core *~ src/*~
+	-rm -rf *.$(OBJ) $(ALL) core *.core *~ src/*~
 
 ##### Any additional, platform-specific rules come here:
