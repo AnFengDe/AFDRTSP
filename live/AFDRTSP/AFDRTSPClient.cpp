@@ -17,13 +17,12 @@
 //#include <stdio.h>
 #include "liveMedia.hh"
 #include "BasicUsageEnvironment.hh"
-namespace afd_rtsp{
 
 bool                g_init_flag = false;
 TaskScheduler*      g_scheduler = NULL;
 UsageEnvironment*   g_env       = NULL;
 
-bool init()
+extern "C" bool init()
 {
     if (true == g_init_flag) return g_init_flag;
 
@@ -105,4 +104,3 @@ int stop(const int handle)
 {
     return NULL;
 }
-} //end namespace
