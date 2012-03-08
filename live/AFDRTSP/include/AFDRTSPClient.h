@@ -27,7 +27,7 @@ extern "C" {
  * \return  return true while success, otherwise is false
  */
 bool init();
-#if 0
+
 /**
  * \brief   cleanup rtsp client runtime envrionment,close all session automatically
  *
@@ -70,7 +70,7 @@ int fast(const int handle, double scale);
 int slow(const int handle, double scale);
 
 int stop(const int handle);
-#endif //for debug
+
 #ifdef __cplusplus
 }
 #endif

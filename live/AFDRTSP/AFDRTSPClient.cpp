@@ -37,8 +37,8 @@ extern "C" bool init()
     g_init_flag = true;
     return g_init_flag;
 }
-#if 0
-bool cleanup()
+
+extern "C" bool cleanup()
 {
     if (false == g_init_flag) return true;
     
@@ -48,7 +48,7 @@ bool cleanup()
     return true;
 }
 
-const void* create_new(const char* url, int verbosity, const char* appname)
+extern "C" const void* create_new(const char* url, int verbosity, const char* appname)
 {
     RTSPClient* client = NULL;
     // Create enviroment when first call
@@ -104,4 +104,3 @@ int stop(const int handle)
 {
     return NULL;
 }
-#endif
