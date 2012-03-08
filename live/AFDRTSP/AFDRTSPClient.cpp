@@ -85,7 +85,7 @@ int resume(const int handle)
     return NULL;
 }
 
-int play(const int handle, double percent)
+int skip(const int handle, double percent)
 {
     return NULL;
 }

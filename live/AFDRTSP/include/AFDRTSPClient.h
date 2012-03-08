@@ -18,6 +18,7 @@
 #ifndef _AFDRTSPCLIENT_H_
 #define _AFDRTSPCLIENT_H_
 
+extern "C" {
 /**
  * \brief   init rtsp client runtime envrionment
  *
@@ -60,7 +61,7 @@ int pause(const int handle);
 
 int resume(const int handle);
 
-int play(const int handle, double percent);
+int skip(const int handle, double percent);
 
 int fast(const int handle, double scale);
 
@@ -68,4 +69,5 @@ int slow(const int handle, double scale);
 
 int stop(const int handle);
 
+}
 #endif
