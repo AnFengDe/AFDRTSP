@@ -37,7 +37,7 @@ extern "C" bool init()
     g_init_flag = true;
     return g_init_flag;
 }
-
+#if 0
 bool cleanup()
 {
     if (false == g_init_flag) return true;
@@ -104,3 +104,4 @@ int stop(const int handle)
 {
     return NULL;
 }
+#endif
