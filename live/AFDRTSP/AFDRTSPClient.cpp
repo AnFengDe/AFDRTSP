@@ -17,6 +17,7 @@
 //#include <stdio.h>
 #include "liveMedia.hh"
 #include "BasicUsageEnvironment.hh"
+namespace afd_rtsp{
 
 bool                g_init_flag = false;
 TaskScheduler*      g_scheduler = NULL;
@@ -104,4 +105,4 @@ int stop(const int handle)
 {
     return NULL;
 }
-
+} //end namespace

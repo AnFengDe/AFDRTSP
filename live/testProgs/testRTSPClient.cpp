@@ -3,6 +3,8 @@
 
 int main()
 {
+    init();
+#if 0
     if (false == init())
     {
         printf("AFDRTSPClient init failure\n");
@@ -18,6 +20,7 @@ int main()
         printf("AFDRTSPClient cleanup failure\n");
         return -1;
     }
+#endif
     return 0;
 }
 

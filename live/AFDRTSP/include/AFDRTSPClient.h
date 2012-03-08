@@ -19,6 +19,7 @@
 #define _AFDRTSPCLIENT_H_
 
 extern "C" {
+    namespace afd_rtsp{
 /**
  * \brief   init rtsp client runtime envrionment
  *
@@ -68,6 +69,6 @@ int fast(const int handle, double scale);
 int slow(const int handle, double scale);
 
 int stop(const int handle);
-
+    }
 }
 #endif
