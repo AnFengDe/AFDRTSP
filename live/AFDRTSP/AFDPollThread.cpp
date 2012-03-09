@@ -21,7 +21,7 @@ AFDPollThread::~AFDPollThread()
     Stop();
 }
  
-int AFDPollThread::Start(AFDTransmitter *trans)
+int AFDPollThread::Start()
 {
 #if 0
         if (JThread::IsRunning())
@@ -137,6 +137,7 @@ void *AFDPollThread::Thread()
 
     return 0;
 #endif
+    return 0;
 }
 
 
