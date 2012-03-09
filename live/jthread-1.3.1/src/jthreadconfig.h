@@ -30,8 +30,10 @@
 #define JTHREADCONFIG_H
 
 #ifdef WIN32
-    #define JTHREAD_IMPORT __declspec(dllimport)
-    #define JTHREAD_EXPORT __declspec(dllexport)
+    #define JTHREAD_IMPORT 
+    #define JTHREAD_EXPORT 
+//    #define JTHREAD_IMPORT __declspec(dllimport)
+//    #define JTHREAD_EXPORT __declspec(dllexport)
 #else
     #define JTHREAD_IMPORT 
     #define JTHREAD_EXPORT 
