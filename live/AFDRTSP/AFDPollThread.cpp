@@ -55,7 +55,11 @@ void AFDPollThread::Stop()
     {
         // wait max 5 sec
         done = true;
-        sleep(5);
+#ifdef WIN32
+        Sleep(10000);
+#else
+        sleep(1);
+#endif
     }
                                                         
     if (JThread::IsRunning())
