@@ -12,7 +12,8 @@
     #include <iostream>
 #endif // _WIN32_WCE
 
-AFDPollThread::AFDPollThread()
+AFDPollThread::AFDPollThread(UsageEnvironment*& rtspenv)
+    : env(rtspenv)
 {
 }
 
@@ -23,46 +24,38 @@ AFDPollThread::~AFDPollThread()
  
 int AFDPollThread::Start()
 {
-#if 0
-        if (JThread::IsRunning())
-                    return ERR_AFD_POLLTHREAD_ALREADYRUNNING;
-            
-            transmitter = trans;
-                if (!stopmutex.IsInitialized())
-                        {
-                                    if (stopmutex.Init() < 0)
-                                                    return ERR_AFD_POLLTHREAD_CANTINITMUTEX;
-                                        }
-                    stop = false;
-                        if (JThread::Start() < 0)
-                                    return ERR_AFD_POLLTHREAD_CANTSTARTTHREAD;
-#endif
+    if (JThread::IsRunning())
+        return ERR_JTHREAD_ALREADYRUNNING;
+          
+    if (!stopmutex.IsInitialized())
+    {
+        if (stopmutex.Init() < 0)
+            return ERR_JTHREAD_CANTINITMUTEX;
+    }
+
+    stop = 0x00;
+
+    if (JThread::Start() < 0)
+        return ERR_JTHREAD_CANTSTARTTHREAD;
+
     return 0;
 }
 
 void AFDPollThread::Stop()
 {  
-#if 0 
-    if (!IsRunning())
-        return;
+    if (!IsRunning()) return;
             
     stopmutex.Lock();
-    stop = true;
+    stop = 0x01;
     stopmutex.Unlock();
                         
-    if (transmitter)
-        transmitter->AbortWait();
-                           
-    AFDTime thetime = AFDTime::CurrentTime();
     bool done = false;
 
     while (JThread::IsRunning() && !done)
     {
         // wait max 5 sec
-        AFDTime curtime = AFDTime::CurrentTime();
-        if ((curtime.GetDouble()-thetime.GetDouble()) > 5.0)
-            done = true;
-         AFDTime::Wait(AFDTime(0,10000));
+        done = true;
+        sleep(5);
     }
                                                         
     if (JThread::IsRunning())
@@ -73,70 +66,16 @@ void AFDPollThread::Stop()
         JThread::Kill();
     }
 
-    stop = false;
-    transmitter = 0;
-#endif
+    stop = 0x00;
 }
 
 void *AFDPollThread::Thread()
 {
-#if 0
     JThread::ThreadStarted();
     
-    bool stopthread;
+    //never break here
+    if (NULL != env) env->taskScheduler().doEventLoop(&stop);
 
-    stopmutex.Lock();
-    stopthread = stop;
-    stopmutex.Unlock();
-
-    rtpsession.OnPollThreadStart(stopthread);
-
-    while (!stopthread)
-    {
-    int status;
-
-    rtpsession.schedmutex.Lock();
-    rtpsession.sourcesmutex.Lock();
-    
-    AFDTime rtcpdelay = rtcpsched.GetTransmissionDelay();
-    
-    rtpsession.sourcesmutex.Unlock();
-    rtpsession.schedmutex.Unlock();
-    
-    if ((status = transmitter->WaitForIncomingData(rtcpdelay)) < 0)
-    {
-    stopthread = true;
-    rtpsession.OnPollThreadError(status);
-    }
-    else
-    {
-    if ((status = transmitter->Poll()) < 0)
-    {
-    stopthread = true;
-    rtpsession.OnPollThreadError(status);
-    }
-    else
-    {
-    if ((status = rtpsession.ProcessPolledData()) < 0)
-    {
-    stopthread = true;
-    rtpsession.OnPollThreadError(status);
-    }
-    else
-    {
-    rtpsession.OnPollThreadStep();
-    stopmutex.Lock();
-    stopthread = stop;
-    stopmutex.Unlock();
-    }
-    }
-    }
-    }
-
-    rtpsession.OnPollThreadStop();
-
-    return 0;
-#endif
     return 0;
 }
 
