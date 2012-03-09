@@ -18,9 +18,14 @@
 #include "liveMedia.hh"
 #include "BasicUsageEnvironment.hh"
 
-bool                g_init_flag = false;
-TaskScheduler*      g_scheduler = NULL;
-UsageEnvironment*   g_env       = NULL;
+/// library initliaze flag
+bool                g_init_flag     = false;
+/// global task scheduler instance
+TaskScheduler*      g_scheduler     = NULL;
+/// usage environment
+UsageEnvironment*   g_env           = NULL;
+/// count how many rtsp clients are current use
+int                 g_client_count  = 0;
 
 extern "C" bool init()
 {
@@ -31,6 +36,8 @@ extern "C" bool init()
 
     g_env = BasicUsageEnvironment::createNew(*g_scheduler);
     if (NULL == g_env) return g_init_flag;
+    
+    g_client_count = 0;
 
     //startup thread for process eventloop
 
