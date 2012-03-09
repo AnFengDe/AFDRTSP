@@ -9,23 +9,19 @@
 #define _AFDPOLLTHREAD_H_
 #include "jthread.h"
 #include "jmutex.h"
+#include "BasicUsageEnvironment.hh"
 
 class AFDPollThread : private jthread::JThread  
 {
 public:
-    AFDPollThread();
+    AFDPollThread(UsageEnvironment*& rtspenv);
     ~AFDPollThread();
     int Start();
     void Stop();
 private:
     void *Thread();
-    
-    bool stop;
+    UsageEnvironment* env;    
+    char stop;
     jthread::JMutex stopmutex;
-    //RTPTransmitter *transmitter;
-    
-    //RTPSession &rtpsession;
-    //RTCPScheduler &rtcpsched;
-
 };
 #endif

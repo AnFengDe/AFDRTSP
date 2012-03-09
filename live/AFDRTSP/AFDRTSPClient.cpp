@@ -43,7 +43,7 @@ extern "C" bool init()
     g_client_count = 0;
 
     //startup thread for process eventloop
-    g_pollthread = new AFDPollThread();
+    g_pollthread = new AFDPollThread(g_env);
     if ( NULL == g_pollthread || g_pollthread->Start() < 0)
        return g_init_flag;
 
@@ -74,7 +74,8 @@ extern "C" const void* create_new(const char* url, int verbosity, const char* ap
         //openURL(env, program, rtspurl)
         client = RTSPClient::createNew(*g_env, url, verbosity, appname);
         // todo: env scheduler must in standalone thread
-        //env->taskScheduler().doEventLoop();
+        char s = 0x00;
+        g_env->taskScheduler().doEventLoop(&s);
     }
     else
     {
