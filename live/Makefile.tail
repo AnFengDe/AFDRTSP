@@ -5,6 +5,7 @@ GROUPSOCK_DIR = groupsock
 USAGE_ENVIRONMENT_DIR = UsageEnvironment
 BASIC_USAGE_ENVIRONMENT_DIR = BasicUsageEnvironment
 
+JTHREAD_DIR = jthread-1.3.1
 TESTPROGS_DIR = testProgs
 
 AFDRTSP_DIR = AFDRTSP
@@ -16,6 +17,7 @@ all:
 	cd $(GROUPSOCK_DIR) ; $(MAKE)
 	cd $(USAGE_ENVIRONMENT_DIR) ; $(MAKE)
 	cd $(BASIC_USAGE_ENVIRONMENT_DIR) ; $(MAKE)
+	cd $(JTHREAD_DIR) ; $(MAKE)
 	cd $(AFDRTSP_DIR) ; $(MAKE)
 	cd $(TESTPROGS_DIR) ; $(MAKE)
 	cd $(MEDIA_SERVER_DIR) ; $(MAKE)
@@ -25,6 +27,7 @@ clean:
 	cd $(GROUPSOCK_DIR) ; $(MAKE) clean
 	cd $(USAGE_ENVIRONMENT_DIR) ; $(MAKE) clean
 	cd $(BASIC_USAGE_ENVIRONMENT_DIR) ; $(MAKE) clean
+	cd $(JTHREAD_DIR) ; $(MAKE) clean
 	cd $(AFDRTSP_DIR) ; $(MAKE) clean
 	cd $(TESTPROGS_DIR) ; $(MAKE) clean
 	cd $(MEDIA_SERVER_DIR) ; $(MAKE) clean
