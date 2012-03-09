@@ -17,6 +17,7 @@
 //#include <stdio.h>
 #include "liveMedia.hh"
 #include "BasicUsageEnvironment.hh"
+#include "AFDPollThread.h"
 
 /// library initliaze flag
 bool                g_init_flag     = false;
@@ -26,6 +27,8 @@ TaskScheduler*      g_scheduler     = NULL;
 UsageEnvironment*   g_env           = NULL;
 /// count how many rtsp clients are current use
 int                 g_client_count  = 0;
+/// work thread for asynchronous rtsp message exchange
+AFDPollThread*      g_pollthread    = 0;
 
 extern "C" bool init()
 {
@@ -40,8 +43,12 @@ extern "C" bool init()
     g_client_count = 0;
 
     //startup thread for process eventloop
+    g_pollthread = new AFDPollThread();
+    if ( NULL == g_pollthread || g_pollthread->Start() < 0)
+       return g_init_flag;
 
     g_init_flag = true;
+   
     return g_init_flag;
 }
 
