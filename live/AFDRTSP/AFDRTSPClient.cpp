@@ -34,10 +34,10 @@ extern "C" bool init()
 {
     if (true == g_init_flag) return g_init_flag;
 
-    g_scheduler = BasicTaskScheduler::createNew();
+    g_scheduler = g_scheduler ? g_scheduler : BasicTaskScheduler::createNew();
     if (NULL == g_scheduler) return g_init_flag;
 
-    g_env = BasicUsageEnvironment::createNew(*g_scheduler);
+    g_env = g_env ? g_env : BasicUsageEnvironment::createNew(*g_scheduler);
     if (NULL == g_env) return g_init_flag;
     
     g_client_count = 0;
@@ -56,33 +56,43 @@ extern "C" bool cleanup()
 {
     if (false == g_init_flag) return true;
     
-    //todo:clean up thread, global variable
+    //todo:shutdown rtsp session one by one
+
+    //clean up thread, close all client session
+    if (g_pollthread)
+    {
+        g_pollthread->Stop();
+        delete g_pollthread;
+        g_pollthread = NULL;
+    }
+    
+    g_client_count = 0;
 
     g_init_flag = false;
+    
     return true;
 }
 
 extern "C" const void* create_new(const char* url, int verbosity, const char* appname)
 {
     RTSPClient* client = NULL;
-    // Create enviroment when first call
-    if ( NULL == g_scheduler )
-    {
-        g_scheduler = BasicTaskScheduler::createNew();
-        g_env = BasicUsageEnvironment::createNew(*g_scheduler);
-
-        //openURL(env, program, rtspurl)
-        client = RTSPClient::createNew(*g_env, url, verbosity, appname);
-        // todo: env scheduler must in standalone thread
-        char s = 0x00;
-        g_env->taskScheduler().doEventLoop(&s);
-    }
-    else
+    
+    if ( NULL != g_scheduler &&
+         NULL != g_env &&
+         NULL != g_pollthread)
     {
         client = RTSPClient::createNew(*g_env, url, verbosity, appname);
+        if ( NULL == client)
+        {
+            *g_env << "Failed to create a RTSP client for URL \"" 
+                  << url << "\": " 
+                  << g_env->getResultMsg() << "\n";
+        }
+        else
+            g_client_count++;
     }
    
-    return (client);
+    return client;
 }
 
 int play(const int handle, const char* url)

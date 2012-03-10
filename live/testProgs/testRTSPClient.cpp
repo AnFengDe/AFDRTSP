@@ -7,6 +7,9 @@ int main()
     {
         printf("AFDRTSPClient init failure\n");
         return -1;
+    }else
+    {
+        printf("init AnFengDe RTSP Client success\n");
     }
     
     const void* handle = create_new("rtsp://localhost/test.mp3", 1);
