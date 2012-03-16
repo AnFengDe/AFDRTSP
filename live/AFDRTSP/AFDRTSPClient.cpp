@@ -30,6 +30,23 @@ int                 g_client_count  = 0;
 /// work thread for asynchronous rtsp message exchange
 AFDPollThread*      g_pollthread    = 0;
 
+// RTSP 'response handlers':
+void continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultString)
+{
+    int i = 0;
+    i = 2;
+}
+
+void continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString);
+void continueAfterSETUP(RTSPClient* rtspClient, int resultCode, char* resultString);
+void continueAfterPLAY(RTSPClient* rtspClient, int resultCode, char* resultString);
+
+// Other event handler functions:
+void subsessionAfterPlaying(void* clientData); // called when a stream's subsession (e.g., audio or video substream) ends
+void subsessionByeHandler(void* clientData); // called when a RTCP "BYE" is received for a subsession
+void streamTimerHandler(void* clientData);
+// called at the end of a stream's expected duration (if the stream has not already signaled its end using a RTCP "BYE")
+
 extern "C" bool init()
 {
     if (true == g_init_flag) return g_init_flag;
@@ -95,9 +112,10 @@ extern "C" const void* create_new(const char* url, int verbosity, const char* ap
     return client;
 }
 
-int play(const int handle, const char* url)
+extern "C" unsigned play(const void* handle)
 {
-    return NULL;
+    RTSPClient* client = (RTSPClient*)handle;
+    return client->sendOptionsCommand(continueAfterOPTIONS);  
 }
 
 int pause(const int handle)

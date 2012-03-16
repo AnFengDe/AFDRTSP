@@ -47,17 +47,16 @@ bool cleanup();
 const void* create_new(const char* url, int verbosity = 0, const char* appname = NULL);
 
 /**
- * \brief   Open stream by url, this function will call method below:
+ * \brief   Open stream by handle create_new returned, this function will call method below:
  *          OPTIONS, DESCRIBE, SETUP, PLAY
  *          the methode call is asynchronous, if you want to process response 
  *          yourself, you must set callback function for it.
  *
- * \param   handle
- * \param   url like rtsp://60.168.1.20/record.mp4
+ * \param   handle create_new returned
  *
- * \return  less than zero means failure, otherwise is success.
+ * \return  less than and equal zero means failure, otherwise is success.
  */
-int play(const int handle, const char* url);
+unsigned play(const void* handle);
 
 int pause(const int handle);
 
