@@ -54,7 +54,7 @@ const void* create_new(const char* url, int verbosity = 0, const char* appname =
  *
  * \param   handle create_new returned
  *
- * \return  less than and equal zero means failure, otherwise is success.
+ * \return  the return value is equal zero means failure, otherwise is success.
  */
 unsigned play(const void* handle);
 

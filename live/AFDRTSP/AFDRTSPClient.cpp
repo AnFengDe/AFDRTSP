@@ -31,13 +31,24 @@ int                 g_client_count  = 0;
 AFDPollThread*      g_pollthread    = 0;
 
 // RTSP 'response handlers':
-void continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultString)
+void continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString)
 {
-    int i = 0;
-    i = 2;
+    //You can put process code here for DESCRIBE.
+
+    (*g_env)<<"Put code for DESCRIBE command process here please.\n";
+    
 }
 
-void continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString);
+void continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultString)
+{
+    //You can put process code here for Option.
+
+    (*g_env)<<"Put code for OPTIONS command process here please.\n";
+    
+    //continue send DESCRIBE command
+    rtspClient->sendDescribeCommand(continueAfterDESCRIBE);
+}
+
 void continueAfterSETUP(RTSPClient* rtspClient, int resultCode, char* resultString);
 void continueAfterPLAY(RTSPClient* rtspClient, int resultCode, char* resultString);
 
