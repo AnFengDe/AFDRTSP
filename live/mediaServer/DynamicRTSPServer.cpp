@@ -86,5 +86,8 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 
   ServerMediaSession* sms = NULL;
 
+  //NEW_SMS(fileName);
+  //sms->add
+
   return sms;
 }

@@ -1,2 +1,2 @@
-INCLUDES = -I./src
+INCLUDES = -I./src -g 
 ##### Change the following for your environment: 
