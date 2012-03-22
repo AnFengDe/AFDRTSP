@@ -12,7 +12,7 @@ all:	$(ALL)
 
 RTSP_OBJS = RTSPServer.$(OBJ) RTSPClient.$(OBJ) RTSPCommon.$(OBJ) RTSPServerSupportingHTTPStreaming.$(OBJ)
 
-SESSION_OBJS = MediaSession.$(OBJ) ServerMediaSession.$(OBJ) PassiveServerMediaSubsession.$(OBJ) OnDemandServerMediaSubsession.$(OBJ) 
+SESSION_OBJS = MediaSession.$(OBJ) ServerMediaSession.$(OBJ) OnDemandServerMediaSubsession.$(OBJ) 
 
 MISC_OBJS = DigestAuthentication.$(OBJ) our_md5.$(OBJ) our_md5hl.$(OBJ) Base64.$(OBJ) Locale.$(OBJ)
 
@@ -35,8 +35,6 @@ RTSPServerSupportingHTTPStreaming.$(CPP):	include/RTSPServerSupportingHTTPStream
 include/RTSPServerSupportingHTTPStreaming.hh:	include/RTSPServer.hh
 MediaSession.$(CPP):	include/liveMedia.hh include/Locale.hh
 ServerMediaSession.$(CPP):	include/ServerMediaSession.hh
-PassiveServerMediaSubsession.$(CPP):	include/PassiveServerMediaSubsession.hh
-include/PassiveServerMediaSubsession.hh:	include/ServerMediaSession.hh 
 OnDemandServerMediaSubsession.$(CPP):	include/OnDemandServerMediaSubsession.hh
 include/OnDemandServerMediaSubsession.hh:	include/ServerMediaSession.hh 
 DigestAuthentication.$(CPP):	include/DigestAuthentication.hh our_md5.h
@@ -45,7 +43,7 @@ our_md5hl.$(C):		our_md5.h
 Base64.$(CPP):	include/Base64.hh
 Locale.$(CPP):	include/Locale.hh
 
-include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh include/PassiveServerMediaSubsession.hh
+include/liveMedia.hh:: include/RTSPServerSupportingHTTPStreaming.hh include/RTSPClient.hh
 
 clean:
 	-rm -rf *.$(OBJ) $(ALL) core *.core *~ include/*~
