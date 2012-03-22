@@ -10,7 +10,7 @@ all:	$(ALL)
 .$(CPP).$(OBJ):
 	$(CPLUSPLUS_COMPILER) -c $(CPLUSPLUS_FLAGS) $<
 
-RTSP_OBJS = AFDRTSPClient.$(OBJ) AFDPollThread.$(OBJ)
+RTSP_OBJS = AFDRTSPClient.$(OBJ) AFDRTSPServer.$(OBJ) AFDPollThread.$(OBJ)
 
 LIVEMEDIA_LIB_OBJS = $(RTSP_OBJS)
 
@@ -19,7 +19,7 @@ $(LIVEMEDIA_LIB): $(LIVEMEDIA_LIB_OBJS) \
 	$(LIBRARY_LINK)$@ $(LIBRARY_LINK_OPTS) \
 		$(LIVEMEDIA_LIB_OBJS)
 
-AFDRTSPClient.$(CPP):	include/AFDRTSPClient.h 
+AFDRTSPClient.$(CPP):	AFDRTSPClient.h AFDRTSPServer.h 
 
 clean:
 	-rm -rf *.$(OBJ) $(ALL) core *.core *~ include/*~
