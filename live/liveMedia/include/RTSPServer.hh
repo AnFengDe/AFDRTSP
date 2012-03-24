@@ -31,7 +31,19 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "DigestAuthentication.hh"
 #endif
 
-extern "C" typedef int (*AFD_RTSP_Callback)(char* cmd_name);
+#ifdef WIN32
+#define STD_CALLBACK    __stdcall
+#else
+#define STD_CALLBACK    
+#endif
+
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
+
+///handle cmd callback struct define
+typedef struct __st_Handle_Cmd_Callback
+{
+    AFD_RTSP_Handle_Cmd_OPTIONS* options;
+}st_Handle_Cmd_Callback;
 
 // A data structure used for optional user/password authentication:
 

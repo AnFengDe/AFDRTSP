@@ -334,7 +334,7 @@ void RTSPServer::RTSPClientSession::reclaimStreamStates() {
   for (unsigned i = 0; i < fNumStreamStates; ++i) {
     if (fStreamStates[i].subsession != NULL) {
       fStreamStates[i].subsession->deleteStream(fOurSessionId,
-                                        	fStreamStates[i].streamToken);
+                                            fStreamStates[i].streamToken);
     }
   }
   delete[] fStreamStates; fStreamStates = NULL;
@@ -372,183 +372,228 @@ void RTSPServer::RTSPClientSession::handleAlternativeRequestByte1(u_int8_t reque
   handleRequestBytes(1);
 }
 
-void RTSPServer::RTSPClientSession::handleRequestBytes(int newBytesRead) {
-  ++fRecursionCount;
+void RTSPServer::RTSPClientSession::handleRequestBytes(int newBytesRead) 
+{
+    ++fRecursionCount;
 
-  do {
-    noteLiveness();
+    do 
+    {
+        noteLiveness();
     
-    if (newBytesRead <= 0 || (unsigned)newBytesRead >= fRequestBufferBytesLeft) {
-      // Either the client socket has died, or the request was too big for us.
-      // Terminate this connection:
+        if (newBytesRead <= 0 || (unsigned)newBytesRead >= fRequestBufferBytesLeft) 
+        {
+            // Either the client socket has died, or the request was too big for us.
+            // Terminate this connection:
 #ifdef DEBUG
-      fprintf(stderr, "RTSPClientSession[%p]::handleRequestBytes() read %d new bytes (of %d); terminating connection!\n", this, newBytesRead, fRequestBufferBytesLeft);
+            fprintf(stderr, 
+                    "RTSPClientSession[%p]::handleRequestBytes() read %d new bytes (of %d); terminating connection!\n", 
+                    this, newBytesRead, fRequestBufferBytesLeft);
 #endif
-      fSessionIsActive = False;
-      break;
-    }
-    
-    Boolean endOfMsg = False;
-    unsigned char* ptr = &fRequestBuffer[fRequestBytesAlreadySeen];
-#ifdef DEBUG
-    ptr[newBytesRead] = '\0';
-    fprintf(stderr, "RTSPClientSession[%p]::handleRequestBytes() read %d new bytes:%s\n", this, newBytesRead, ptr);
-#endif
-    
-    if (fClientOutputSocket != fClientInputSocket) {
-      // We're doing RTSP-over-HTTP tunneling, and input commands are assumed to have been Base64-encoded.
-      // We therefore Base64-decode as much of this new data as we can (i.e., up to a multiple of 4 bytes):
-      unsigned numBytesToDecode = fBase64RemainderCount + newBytesRead;
-      unsigned newBase64RemainderCount = numBytesToDecode%4;
-      numBytesToDecode -= newBase64RemainderCount;
-      if (numBytesToDecode > 0) {
-	ptr[newBytesRead] = '\0';
-	unsigned decodedSize;
-	unsigned char* decodedBytes = base64Decode((char*)(ptr-fBase64RemainderCount), decodedSize);
-#ifdef DEBUG
-	fprintf(stderr, "Base64-decoded %d input bytes into %d new bytes:", numBytesToDecode, decodedSize);
-	for (unsigned k = 0; k < decodedSize; ++k) fprintf(stderr, "%c", decodedBytes[k]);
-	fprintf(stderr, "\n");
-#endif
-        
-        // Copy the new decoded bytes in place of the old ones (we can do this because there are fewer decoded bytes than original):
-	unsigned char* to = ptr-fBase64RemainderCount;
-	for (unsigned i = 0; i < decodedSize; ++i) *to++ = decodedBytes[i];
-        
-        // Then copy any remaining (undecoded) bytes to the end:
-	for (unsigned j = 0; j < newBase64RemainderCount; ++j) *to++ = (ptr-fBase64RemainderCount+numBytesToDecode)[j];
-        
-	newBytesRead = decodedSize + newBase64RemainderCount; // adjust to allow for the size of the new decoded data (+ remainder)
-	delete[] decodedBytes;
-      }
-      fBase64RemainderCount = newBase64RemainderCount;
-      if (fBase64RemainderCount > 0) break; // because we know that we have more input bytes still to receive
-    }
-    
-    // Look for the end of the message: <CR><LF><CR><LF>
-    unsigned char *tmpPtr = fLastCRLF + 2;
-    if (tmpPtr < fRequestBuffer) tmpPtr = fRequestBuffer;
-    while (tmpPtr < &ptr[newBytesRead-1]) {
-      if (*tmpPtr == '\r' && *(tmpPtr+1) == '\n') {
-	if (tmpPtr - fLastCRLF == 2) { // This is it:
-          endOfMsg = True;
-          break;
-        }
-	fLastCRLF = tmpPtr;
-      }
-      ++tmpPtr;
-    }
-    
-    fRequestBufferBytesLeft -= newBytesRead;
-    fRequestBytesAlreadySeen += newBytesRead;
-    
-    if (!endOfMsg) break; // subsequent reads will be needed to complete the request
-    
-    // Parse the request string into command name and 'CSeq', then handle the command:
-    fRequestBuffer[fRequestBytesAlreadySeen] = '\0';
-    char cmdName[RTSP_PARAM_STRING_MAX];
-    char urlPreSuffix[RTSP_PARAM_STRING_MAX];
-    char urlSuffix[RTSP_PARAM_STRING_MAX];
-    char cseq[RTSP_PARAM_STRING_MAX];
-    unsigned contentLength;
-    if (parseRTSPRequestString((char*)fRequestBuffer, fRequestBytesAlreadySeen,
-                               cmdName, sizeof cmdName,
-                               urlPreSuffix, sizeof urlPreSuffix,
-                               urlSuffix, sizeof urlSuffix,
-                               cseq, sizeof cseq,
-                               contentLength)) {
-#ifdef DEBUG
-      fprintf(stderr, "parseRTSPRequestString() succeeded, returning cmdName \"%s\", urlPreSuffix \"%s\", urlSuffix \"%s\", CSeq \"%s\", Content-Length %u, with %d bytes following the message.\n", cmdName, urlPreSuffix, urlSuffix, cseq, contentLength, ptr + newBytesRead - (tmpPtr + 2));
-#endif
-      // If there was a "Content-Length:" header, then make sure we've received all of the data that it specified:
-      if (ptr + newBytesRead < tmpPtr + 2 + contentLength) break; // we still need more data; subsequent reads will give it to us 
-      
-      if (strcmp(cmdName, "OPTIONS") == 0) {
-	handleCmd_OPTIONS(cseq);
-      } else if (strcmp(cmdName, "DESCRIBE") == 0) {
-	handleCmd_DESCRIBE(cseq, urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
-      } else if (strcmp(cmdName, "SETUP") == 0) {
-	handleCmd_SETUP(cseq, urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
-      } else if (strcmp(cmdName, "TEARDOWN") == 0
-                 || strcmp(cmdName, "PLAY") == 0
-                 || strcmp(cmdName, "PAUSE") == 0
-                 || strcmp(cmdName, "GET_PARAMETER") == 0
-                 || strcmp(cmdName, "SET_PARAMETER") == 0) {
-	handleCmd_withinSession(cmdName, urlPreSuffix, urlSuffix, cseq, (char const*)fRequestBuffer);
-      } else {
-	handleCmd_notSupported(cseq);
-      }
-    } else {
-#ifdef DEBUG
-      fprintf(stderr, "parseRTSPRequestString() failed\n");
-#endif
-      // The request was not (valid) RTSP, but check for a special case: HTTP commands (for setting up RTSP-over-HTTP tunneling):
-      char sessionCookie[RTSP_PARAM_STRING_MAX];
-      char acceptStr[RTSP_PARAM_STRING_MAX];
-      if (parseHTTPRequestString(cmdName, sizeof cmdName,
-                                 urlSuffix, sizeof urlPreSuffix,
-                                 sessionCookie, sizeof sessionCookie,
-                                 acceptStr, sizeof acceptStr)) {
-#ifdef DEBUG
-	fprintf(stderr, "parseHTTPRequestString() succeeded, returning cmdName \"%s\", urlSuffix \"%s\", sessionCookie \"%s\", acceptStr \"%s\"\n", cmdName, urlSuffix, sessionCookie, acceptStr);
-#endif
-        // Check that the HTTP command is valid for RTSP-over-HTTP tunneling: There must be a 'session cookie'.
-	Boolean isValidHTTPCmd = True;
-	if (sessionCookie[0] == '\0') {
-          // There was no "x-sessionCookie:" header.  If there was an "Accept: application/x-rtsp-tunnelled" header,
-          // then this is a bad tunneling request.  Otherwise, assume that it's an attempt to access the stream via HTTP.
-          if (strcmp(acceptStr, "application/x-rtsp-tunnelled") == 0) {
-            isValidHTTPCmd = False;
-          } else {
-            handleHTTPCmd_StreamingGET(urlSuffix, (char const*)fRequestBuffer);
-          }
-        } else if (strcmp(cmdName, "GET") == 0) {
-          handleHTTPCmd_TunnelingGET(sessionCookie);
-        } else if (strcmp(cmdName, "POST") == 0) {
-          // We might have received additional data following the HTTP "POST" command - i.e., the first Base64-encoded RTSP command.
-          // Check for this, and handle it if it exists:
-          unsigned char const* extraData = fLastCRLF+4;
-          unsigned extraDataSize = &fRequestBuffer[fRequestBytesAlreadySeen] - extraData;
-          if (handleHTTPCmd_TunnelingPOST(sessionCookie, extraData, extraDataSize)) {
-            // We don't respond to the "POST" command, and we go away:
             fSessionIsActive = False;
             break;
-          }
-        } else {
-          isValidHTTPCmd = False;
         }
-	if (!isValidHTTPCmd) {
-          handleHTTPCmd_notSupported();
+    
+        Boolean endOfMsg = False;
+        unsigned char* ptr = &fRequestBuffer[fRequestBytesAlreadySeen];
+#ifdef DEBUG
+        ptr[newBytesRead] = '\0';
+        fprintf(stderr, 
+                "RTSPClientSession[%p]::handleRequestBytes() read %d new bytes:%s\n", 
+                this, newBytesRead, ptr);
+#endif
+    
+        if (fClientOutputSocket != fClientInputSocket) 
+        {
+            // We're doing RTSP-over-HTTP tunneling, and input commands are assumed to have been Base64-encoded.
+            // We therefore Base64-decode as much of this new data as we can (i.e., up to a multiple of 4 bytes):
+            unsigned numBytesToDecode = fBase64RemainderCount + newBytesRead;
+            unsigned newBase64RemainderCount = numBytesToDecode%4;
+            numBytesToDecode -= newBase64RemainderCount;
+            if (numBytesToDecode > 0) 
+            {
+                ptr[newBytesRead] = '\0';
+                unsigned decodedSize;
+                unsigned char* decodedBytes = base64Decode((char*)(ptr-fBase64RemainderCount), decodedSize);
+#ifdef DEBUG
+                fprintf(stderr, "Base64-decoded %d input bytes into %d new bytes:", numBytesToDecode, decodedSize);
+                for (unsigned k = 0; k < decodedSize; ++k) fprintf(stderr, "%c", decodedBytes[k]);
+                fprintf(stderr, "\n");
+#endif
+        
+                // Copy the new decoded bytes in place of the old ones (we can do this because there are fewer decoded bytes than original):
+                unsigned char* to = ptr-fBase64RemainderCount;
+                for (unsigned i = 0; i < decodedSize; ++i) *to++ = decodedBytes[i];
+        
+                // Then copy any remaining (undecoded) bytes to the end:
+                for (unsigned j = 0; j < newBase64RemainderCount; ++j) *to++ = (ptr-fBase64RemainderCount+numBytesToDecode)[j];
+        
+                newBytesRead = decodedSize + newBase64RemainderCount; // adjust to allow for the size of the new decoded data (+ remainder)
+                delete[] decodedBytes;
+            }
+            fBase64RemainderCount = newBase64RemainderCount;
+            if (fBase64RemainderCount > 0) break; // because we know that we have more input bytes still to receive
         }
-      } else {
+    
+        // Look for the end of the message: <CR><LF><CR><LF>
+        unsigned char *tmpPtr = fLastCRLF + 2;
+        if (tmpPtr < fRequestBuffer) tmpPtr = fRequestBuffer;
+        while (tmpPtr < &ptr[newBytesRead-1]) 
+        {
+            if (*tmpPtr == '\r' && *(tmpPtr+1) == '\n') 
+            {
+                if (tmpPtr - fLastCRLF == 2) 
+                { // This is it:
+                    endOfMsg = True;
+                    break;
+                }
+                fLastCRLF = tmpPtr;
+            }
+            ++tmpPtr;
+        }
+    
+        fRequestBufferBytesLeft -= newBytesRead;
+        fRequestBytesAlreadySeen += newBytesRead;
+    
+        if (!endOfMsg) break; // subsequent reads will be needed to complete the request
+    
+        // Parse the request string into command name and 'CSeq', then handle the command:
+        fRequestBuffer[fRequestBytesAlreadySeen] = '\0';
+        char cmdName[RTSP_PARAM_STRING_MAX];
+        char urlPreSuffix[RTSP_PARAM_STRING_MAX];
+        char urlSuffix[RTSP_PARAM_STRING_MAX];
+        char cseq[RTSP_PARAM_STRING_MAX];
+        unsigned contentLength;
+        if (parseRTSPRequestString((char*)fRequestBuffer, fRequestBytesAlreadySeen,
+                                    cmdName, sizeof cmdName,
+                                    urlPreSuffix, sizeof urlPreSuffix,
+                                    urlSuffix, sizeof urlSuffix,
+                                    cseq, sizeof cseq,
+                                    contentLength)) 
+        {
 #ifdef DEBUG
-	fprintf(stderr, "parseHTTPRequestString() failed!\n");
+            fprintf(stderr, 
+                    "parseRTSPRequestString() succeeded, returning cmdName \"%s\", urlPreSuffix \"%s\", urlSuffix \"%s\", CSeq \"%s\", Content-Length %u, with %d bytes following the message.\n", 
+                    cmdName, urlPreSuffix, urlSuffix, cseq, contentLength, ptr + newBytesRead - (tmpPtr + 2));
 #endif
-	handleCmd_bad(cseq);
-      }
-    }
+            // If there was a "Content-Length:" header, then make sure we've received all of the data that it specified:
+            if (ptr + newBytesRead < tmpPtr + 2 + contentLength) break; // we still need more data; subsequent reads will give it to us 
+      
+            if (strcmp(cmdName, "OPTIONS") == 0) 
+            {
+                handleCmd_OPTIONS(cseq);
+            } 
+            else if (strcmp(cmdName, "DESCRIBE") == 0) 
+            {
+                handleCmd_DESCRIBE(cseq, urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
+            } 
+            else if (strcmp(cmdName, "SETUP") == 0) 
+            {
+                handleCmd_SETUP(cseq, urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
+            } 
+            else if (strcmp(cmdName, "TEARDOWN") == 0
+                    || strcmp(cmdName, "PLAY") == 0
+                    || strcmp(cmdName, "PAUSE") == 0
+                    || strcmp(cmdName, "GET_PARAMETER") == 0
+                    || strcmp(cmdName, "SET_PARAMETER") == 0) 
+            {
+                handleCmd_withinSession(cmdName, urlPreSuffix, urlSuffix, cseq, (char const*)fRequestBuffer);
+            } 
+            else 
+            {
+                handleCmd_notSupported(cseq);
+            }
+        } 
+        else 
+        {
+#ifdef DEBUG
+            fprintf(stderr, "parseRTSPRequestString() failed\n");
+#endif
+            // The request was not (valid) RTSP, but check for a special case: HTTP commands (for setting up RTSP-over-HTTP tunneling):
+            char sessionCookie[RTSP_PARAM_STRING_MAX];
+            char acceptStr[RTSP_PARAM_STRING_MAX];
+            if (parseHTTPRequestString( cmdName, sizeof cmdName,
+                                        urlSuffix, sizeof urlPreSuffix,
+                                        sessionCookie, sizeof sessionCookie,
+                                        acceptStr, sizeof acceptStr)) 
+            {
+#ifdef DEBUG
+                fprintf(stderr, 
+                        "parseHTTPRequestString() succeeded, returning cmdName \"%s\", urlSuffix \"%s\", sessionCookie \"%s\", acceptStr \"%s\"\n", 
+                        cmdName, urlSuffix, sessionCookie, acceptStr);
+#endif
+                // Check that the HTTP command is valid for RTSP-over-HTTP tunneling: There must be a 'session cookie'.
+                Boolean isValidHTTPCmd = True;
+                if (sessionCookie[0] == '\0') 
+                {
+                    // There was no "x-sessionCookie:" header.  If there was an "Accept: application/x-rtsp-tunnelled" header,
+                    // then this is a bad tunneling request.  Otherwise, assume that it's an attempt to access the stream via HTTP.
+                    if (strcmp(acceptStr, "application/x-rtsp-tunnelled") == 0) 
+                    {
+                        isValidHTTPCmd = False;
+                    } 
+                    else 
+                    {
+                        handleHTTPCmd_StreamingGET(urlSuffix, (char const*)fRequestBuffer);
+                    }
+                } 
+                else if (strcmp(cmdName, "GET") == 0) 
+                {
+                    handleHTTPCmd_TunnelingGET(sessionCookie);
+                } 
+                else if (strcmp(cmdName, "POST") == 0) 
+                {
+                    // We might have received additional data following the HTTP "POST" command - i.e., the first Base64-encoded RTSP command.
+                    // Check for this, and handle it if it exists:
+                    unsigned char const* extraData = fLastCRLF+4;
+                    unsigned extraDataSize = &fRequestBuffer[fRequestBytesAlreadySeen] - extraData;
+                    if (handleHTTPCmd_TunnelingPOST(sessionCookie, extraData, extraDataSize)) 
+                    {
+                        // We don't respond to the "POST" command, and we go away:
+                        fSessionIsActive = False;
+                        break;
+                    }
+                } 
+                else 
+                {
+                    isValidHTTPCmd = False;
+                }
+                if (!isValidHTTPCmd) 
+                {
+                    handleHTTPCmd_notSupported();
+                }
+            } 
+            else 
+            {
+#ifdef DEBUG
+                fprintf(stderr, "parseHTTPRequestString() failed!\n");
+#endif
+                handleCmd_bad(cseq);
+            }
+        }
     
 #ifdef DEBUG
-    fprintf(stderr, "sending response: %s", fResponseBuffer);
+        fprintf(stderr, "sending response: %s", fResponseBuffer);
 #endif
-    send(fClientOutputSocket, (char const*)fResponseBuffer, strlen((char*)fResponseBuffer), 0);
+        send(fClientOutputSocket, (char const*)fResponseBuffer, strlen((char*)fResponseBuffer), 0);
     
-    if (strcmp(cmdName, "SETUP") == 0 && fStreamAfterSETUP) {
-      // The client has asked for streaming to commence now, rather than after a
-      // subsequent "PLAY" command.  So, simulate the effect of a "PLAY" command:
-      handleCmd_withinSession("PLAY", urlPreSuffix, urlSuffix, cseq,
-                              (char const*)fRequestBuffer);
-    }
+        if (strcmp(cmdName, "SETUP") == 0 && fStreamAfterSETUP) 
+        {
+            // The client has asked for streaming to commence now, rather than after a
+            // subsequent "PLAY" command.  So, simulate the effect of a "PLAY" command:
+            handleCmd_withinSession("PLAY", urlPreSuffix, urlSuffix, cseq,
+                                    (char const*)fRequestBuffer);
+        }
     
-    resetRequestBuffer(); // to prepare for any subsequent request
-  } while (0);
+        resetRequestBuffer(); // to prepare for any subsequent request
+    } while (0);
 
-  --fRecursionCount;
-  if (!fSessionIsActive) {
-    if (fRecursionCount > 0) closeSockets(); else delete this;
-    // Note: The "fRecursionCount" test is for a pathological situation where we got called recursively while handling a command.
-    // In such a case we don't want to actually delete ourself until we leave the outermost call.
-  }
+    --fRecursionCount;
+    if (!fSessionIsActive) 
+    {
+        if (fRecursionCount > 0) closeSockets(); else delete this;
+        // Note: The "fRecursionCount" test is for a pathological situation where we got called recursively while handling a command.
+        // In such a case we don't want to actually delete ourself until we leave the outermost call.
+    }
 }
 
 // Handler routines for specific RTSP commands:
@@ -556,11 +601,12 @@ void RTSPServer::RTSPClientSession::handleRequestBytes(int newBytesRead) {
 static char const* allowedCommandNames
 = "OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, GET_PARAMETER, SET_PARAMETER";
 
-void RTSPServer::RTSPClientSession::handleCmd_bad(char const* /*cseq*/) {
-  // Don't do anything with "cseq", because it might be nonsense
-  snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-           "RTSP/1.0 400 Bad Request\r\n%sAllow: %s\r\n\r\n",
-           dateHeader(), allowedCommandNames);
+void RTSPServer::RTSPClientSession::handleCmd_bad(char const* /*cseq*/) 
+{
+    // Don't do anything with "cseq", because it might be nonsense
+    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+            "RTSP/1.0 400 Bad Request\r\n%sAllow: %s\r\n\r\n",
+            dateHeader(), allowedCommandNames);
 }
 
 void RTSPServer::RTSPClientSession::handleCmd_notSupported(char const* cseq) {
@@ -583,10 +629,11 @@ void RTSPServer::RTSPClientSession::handleCmd_unsupportedTransport(char const* c
   fSessionIsActive = False; // triggers deletion of ourself after responding
 }
 
-void RTSPServer::RTSPClientSession::handleCmd_OPTIONS(char const* cseq) {
-  snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-           "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sPublic: %s\r\n\r\n",
-           cseq, dateHeader(), allowedCommandNames);
+void RTSPServer::RTSPClientSession::handleCmd_OPTIONS(char const* cseq) 
+{
+    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+            "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sPublic: %s\r\n\r\n",
+            cseq, dateHeader(), allowedCommandNames);
 }
 
 void RTSPServer::RTSPClientSession
@@ -709,11 +756,11 @@ static void parseTransportHeader(char const* buf,
     } else if (sscanf(field, "ttl%u", &ttl) == 1) {
       destinationTTL = (u_int8_t)ttl;
     } else if (sscanf(field, "client_port=%hu-%hu", &p1, &p2) == 2) {
-	clientRTPPortNum = p1;
-	clientRTCPPortNum = streamingMode == RAW_UDP ? 0 : p2; // ignore the second port number if the client asked for raw UDP
+    clientRTPPortNum = p1;
+    clientRTCPPortNum = streamingMode == RAW_UDP ? 0 : p2; // ignore the second port number if the client asked for raw UDP
     } else if (sscanf(field, "client_port=%hu", &p1) == 1) {
-	clientRTPPortNum = p1;
-	clientRTCPPortNum = streamingMode == RAW_UDP ? 0 : p1 + 1;
+    clientRTPPortNum = p1;
+    clientRTCPPortNum = streamingMode == RAW_UDP ? 0 : p1 + 1;
     } else if (sscanf(field, "interleaved=%u-%u", &rtpCid, &rtcpCid) == 2) {
       rtpChannelId = (unsigned char)rtpCid;
       rtcpChannelId = (unsigned char)rtcpCid;
@@ -756,11 +803,11 @@ void RTSPServer::RTSPClientSession
     if (fOurServerMediaSession == NULL) {
       // Check for the special case (noted above), before we up:
       if (urlPreSuffix[0] == '\0') {
-	streamName = urlSuffix;
+    streamName = urlSuffix;
       } else {
-	concatenatedStreamName = new char[strlen(urlPreSuffix) + strlen(urlSuffix) + 2]; // allow for the "/" and the trailing '\0'
-	sprintf(concatenatedStreamName, "%s/%s", urlPreSuffix, urlSuffix);
-	streamName = concatenatedStreamName;
+    concatenatedStreamName = new char[strlen(urlPreSuffix) + strlen(urlSuffix) + 2]; // allow for the "/" and the trailing '\0'
+    sprintf(concatenatedStreamName, "%s/%s", urlPreSuffix, urlSuffix);
+    streamName = concatenatedStreamName;
       }
       trackId = NULL;
 
@@ -784,9 +831,9 @@ void RTSPServer::RTSPClientSession
       iter.reset();
       ServerMediaSubsession* subsession;
       for (unsigned i = 0; i < fNumStreamStates; ++i) {
-	subsession = iter.next();
-	fStreamStates[i].subsession = subsession;
-	fStreamStates[i].streamToken = NULL; // for now; it may be changed by the "getStreamParameters()" call that comes later
+    subsession = iter.next();
+    fStreamStates[i].subsession = subsession;
+    fStreamStates[i].streamToken = NULL; // for now; it may be changed by the "getStreamParameters()" call that comes later
       }
     }
 
@@ -795,20 +842,20 @@ void RTSPServer::RTSPClientSession
     unsigned streamNum;
     if (trackId != NULL && trackId[0] != '\0') { // normal case
       for (streamNum = 0; streamNum < fNumStreamStates; ++streamNum) {
-	subsession = fStreamStates[streamNum].subsession;
-	if (subsession != NULL && strcmp(trackId, subsession->trackId()) == 0) break;
+    subsession = fStreamStates[streamNum].subsession;
+    if (subsession != NULL && strcmp(trackId, subsession->trackId()) == 0) break;
       }
       if (streamNum >= fNumStreamStates) {
         // The specified track id doesn't exist, so this request fails:
-	handleCmd_notFound(cseq);
-	break;
+    handleCmd_notFound(cseq);
+    break;
       }
     } else {
       // Weird case: there was no track id in the URL.
       // This works only if we have only one subsession:
       if (fNumStreamStates != 1) {
-	handleCmd_bad(cseq);
-	break;
+    handleCmd_bad(cseq);
+    break;
       }
       streamNum = 0;
       subsession = fStreamStates[streamNum].subsession;
@@ -827,7 +874,7 @@ void RTSPServer::RTSPClientSession
                          clientRTPPortNum, clientRTCPPortNum,
                          rtpChannelId, rtcpChannelId);
     if (streamingMode == RTP_TCP && rtpChannelId == 0xFF ||
-	streamingMode != RTP_TCP && fClientOutputSocket != fClientInputSocket) {
+    streamingMode != RTP_TCP && fClientOutputSocket != fClientInputSocket) {
       // An anomolous situation, caused by a buggy client.  Either:
       //     1/ TCP streaming was requested, but with no "interleaving=" fields.  (QuickTime Player sometimes does this.), or
       //     2/ TCP streaming was not requested, but we're doing RTSP-over-HTTP tunneling (which implies TCP streaming).
@@ -1010,8 +1057,8 @@ void RTSPServer::RTSPClientSession
     // Aggregated operation, if <urlPreSuffix>/<urlSuffix> is the session (stream) name:
     unsigned const urlPreSuffixLen = strlen(urlPreSuffix);
     if (strncmp(fOurServerMediaSession->streamName(), urlPreSuffix, urlPreSuffixLen) == 0 &&
-	fOurServerMediaSession->streamName()[urlPreSuffixLen] == '/' &&
-	strcmp(&(fOurServerMediaSession->streamName())[urlPreSuffixLen+1], urlSuffix) == 0) {
+    fOurServerMediaSession->streamName()[urlPreSuffixLen] == '/' &&
+    strcmp(&(fOurServerMediaSession->streamName())[urlPreSuffixLen+1], urlSuffix) == 0) {
       subsession = NULL;
     } else {
       handleCmd_notFound(cseq);
@@ -1138,21 +1185,21 @@ void RTSPServer::RTSPClientSession
     if (subsession == NULL /* means: aggregated operation */
         || subsession == fStreamStates[i].subsession) {
       if (sawScaleHeader) {
-	fStreamStates[i].subsession->setStreamScale(fOurSessionId,
+    fStreamStates[i].subsession->setStreamScale(fOurSessionId,
                                                     fStreamStates[i].streamToken,
                                                     scale);
       }
       if (sawRangeHeader) {
-	double streamDuration = 0.0; // by default; means: stream until the end of the media
-	if (rangeEnd > 0.0 && (rangeEnd+0.001) < duration) { // the 0.001 is because we limited the values to 3 decimal places
+    double streamDuration = 0.0; // by default; means: stream until the end of the media
+    if (rangeEnd > 0.0 && (rangeEnd+0.001) < duration) { // the 0.001 is because we limited the values to 3 decimal places
           // We want the stream to end early.  Set the duration we want:
           streamDuration = rangeEnd - rangeStart;
           if (streamDuration < 0.0) streamDuration = -streamDuration; // should happen only if scale < 0.0
         }
-	u_int64_t numBytes;
-	fStreamStates[i].subsession->seekStream(fOurSessionId,
-                                        	fStreamStates[i].streamToken,
-                                        	rangeStart, streamDuration, numBytes);
+    u_int64_t numBytes;
+    fStreamStates[i].subsession->seekStream(fOurSessionId,
+                                            fStreamStates[i].streamToken,
+                                            rangeStart, streamDuration, numBytes);
       }
     }
   }
@@ -1272,7 +1319,7 @@ static void lookForHeader(char const* headerName, char const* source, unsigned s
       // We found the header.  Skip over any whitespace, then copy the rest of the line to "resultStr":
       for (i += headerNameLen+1; i < (int)sourceLen && (source[i] == ' ' || source[i] == '\t'); ++i) {}
       for (unsigned j = i; j < sourceLen; ++j) {
-	if (source[j] == '\r' || source[j] == '\n') {
+    if (source[j] == '\r' || source[j] == '\n') {
           // We've found the end of the line.  Copy it to the result (if it will fit):
           if (j-i+1 > resultMaxSize) break;
           char const* resultSource = &source[i];
@@ -1400,10 +1447,10 @@ void RTSPServer::RTSPClientSession::handleHTTPCmd_StreamingGET(char const* /*url
 }
 
 static Boolean parseAuthorizationHeader(char const* buf,
-                                	char const*& username,
-                                	char const*& realm,
-                                	char const*& nonce, char const*& uri,
-                                	char const*& response) {
+                                    char const*& username,
+                                    char const*& realm,
+                                    char const*& nonce, char const*& uri,
+                                    char const*& response) {
   // Initialize the result parameters to default values:
   username = realm = nonce = uri = response = NULL;
 
@@ -1422,7 +1469,7 @@ static Boolean parseAuthorizationHeader(char const* buf,
   while (1) {
     value[0] = '\0';
     if (sscanf(fields, "%[^=]=\"%[^\"]\"", parameter, value) != 2 &&
-	sscanf(fields, "%[^=]=\"\"", parameter) != 1) {
+    sscanf(fields, "%[^=]=\"\"", parameter) != 1) {
       break;
     }
     if (strcmp(parameter, "username") == 0) {
@@ -1520,53 +1567,65 @@ Boolean RTSPServer::RTSPClientSession
   return False;
 }
 
-void RTSPServer::RTSPClientSession::noteLiveness() {
+void RTSPServer::RTSPClientSession::noteLiveness() 
+{
 #ifdef DEBUG
-  fprintf(stderr, "Liveness indication from client at %s\n", AddressString(fClientAddr).val());
+    fprintf(stderr, "Liveness indication from client at %s\n", AddressString(fClientAddr).val());
 #endif
-  if (fOurServer.fReclamationTestSeconds > 0) {
-    envir().taskScheduler()
-      .rescheduleDelayedTask(fLivenessCheckTask,
-                             fOurServer.fReclamationTestSeconds*1000000,
-                             (TaskFunc*)livenessTimeoutTask, this);
-  }
+    if (fOurServer.fReclamationTestSeconds > 0) 
+    {
+        envir().taskScheduler()
+            .rescheduleDelayedTask( fLivenessCheckTask,
+                                    fOurServer.fReclamationTestSeconds*1000000,
+                                    (TaskFunc*)livenessTimeoutTask, this);
+    }
 }
 
-void RTSPServer::RTSPClientSession
-::noteClientLiveness(RTSPClientSession* clientSession) {
-  clientSession->noteLiveness();
+void RTSPServer::RTSPClientSession::noteClientLiveness(RTSPClientSession* clientSession) 
+{
+    clientSession->noteLiveness();
 }
 
-void RTSPServer::RTSPClientSession
-::livenessTimeoutTask(RTSPClientSession* clientSession) {
-  // If this gets called, the client session is assumed to have timed out,
-  // so delete it:
+void RTSPServer::RTSPClientSession::livenessTimeoutTask(RTSPClientSession* clientSession) 
+{
+    // If this gets called, the client session is assumed to have timed out,
+    // so delete it:
 #ifdef DEBUG
-  fprintf(stderr, "RTSP client session from %s has timed out (due to inactivity)\n", AddressString(clientSession->fClientAddr).val());
+    fprintf(stderr, 
+            "RTSP client session from %s has timed out (due to inactivity)\n", 
+            AddressString(clientSession->fClientAddr).val());
 #endif
-  delete clientSession;
+    delete clientSession;
 }
 
 RTSPServer::RTSPClientSession*
-RTSPServer::createNewClientSession(unsigned sessionId, int clientSocket, struct sockaddr_in clientAddr) {
-  return new RTSPClientSession(*this, sessionId, clientSocket, clientAddr);
+RTSPServer::createNewClientSession(unsigned sessionId, int clientSocket, struct sockaddr_in clientAddr) 
+{
+    return new RTSPClientSession(*this, sessionId, clientSocket, clientAddr);
 }
 
 void RTSPServer::RTSPClientSession
-::changeClientInputSocket(int newSocketNum, unsigned char const* extraData, unsigned extraDataSize) {
-  envir().taskScheduler().turnOffBackgroundReadHandling(fClientInputSocket);
-  fClientInputSocket = newSocketNum;
-  envir().taskScheduler().turnOnBackgroundReadHandling(fClientInputSocket,
-     (TaskScheduler::BackgroundHandlerProc*)&incomingRequestHandler, this);
+::changeClientInputSocket(int newSocketNum, unsigned char const* extraData, unsigned extraDataSize) 
+{
+    envir().taskScheduler().turnOffBackgroundReadHandling(fClientInputSocket);
+    fClientInputSocket = newSocketNum;
+    envir()
+        .taskScheduler()
+        .turnOnBackgroundReadHandling(  fClientInputSocket,
+                                        (TaskScheduler::BackgroundHandlerProc*)&incomingRequestHandler, 
+                                        this
+                                     );
 
-  // Also write any extra data to our buffer, and handle it:
-  if (extraDataSize > 0 && extraDataSize <= fRequestBufferBytesLeft/*sanity check; should always be true*/) {
-    unsigned char* ptr = &fRequestBuffer[fRequestBytesAlreadySeen];
-    for (unsigned i = 0; i < extraDataSize; ++i) {
-      ptr[i] = extraData[i];
+    // Also write any extra data to our buffer, and handle it:
+    if (extraDataSize > 0 && extraDataSize <= fRequestBufferBytesLeft/*sanity check; should always be true*/) 
+    {
+        unsigned char* ptr = &fRequestBuffer[fRequestBytesAlreadySeen];
+        for (unsigned i = 0; i < extraDataSize; ++i) 
+        {
+            ptr[i] = extraData[i];
+        }
+        handleRequestBytes(extraDataSize);
     }
-    handleRequestBytes(extraDataSize);
-  }
 }
 
 
@@ -1575,18 +1634,21 @@ void RTSPServer::RTSPClientSession
 RTSPServer::ServerMediaSessionIterator
 ::ServerMediaSessionIterator(RTSPServer& server)
   : fOurIterator((server.fServerMediaSessions == NULL)
-                 ? NULL : HashTable::Iterator::create(*server.fServerMediaSessions)) {
+                 ? NULL : HashTable::Iterator::create(*server.fServerMediaSessions)) 
+{
 }
 
-RTSPServer::ServerMediaSessionIterator::~ServerMediaSessionIterator() {
-  delete fOurIterator;
+RTSPServer::ServerMediaSessionIterator::~ServerMediaSessionIterator() 
+{
+    delete fOurIterator;
 }
 
-ServerMediaSession* RTSPServer::ServerMediaSessionIterator::next() {
-  if (fOurIterator == NULL) return NULL;
+ServerMediaSession* RTSPServer::ServerMediaSessionIterator::next() 
+{
+    if (fOurIterator == NULL) return NULL;
 
-  char const* key; // dummy
-  return (ServerMediaSession*)(fOurIterator->next(key));
+    char const* key; // dummy
+    return (ServerMediaSession*)(fOurIterator->next(key));
 }
 
 
@@ -1596,31 +1658,37 @@ UserAuthenticationDatabase::UserAuthenticationDatabase(char const* realm,
                                                        Boolean passwordsAreMD5)
   : fTable(HashTable::create(STRING_HASH_KEYS)),
     fRealm(strDup(realm == NULL ? "LIVE555 Streaming Media" : realm)),
-    fPasswordsAreMD5(passwordsAreMD5) {
+    fPasswordsAreMD5(passwordsAreMD5) 
+{
 }
 
-UserAuthenticationDatabase::~UserAuthenticationDatabase() {
-  delete[] fRealm;
+UserAuthenticationDatabase::~UserAuthenticationDatabase() 
+{
+    delete[] fRealm;
 
-  // Delete the allocated 'password' strings that we stored in the table, and then the table itself:
-  char* password;
-  while ((password = (char*)fTable->RemoveNext()) != NULL) {
-    delete[] password;
-  }
-  delete fTable;
+    // Delete the allocated 'password' strings that we stored in the table, and then the table itself:
+    char* password;
+    while ((password = (char*)fTable->RemoveNext()) != NULL) 
+    {
+        delete[] password;
+    }
+    delete fTable;
 }
 
 void UserAuthenticationDatabase::addUserRecord(char const* username,
-                                               char const* password) {
-  fTable->Add(username, (void*)(strDup(password)));
+                                               char const* password) 
+{
+    fTable->Add(username, (void*)(strDup(password)));
 }
 
-void UserAuthenticationDatabase::removeUserRecord(char const* username) {
-  char* password = (char*)(fTable->Lookup(username));
-  fTable->Remove(username);
-  delete[] password;
+void UserAuthenticationDatabase::removeUserRecord(char const* username) 
+{
+    char* password = (char*)(fTable->Lookup(username));
+    fTable->Remove(username);
+    delete[] password;
 }
 
-char const* UserAuthenticationDatabase::lookupPassword(char const* username) {
-  return (char const*)(fTable->Lookup(username));
+char const* UserAuthenticationDatabase::lookupPassword(char const* username) 
+{
+    return (char const*)(fTable->Lookup(username));
 }
