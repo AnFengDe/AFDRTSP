@@ -18,7 +18,7 @@ int main()
         
         if (0 == ::memcmp(cmd, "init", 4))
         {
-            if (false == init())
+            if (false == client_init())
             {
                 printf("AFDRTSPClient init failure\n");
                 return -1;
@@ -55,7 +55,7 @@ int main()
         }
         else if (0 == ::memcmp(cmd, "exit", 4))
         {
-            if (false == cleanup())
+            if (false == client_cleanup())
             {
                 printf("AFDRTSPClient cleanup failure\n");
                 return -1;

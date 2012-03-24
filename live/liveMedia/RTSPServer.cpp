@@ -29,6 +29,9 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #define USE_SIGNALS 1
 #endif
 
+/// callback struct for process rtsp command customize 
+st_Handle_Cmd_Callback* g_pstCallback = NULL;
+
 ////////// RTSPServer implementation //////////
 
 RTSPServer*
@@ -631,9 +634,20 @@ void RTSPServer::RTSPClientSession::handleCmd_unsupportedTransport(char const* c
 
 void RTSPServer::RTSPClientSession::handleCmd_OPTIONS(char const* cseq) 
 {
-    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-            "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sPublic: %s\r\n\r\n",
-            cseq, dateHeader(), allowedCommandNames);
+    if (NULL == g_pstCallback || NULL == g_pstCallback->options)
+    {
+        snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+                "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sPublic: %s\r\n\r\n",
+                cseq, dateHeader(), allowedCommandNames);
+    }
+    else
+    {
+        char buf[128];
+        g_pstCallback->options(buf);
+        snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+                "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sPublic: %s\r\n\r\n",
+                cseq, dateHeader(), buf);
+    }
 }
 
 void RTSPServer::RTSPClientSession

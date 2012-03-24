@@ -221,7 +221,7 @@ MD5Transform(UNSIGNED32 state[4], const unsigned char block[64])
 
 /**
  * our_MD5Init:
- * @context: MD5 context to be initialized.
+ * \param context: MD5 context to be initialized.
  * 
  * Initializes MD5 context for the start of message digest computation.
  **/
@@ -238,9 +238,9 @@ our_MD5Init(MD5_CTX * context)
 
 /**
  * ourMD5Update:
- * @context: MD5 context to be updated.
- * @input: pointer to data to be fed into MD5 algorithm.
- * @inputLen: size of @input data in bytes.
+ * \param context: MD5 context to be updated.
+ * \param input: pointer to data to be fed into MD5 algorithm.
+ * \param inputLen: size of input data in bytes.
  * 
  * MD5 block update operation. Continues an MD5 message-digest operation,
  * processing another message block, and updating the context.
@@ -282,8 +282,8 @@ ourMD5Update(MD5_CTX * context, const unsigned char *input, unsigned int inputLe
 
 /**
  * our_MD5Final:
- * @digest: 16-byte buffer to write MD5 checksum.
- * @context: MD5 context to be finalized.
+ * \param digest: 16-byte buffer to write MD5 checksum.
+ * \param context: MD5 context to be finalized.
  * 
  * Ends an MD5 message-digest operation, writing the the message
  * digest and zeroing the context.  The context must be initialized

@@ -1,4 +1,3 @@
-
 cd liveMedia
 del *.obj *.lib
 nmake /B /f liveMedia.mak

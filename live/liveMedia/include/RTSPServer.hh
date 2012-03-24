@@ -42,7 +42,8 @@ extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_na
 ///handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
 {
-    AFD_RTSP_Handle_Cmd_OPTIONS* options;
+    ///the options callback function 
+    AFD_RTSP_Handle_Cmd_OPTIONS options;
 }st_Handle_Cmd_Callback;
 
 // A data structure used for optional user/password authentication:
@@ -115,13 +116,13 @@ public:
       // Note: RTSP-over-HTTP tunneling is described in http://developer.apple.com/quicktime/icefloe/dispatch028.html
   portNumBits httpServerPortNum() const; // in host byte order.  (Returns 0 if not present.)
 
+  virtual ~RTSPServer();
 protected:
   RTSPServer(UsageEnvironment& env,
              int ourSocket, Port ourPort,
              UserAuthenticationDatabase* authDatabase,
              unsigned reclamationTestSeconds);
       // called only by createNew();
-  virtual ~RTSPServer();
 
   static int setUpOurSocket(UsageEnvironment& env, Port& ourPort);
   virtual Boolean specialClientAccessCheck(int clientSocket, struct sockaddr_in& clientAddr,

@@ -22,9 +22,40 @@
 extern "C" {
 #endif
 
-typedef int (__stdcall* AFD_RTSP_Callback)(char* cmd_name);
+#ifdef WIN32
+#define STD_CALLBACK    __stdcall
+#else
+#define STD_CALLBACK    
+#endif
 
-bool run_rtsp_srv(/*AFD_RTSP_Callback* pf, */unsigned short listen_port);
+/*! \brief the cmd_names is all or subset of 
+ "OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, GET_PARAMETER, SET_PARAMETER".
+ normally, the handler of command not be neccessary, keep it NULL 
+*/
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
+
+///handle cmd callback struct define
+typedef struct __st_Handle_Cmd_Callback
+{
+    ///the options callback function 
+    AFD_RTSP_Handle_Cmd_OPTIONS options;
+}st_Handle_Cmd_Callback;
+
+/**
+ * \brief   init rtsp server runtime envrionment
+ *
+ * \return  return true while success, otherwise is false
+ */
+bool server_init();
+
+/**
+ * \brief   cleanup rtsp server runtime envrionment,shutdown service automatically
+ *
+ * \return  return true while success, otherwise is false
+ */
+bool server_cleanup();
+
+bool run_rtsp_srv(st_Handle_Cmd_Callback* pstCallback, unsigned short listen_port);
 
 #ifdef __cplusplus
 }

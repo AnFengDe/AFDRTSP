@@ -19,23 +19,28 @@
 #include "BasicUsageEnvironment.hh"
 #include "AFDPollThread.h"
 
-/// library initliaze flag
-bool                g_init_flag     = false;
-/// global task scheduler instance
-TaskScheduler*      g_scheduler     = NULL;
-/// usage environment
-UsageEnvironment*   g_env           = NULL;
-/// count how many rtsp clients are current use
-int                 g_client_count  = 0;
-/// work thread for asynchronous rtsp message exchange
-AFDPollThread*      g_pollthread    = 0;
+/// AFD RTSP client runtime struct
+typedef struct _st_AFD_RTSP_Client_Runtime{
+    /// library initliaze flag
+    bool                init_flag;
+    /// global task scheduler instance
+    TaskScheduler*      scheduler;
+    /// usage environment
+    UsageEnvironment*   env;
+    /// count how many rtsp clients are current use
+    int                 client_count;
+    /// work thread for asynchronous rtsp message exchange
+    AFDPollThread*      pollthread;
+}st_AFD_RTSP_Client_Runtime;
+
+st_AFD_RTSP_Client_Runtime* g_client_rt = NULL;
 
 // RTSP 'response handlers':
 void continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString)
 {
     //You can put process code here for DESCRIBE.
 
-    (*g_env)<<"Put code for DESCRIBE command process here please.\n";
+    (*(g_client_rt->env))<<"Put code for DESCRIBE command process here please.\n";
     
 }
 
@@ -43,7 +48,7 @@ void continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultSt
 {
     //You can put process code here for Option.
 
-    (*g_env)<<"Put code for OPTIONS command process here please.\n";
+    (*(g_client_rt->env))<<"Put code for OPTIONS command process here please.\n";
     
     //continue send DESCRIBE command
     rtspClient->sendDescribeCommand(continueAfterDESCRIBE);
@@ -58,46 +63,66 @@ void subsessionByeHandler(void* clientData); // called when a RTCP "BYE" is rece
 void streamTimerHandler(void* clientData);
 // called at the end of a stream's expected duration (if the stream has not already signaled its end using a RTCP "BYE")
 
-extern "C" bool init()
+void create_client_runtime()
 {
-    if (true == g_init_flag) return g_init_flag;
-
-    g_scheduler = g_scheduler ? g_scheduler : BasicTaskScheduler::createNew();
-    if (NULL == g_scheduler) return g_init_flag;
-
-    g_env = g_env ? g_env : BasicUsageEnvironment::createNew(*g_scheduler);
-    if (NULL == g_env) return g_init_flag;
-    
-    g_client_count = 0;
-
-    //startup thread for process eventloop
-    g_pollthread = new AFDPollThread(g_env);
-    if ( NULL == g_pollthread || g_pollthread->Start() < 0)
-       return g_init_flag;
-
-    g_init_flag = true;
-   
-    return g_init_flag;
+    g_client_rt = new st_AFD_RTSP_Client_Runtime;
+    g_client_rt->init_flag = false;
+    g_client_rt->scheduler = NULL;
+    g_client_rt->env = NULL;
+    g_client_rt->client_count = 0;
+    g_client_rt->pollthread = NULL;
 }
 
-extern "C" bool cleanup()
+void delete_client_runtime()
 {
-    if (false == g_init_flag) return true;
+    delete g_client_rt; 
+    g_client_rt = NULL;
+}
+
+extern "C" bool client_init()
+{
+    if (NULL == g_client_rt) create_client_runtime();
+        
+    if (true == g_client_rt->init_flag) return g_client_rt->init_flag;
+
+    g_client_rt->scheduler = g_client_rt->scheduler ? 
+                             g_client_rt->scheduler : 
+                             BasicTaskScheduler::createNew();
+    if (NULL == g_client_rt->scheduler) return g_client_rt->init_flag;
+
+    g_client_rt->env = g_client_rt->env ? 
+                       g_client_rt->env : 
+                       BasicUsageEnvironment::createNew(*g_client_rt->scheduler);
+    if (NULL == g_client_rt->env) return g_client_rt->init_flag;
+    
+    g_client_rt->client_count = 0;
+
+    //startup thread for process eventloop
+    g_client_rt->pollthread = new AFDPollThread(g_client_rt->env);
+    if ( NULL == g_client_rt->pollthread || g_client_rt->pollthread->Start() < 0)
+        return g_client_rt->init_flag;
+
+    g_client_rt->init_flag = true;
+   
+    return g_client_rt->init_flag;
+}
+
+extern "C" bool client_cleanup()
+{
+    if (NULL == g_client_rt) return true;
     
     //todo:shutdown rtsp session one by one
 
     //clean up thread, close all client session
-    if (g_pollthread)
+    if (g_client_rt->pollthread)
     {
-        g_pollthread->Stop();
-        delete g_pollthread;
-        g_pollthread = NULL;
+        g_client_rt->pollthread->Stop();
+        delete g_client_rt->pollthread;
+        g_client_rt->pollthread = NULL;
     }
     
-    g_client_count = 0;
+    delete_client_runtime();
 
-    g_init_flag = false;
-    
     return true;
 }
 
@@ -105,19 +130,19 @@ extern "C" const void* create_new(const char* url, int verbosity, const char* ap
 {
     RTSPClient* client = NULL;
     
-    if ( NULL != g_scheduler &&
-         NULL != g_env &&
-         NULL != g_pollthread)
+    if ( NULL != g_client_rt->scheduler &&
+         NULL != g_client_rt->env &&
+         NULL != g_client_rt->pollthread)
     {
-        client = RTSPClient::createNew(*g_env, url, verbosity, appname);
+        client = RTSPClient::createNew(*g_client_rt->env, url, verbosity, appname);
         if ( NULL == client)
         {
-            *g_env << "Failed to create a RTSP client for URL \"" 
-                  << url << "\": " 
-                  << g_env->getResultMsg() << "\n";
+            *g_client_rt->env << "Failed to create a RTSP client for URL \"" 
+                              << url << "\": " 
+                              << g_client_rt->env->getResultMsg() << "\n";
         }
         else
-            g_client_count++;
+            g_client_rt->client_count++;
     }
    
     return client;
