@@ -11,7 +11,7 @@ TARGETOS = WINNT
 # (will link with "wsock32.lib" and include "winsock.h")
 #TARGETOS = WIN95
 #APPVER = 4.0
-
+#ntwin32.mak in Microsoft SDKs\Windows\v6.0A\include, if compile error for ntwin32.mak , add this path to environment.
 !include    <ntwin32.mak>
 
 UI_OPTS =		$(guilflags) $(guilibsdll)
@@ -19,7 +19,7 @@ UI_OPTS =		$(guilflags) $(guilibsdll)
 CONSOLE_UI_OPTS =		$(conlflags) $(conlibsdll)
 CPU=i386
 
-TOOLS32	=		C:\Program Files\Microsoft Visual Studio 9.0\VC
+#TOOLS32	=		C:\Program Files\Microsoft Visual Studio 9.0\VC
 COMPILE_OPTS =		$(INCLUDES) $(cdebug) $(cflags) $(cvarsdll) -I. -I"$(TOOLS32)\include" /EHsc /wd4996
 C =			c
 C_COMPILER =		"$(TOOLS32)\bin\cl"
