@@ -31,6 +31,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "DigestAuthentication.hh"
 #endif
 
+extern "C" typedef int (*AFD_RTSP_Callback)(char* cmd_name);
+
 // A data structure used for optional user/password authentication:
 
 class UserAuthenticationDatabase {
