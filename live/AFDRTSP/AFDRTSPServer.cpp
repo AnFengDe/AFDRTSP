@@ -19,11 +19,11 @@
 #include "BasicUsageEnvironment.hh"
 #include "AFDPollThread.h"
 
-AFD_RTSP_Callback* g_rtsp_callback = NULL;
+//AFD_RTSP_Callback* g_rtsp_callback = NULL;
 
-extern "C" bool run_rtsp_srv(AFD_RTSP_Callback* pf, unsigned short listen_port)
+extern "C" bool run_rtsp_srv(/*AFD_RTSP_Callback* pf, */unsigned short listen_port)
 {
-    g_rtsp_callback = pf;
+    //g_rtsp_callback = pf;
 
     return false;
 }

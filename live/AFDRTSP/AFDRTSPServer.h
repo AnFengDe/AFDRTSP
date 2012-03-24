@@ -24,7 +24,7 @@ extern "C" {
 
 typedef int (__stdcall* AFD_RTSP_Callback)(char* cmd_name);
 
-bool run_rtsp_srv(AFD_RTSP_Callback* pf, unsigned short listen_port);
+bool run_rtsp_srv(/*AFD_RTSP_Callback* pf, */unsigned short listen_port);
 
 #ifdef __cplusplus
 }
