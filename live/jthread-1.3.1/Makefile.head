@@ -1,2 +1,3 @@
 INCLUDES = -I./src 
+PTHREAD = -pthread
 ##### Change the following for your environment: 
