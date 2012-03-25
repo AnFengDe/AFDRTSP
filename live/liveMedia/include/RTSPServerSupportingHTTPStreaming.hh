@@ -33,13 +33,13 @@ public:
 
   Boolean setHTTPPort(Port httpPort) { return setUpTunnelingOverHTTP(httpPort); }
 
+  virtual ~RTSPServerSupportingHTTPStreaming();
 protected:
   RTSPServerSupportingHTTPStreaming(UsageEnvironment& env,
                                     int ourSocket, Port ourPort,
                                     UserAuthenticationDatabase* authDatabase,
                                     unsigned reclamationTestSeconds);
       // called only by createNew();
-  virtual ~RTSPServerSupportingHTTPStreaming();
 
 protected: // redefined virtual functions
   virtual RTSPClientSession* createNewClientSession(unsigned sessionId, int clientSocket, struct sockaddr_in clientAddr);
