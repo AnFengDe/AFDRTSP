@@ -39,6 +39,9 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
 
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret);
+//extern "C" typedef void* (STD_CALLBACK *AFD_RTSP_Handle_Create_SMS)(const char* stream);
+
 ///handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
 {

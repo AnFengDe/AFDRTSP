@@ -57,6 +57,9 @@ bool server_cleanup();
 
 bool run_rtsp_srv(st_Handle_Cmd_Callback* pstCallback, unsigned short listen_port);
 
+bool add_server_media_session();
+bool remove_server_media_session();
+
 #ifdef __cplusplus
 }
 #endif
