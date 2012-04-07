@@ -117,7 +117,7 @@ extern "C" bool run_rtsp_srv(st_Handle_Cmd_Callback* pstCallback, unsigned short
 
 extern "C" bool add_server_media_session()
 {
-		retrun false;
+		return false;
 }
 
 extern "C" bool remove_server_media_session()
