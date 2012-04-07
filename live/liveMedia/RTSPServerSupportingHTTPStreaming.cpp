@@ -134,7 +134,7 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
       snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
                "HTTP/1.1 200 OK\r\n"
                "%s"
-               "Server: LIVE555 Streaming Media v%s\r\n"
+               "Server: AnFengDe Streaming Media v%s\r\n"
                "%s"
                "Content-Length: %d\r\n"
                "Content-Type: text/plain; charset=ISO-8859-1\r\n"
@@ -222,7 +222,7 @@ void RTSPServerSupportingHTTPStreaming::RTSPClientSessionSupportingHTTPStreaming
   snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
            "HTTP/1.1 200 OK\r\n"
            "%s"
-           "Server: LIVE555 Streaming Media v%s\r\n"
+           "Server: AnFengDe Streaming Media v%s\r\n"
            "%s"
            "Content-Length: %d\r\n"
            "Content-Type: application/vnd.apple.mpegurl\r\n"

@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // Copyright (c) 1996-2012, Live Networks, Inc.  All rights reserved
-// LIVE555 Media Server
+// AnFengDe Media Server
 // main program
 
 #include <BasicUsageEnvironment.hh>
@@ -54,9 +54,9 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  *env << "LIVE555 Media Server\n";
+  *env << "AnFengDe Media Server\n";
   *env << "\tversion " << MEDIA_SERVER_VERSION_STRING
-       << " (LIVE555 Streaming Media library version "
+       << " (AnFengDe Streaming Media library version "
        << LIVEMEDIA_LIBRARY_VERSION_STRING << ").\n";
 
   char* urlPrefix = rtspServer->rtspURLPrefix();

@@ -1680,7 +1680,7 @@ ServerMediaSession* RTSPServer::ServerMediaSessionIterator::next()
 UserAuthenticationDatabase::UserAuthenticationDatabase(char const* realm,
                                                        Boolean passwordsAreMD5)
   : fTable(HashTable::create(STRING_HASH_KEYS)),
-    fRealm(strDup(realm == NULL ? "LIVE555 Streaming Media" : realm)),
+    fRealm(strDup(realm == NULL ? "AnFengDe Streaming Media" : realm)),
     fPasswordsAreMD5(passwordsAreMD5) 
 {
 }

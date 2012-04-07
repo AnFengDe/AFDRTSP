@@ -74,7 +74,7 @@ DynamicRTSPServer::lookupServerMediaSession(char const* streamName) {
 
 #define NEW_SMS(description) do {\
 char const* descStr = description\
-    ", streamed by the LIVE555 Media Server";\
+    ", streamed by the AnFengDe Media Server";\
 sms = ServerMediaSession::createNew(env, fileName, fileName, descStr);\
 } while(0)
 

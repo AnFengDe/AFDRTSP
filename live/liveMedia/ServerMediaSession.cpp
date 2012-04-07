@@ -55,7 +55,7 @@ Boolean ServerMediaSession
     return True;
 }
 
-static char const* const libNameStr = "LIVE555 Streaming Media v";
+static char const* const libNameStr = "AnFengDe Streaming Media v";
 char const* const libVersionStr = LIVEMEDIA_LIBRARY_VERSION_STRING;
 
 ServerMediaSession::ServerMediaSession(UsageEnvironment& env,
