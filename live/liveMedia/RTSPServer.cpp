@@ -682,6 +682,10 @@ void RTSPServer::RTSPClientSession
         // for "application/sdp", because that's what we're sending back #####
 
         // Begin by looking up the "ServerMediaSession" object for the specified "urlTotalSuffix":
+        //TODO: add by chtian -- Yes , Set callback function here
+        //1. let callback confirm the url is exist or not
+        //2. let callback return sdp description, we can set a large buf for callback
+        //3. other logic obey code behind.
         ServerMediaSession* session = fOurServer.lookupServerMediaSession(urlTotalSuffix);
         if (session == NULL) 
         {
