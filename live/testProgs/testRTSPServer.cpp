@@ -13,6 +13,11 @@ void STD_CALLBACK handle_Options(char* cmd_names)
     sprintf(cmd_names, "OPTIONS, DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, GET_PARAMETER, SET_PARAMETER");
 }
 
+void STD_CALLBACK handle_Describe(int *ret, char* url, char* sdp_desc)
+{
+    *ret = 1;
+    sdp_desc="v=0\r\no=- 1329294539622088 1 IN IP4 127.0.0.1\r\ns=H.264 Video, streamed by the LIVE555 Media Server\r\ni=3.264\r\nt=0 0\r\na=tool:LIVE555 Streaming Media v2012.02.03\r\na=type:broadcast\r\na=control:*\r\na=range:npt=0-200\r\na=x-qt-text-nam:H.264 Video, streamed by the LIVE555 Media Server\r\na=x-qt-text-inf:3.264\r\nm=video 0 RTP/AVP 96\r\nc=IN IP4 0.0.0.0\r\nb=AS:500\r\na=rtpmap:96 H264/90000\r\na=fmtp:96 packetization-mode=1;profile-level-id=4D001F;sprop-parameter-sets=J00AH9oBQBbsBVIAAAMAAgAAAwBkwIAAIAAAAwAQAA3vfC8IhGo=,KO48gA==\r\na=control:track1\r\n";
+}
 int main()
 {
     char cmd[256];
@@ -20,6 +25,7 @@ int main()
     
     ::memset(&cb, 0x00, sizeof(cb));
     cb.options = handle_Options;
+    cb.describe = handle_Describe;
             
     if (false == server_init())
     {

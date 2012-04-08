@@ -33,12 +33,14 @@ extern "C" {
  normally, the handler of command not be neccessary, keep it NULL 
 */
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc);
 
 ///handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
 {
     ///the options callback function 
     AFD_RTSP_Handle_Cmd_OPTIONS options;
+    AFD_RTSP_Handle_Cmd_DESCRIBE describe;
 }st_Handle_Cmd_Callback;
 
 /**

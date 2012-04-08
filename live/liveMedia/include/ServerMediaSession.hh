@@ -110,12 +110,13 @@ private:
 
 class ServerMediaSubsession: public Medium {
 public:
+  ServerMediaSubsession(UsageEnvironment& env);
   virtual ~ServerMediaSubsession();
 
   unsigned trackNumber() const { return fTrackNumber; }
   char const* trackId();
-  virtual char const* sdpLines() = 0;
-  virtual void getStreamParameters(unsigned clientSessionId, // in
+  char const* sdpLines(){return NULL;}
+  void getStreamParameters(unsigned clientSessionId, // in
                                    netAddressBits clientAddress, // in
                                    Port const& clientRTPPort, // in
                                    int tcpSocketNum, // in (-1 means use UDP, not TCP)
@@ -126,13 +127,13 @@ public:
                                    Boolean& isMulticast, // out
                                    Port& serverRTPPort, // out
                                    void*& streamToken // out
-                                   ) = 0;
-  virtual void startStream(unsigned clientSessionId, void* streamToken,
+                                   ){};
+  void startStream(unsigned clientSessionId, void* streamToken,
                            TaskFunc* rtcpRRHandler,
                            void* rtcpRRHandlerClientData,
                            unsigned short& rtpSeqNum,
                            unsigned& rtpTimestamp,
-                           void* serverRequestAlternativeByteHandlerClientData) = 0;
+                           void* serverRequestAlternativeByteHandlerClientData){};
   virtual void pauseStream(unsigned clientSessionId, void* streamToken);
   virtual void seekStream(unsigned clientSessionId, void* streamToken, double& seekNPT, double streamDuration, u_int64_t& numBytes);
      // "streamDuration", if >0.0, specifies how much data to stream, past "seekNPT".  (If <=0.0, all remaining data is streamed.)
@@ -151,7 +152,6 @@ public:
                                      portNumBits portBits);
 
 protected: // we're a virtual base class
-  ServerMediaSubsession(UsageEnvironment& env);
 
   char const* rangeSDPLine() const;
       // returns a string to be delete[]d

@@ -684,52 +684,68 @@ void RTSPServer::RTSPClientSession
         // Begin by looking up the "ServerMediaSession" object for the specified "urlTotalSuffix":
         //TODO: add by chtian -- Yes , Set callback function here
         //1. let callback confirm the url is exist or not
+        //»Øµ÷{}
         //2. let callback return sdp description, we can set a large buf for callback
         //3. other logic obey code behind.
-        ServerMediaSession* session = fOurServer.lookupServerMediaSession(urlTotalSuffix);
-        if (session == NULL) 
-        {
+        int ret;
+       char sdp[1024];
+       g_pstCallback->describe(&ret, urlTotalSuffix, sdp);
+        if(ret==0)
+        {   
             handleCmd_notFound(cseq);
-            break;
         }
-    
-        // Then, assemble a SDP description for this session:
-        sdpDescription = session->generateSDPDescription();
-        if (sdpDescription == NULL) 
+        else
         {
-            // This usually means that a file name that was specified for a
-            // "ServerMediaSubsession" does not exist.
+            ServerMediaSession* session = ServerMediaSession::createNew(envir(), "file", "file", "desc");
+            if (session == NULL) 
+            {
+                handleCmd_notFound(cseq);
+                break;
+            }
+            ServerMediaSubsession* psmss = new ServerMediaSubsession(envir());
+            session->addSubsession(psmss);
+
+            // Then, assemble a SDP description for this session:
+            //sdpDescription = session->generateSDPDescription();
+            sdpDescription =sdp;
+            if (sdpDescription == NULL) 
+            {
+                // This usually means that a file name that was specified for a
+                // "ServerMediaSubsession" does not exist.
+                snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+                        "RTSP/1.0 404 File Not Found, Or In Incorrect Format\r\n"
+                        "CSeq: %s\r\n"
+                        "%s\r\n",
+                        cseq,
+                        dateHeader());
+                break;
+            }
+            unsigned sdpDescriptionSize = strlen(sdpDescription);
+    
+            // Also, generate our RTSP URL, for the "Content-Base:" header
+            // (which is necessary to ensure that the correct URL gets used in
+            // subsequent "SETUP" requests).
+            rtspURL = fOurServer.rtspURL(session, fClientInputSocket);
+        
             snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-                    "RTSP/1.0 404 File Not Found, Or In Incorrect Format\r\n"
-                    "CSeq: %s\r\n"
-                    "%s\r\n",
-                    cseq,
-                    dateHeader());
-            break;
+                     "RTSP/1.0 200 OK\r\nCSeq: %s\r\n"
+                     "%s"
+                     "Content-Base: %s/\r\n"
+                     "Content-Type: application/sdp\r\n"
+                     "Content-Length: %d\r\n\r\n"
+                     "%s",
+                     cseq,
+                     dateHeader(),
+                     rtspURL,
+                     sdpDescriptionSize,
+                     sdpDescription);
         }
-        unsigned sdpDescriptionSize = strlen(sdpDescription);
-    
-        // Also, generate our RTSP URL, for the "Content-Base:" header
-        // (which is necessary to ensure that the correct URL gets used in
-        // subsequent "SETUP" requests).
-        rtspURL = fOurServer.rtspURL(session, fClientInputSocket);
-    
-        snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-                 "RTSP/1.0 200 OK\r\nCSeq: %s\r\n"
-                 "%s"
-                 "Content-Base: %s/\r\n"
-                 "Content-Type: application/sdp\r\n"
-                 "Content-Length: %d\r\n\r\n"
-                 "%s",
-                 cseq,
-                 dateHeader(),
-                 rtspURL,
-                 sdpDescriptionSize,
-                 sdpDescription);
+        //end else
     } while (0);
 
     delete[] sdpDescription;
     delete[] rtspURL;
+   // }
 }
 
 typedef enum StreamingMode {

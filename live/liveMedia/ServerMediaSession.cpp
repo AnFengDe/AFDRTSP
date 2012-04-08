@@ -214,6 +214,9 @@ Boolean ServerMediaSession::isServerMediaSession() const
 
 char* ServerMediaSession::generateSDPDescription() 
 {
+    char* sdp = new char[7];
+    return sdp;
+#if 0
     AddressString ipAddressStr(ourIPAddress(envir()));
     unsigned ipAddressStrSize = strlen(ipAddressStr.val());
 
@@ -323,6 +326,7 @@ char* ServerMediaSession::generateSDPDescription()
 
     delete[] rangeLine; delete[] sourceFilterLine;
     return sdp;
+#endif
 }
 
 
