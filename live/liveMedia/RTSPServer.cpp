@@ -1376,8 +1376,6 @@ void RTSPServer::RTSPClientSession
  else{
       //callback for play
 g_pstCallback->play(fOurSessionId,scale,rangeStart, rangeEnd);
-
-
       }
   
   // Fill in the response:
@@ -1401,13 +1399,25 @@ g_pstCallback->play(fOurSessionId,scale,rangeStart, rangeEnd);
 
 void RTSPServer::RTSPClientSession
   ::handleCmd_PAUSE(ServerMediaSubsession* subsession, char const* cseq) {
-  for (unsigned i = 0; i < fNumStreamStates; ++i) {
+  
+if (NULL == g_pstCallback || NULL == g_pstCallback->pause)
+ {
+for (unsigned i = 0; i < fNumStreamStates; ++i) {
     if (subsession == NULL /* means: aggregated operation */
         || subsession == fStreamStates[i].subsession) {
       fStreamStates[i].subsession->pauseStream(fOurSessionId,
                                                fStreamStates[i].streamToken);
     }
   }
+ 
+  }
+ else{
+      //callback for pause
+     int ret=0;
+     g_pstCallback->pause(fOurSessionId,ret);
+
+
+      }
   snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
            "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sSession: %08X\r\n\r\n",
            cseq, dateHeader(), fOurSessionId);

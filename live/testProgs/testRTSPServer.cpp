@@ -19,6 +19,16 @@ void STD_CALLBACK handle_Describe(int *ret, char* url, char* sdp_desc)
    char sdp[531]="v=0\r\no=- 1329294539622088 1 IN IP4 127.0.0.1\r\ns=H.264 Video, streamed by the LIVE555 Media Server\r\ni=3.264\r\nt=0 0\r\na=tool:LIVE555 Streaming Media v2012.02.03\r\na=type:broadcast\r\na=control:*\r\na=range:npt=0-200\r\na=x-qt-text-nam:H.264 Video, streamed by the LIVE555 Media Server\r\na=x-qt-text-inf:3.264\r\nm=video 0 RTP/AVP 96\r\nc=IN IP4 0.0.0.0\r\nb=AS:500\r\na=rtpmap:96 H264/90000\r\na=fmtp:96 packetization-mode=1;profile-level-id=4D001F;sprop-parameter-sets=J00AH9oBQBbsBVIAAAMAAgAAAwBkwIAAIAAAAwAQAA3vfC8IhGo=,KO48gA==\r\na=control:track1\r\n"; 
 strcpy(sdp_desc,sdp);
 }
+void STD_CALLBACK handle_Pause(unsigned OurSessionId,int &ret)
+{
+    ret = 1;
+   
+}
+void STD_CALLBACK handle_Teardown(unsigned OurSessionId,int &ret)
+{
+    ret = 1;
+   
+}
 void STD_CALLBACK handle_Play(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd)
 {
     scale=1.00;
@@ -53,6 +63,8 @@ int main()
     cb.describe = handle_Describe;
      cb.setup = handle_Setup; 
      cb.play = handle_Play; 
+     cb.pause = handle_Pause; 
+     cb.teardown=handle_Teardown;
     if (false == server_init())
     {
         printf("AFD RTSP Server init failure\n");

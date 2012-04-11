@@ -36,6 +36,8 @@ typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned int OurSessionId,unsigned long &clientAddress,unsigned short &clientRTPPort,unsigned short &clientRTCPPort,int &tcpSocketNum,unsigned char &rtpChannelId,unsigned char &rtcpChannelId,unsigned char&destinationTTL,unsigned &isMulticast, void* streamToken,char const* filename,char* destAddrIp,unsigned short &serverRTPPort, unsigned short &serverRTCPPort);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(unsigned OurSessionId,int &ret);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(unsigned OurSessionId,int &ret);
 
 ///handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
@@ -45,6 +47,8 @@ typedef struct __st_Handle_Cmd_Callback
     AFD_RTSP_Handle_Cmd_DESCRIBE describe;
     AFD_RTSP_Handle_Cmd_SETUP   setup;
     AFD_RTSP_Handle_Cmd_PLAY  play;
+    AFD_RTSP_Handle_Cmd_PAUSE   pause;
+    AFD_RTSP_Handle_Cmd_TEARDOWN teardown;
 }st_Handle_Cmd_Callback;
 
 /**
