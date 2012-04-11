@@ -19,9 +19,20 @@ void STD_CALLBACK handle_Describe(int *ret, char* url, char* sdp_desc)
    char sdp[531]="v=0\r\no=- 1329294539622088 1 IN IP4 127.0.0.1\r\ns=H.264 Video, streamed by the LIVE555 Media Server\r\ni=3.264\r\nt=0 0\r\na=tool:LIVE555 Streaming Media v2012.02.03\r\na=type:broadcast\r\na=control:*\r\na=range:npt=0-200\r\na=x-qt-text-nam:H.264 Video, streamed by the LIVE555 Media Server\r\na=x-qt-text-inf:3.264\r\nm=video 0 RTP/AVP 96\r\nc=IN IP4 0.0.0.0\r\nb=AS:500\r\na=rtpmap:96 H264/90000\r\na=fmtp:96 packetization-mode=1;profile-level-id=4D001F;sprop-parameter-sets=J00AH9oBQBbsBVIAAAMAAgAAAwBkwIAAIAAAAwAQAA3vfC8IhGo=,KO48gA==\r\na=control:track1\r\n"; 
 strcpy(sdp_desc,sdp);
 }
-void STD_CALLBACK handle_Setup(unsigned clientSessionId,unsigned clientAddress,unsigned short clientRTPPort,int tcpSocketNum,unsigned char rtpChannelId,unsigned char rtcpChannelId,unsigned destinationTTL,unsigned isMulticast, void*& streamToken,char* filename,char* destAddrIp,unsigned short serverRTPPort, unsigned short serverRTCPPort);
-{
+void STD_CALLBACK handle_Setup(unsigned OurSessionId,unsigned clientAddress,unsigned short clientRTPPort,unsigned short clientRTCPPort,int tcpSocketNum,unsigned char rtpChannelId,unsigned char rtcpChannelId,unsigned destinationTTL,unsigned isMulticast, void* streamToken,char const* filename,char* destAddrIp,unsigned short serverRTPPort, unsigned short serverRTCPPort){
     //*ret = 1;
+     
+                    clientAddress=16777343;
+                     clientRTPPort=56635;
+                     clientRTCPPort=56634;
+                    tcpSocketNum=-1;
+                     rtpChannelId=255;
+                     rtcpChannelId=255;
+                    destinationTTL=255;
+                    isMulticast=0; 
+                    serverRTPPort=6971;
+                     serverRTCPPort=6970;
+
     int test=0;
   
 }

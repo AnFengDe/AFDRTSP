@@ -17,7 +17,31 @@ unsigned our_inet_addr(cp)
 {
 	return inet_addr(cp);
 }
+char *
+our_inet_ntoa(in)
+        struct in_addr in;
+{
+#ifndef VXWORKS
+  return inet_ntoa(in);
+#else
+  /* according the man pages of inet_ntoa :
 
+     NOTES
+     The return value from inet_ntoa() points to a  buffer  which
+     is  overwritten on each call.  This buffer is implemented as
+     thread-specific data in multithreaded applications.
+
+     the vxworks version of inet_ntoa allocates a buffer for each
+     ip address string, and does not reuse the same buffer.
+
+     this is merely to simulate the same behaviour (not multithread
+     safe though):
+  */
+  static char result[INET_ADDR_LEN];
+  inet_ntoa_b(in, result);
+  return(result);
+#endif
+}
 #if defined(__WIN32__) || defined(_WIN32)
 #ifndef IMN_PIM
 #define WS_VERSION_CHOICE1 0x202/*MAKEWORD(2,2)*/

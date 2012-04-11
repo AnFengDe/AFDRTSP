@@ -500,8 +500,8 @@ void RTSPServer::RTSPClientSession::handleRequestBytes(int newBytesRead)
             } 
             else if (strcmp(cmdName, "SETUP") == 0) 
             {
-                unsigned s=0;
-                handleCmd_SETUP(cseq, urlPreSuffix, urlSuffix, (char const*)fRequestBuffer,s);
+                //unsigned s=0;
+                handleCmd_SETUP(cseq, urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
             } 
             else if (strcmp(cmdName, "TEARDOWN") == 0
                     || strcmp(cmdName, "PLAY") == 0
@@ -907,10 +907,14 @@ static Boolean parsePlayNowHeader(char const* buf) {
 void RTSPServer::RTSPClientSession
 ::handleCmd_SETUP(char const* cseq,
                   char const* urlPreSuffix, char const* urlSuffix,
-                  char const* fullRequestStr,unsigned &sessionid) {
-   char const* streamName = urlPreSuffix;
+                  char const* fullRequestStr) {
+             char const* streamName = urlPreSuffix;
+             unsigned short clientRTPPort_num; 
+             unsigned short clientRTCPPort_num;     
+             unsigned short serverRTPPort_num;     
+             unsigned short serverRTCPPort_num;
 					 // char const* streamName = falsefilename;
-					  char const* trackId = urlSuffix;
+			 char const* trackId = urlSuffix;
 
 					  // Check whether we have existing session state, and, if so, whether it's
 					  // for the session that's named in "streamName".  (Note that we don't
@@ -1048,25 +1052,24 @@ void RTSPServer::RTSPClientSession
                         if (NULL == g_pstCallback || NULL == g_pstCallback->setup)
                          {}
                         else{
-               unsigned short clientRTPPort_num=   ntohs(clientRTPPort.num()); 
-              unsigned short clientRTCPPort_num=   ntohs(clientRTCPPort.num());     
-               unsigned short serverRTPPort_num=   ntohs(serverRTPPort.num());     
-               unsigned short serverRTCPPort_num=   ntohs(serverRTCPPort.num());     
-
-       g_pstCallback->setup(fOurSessionId,
-           fClientAddr.sin_addr.s_addr,
-          clientRTPPort_num,
-          clientRTCPPort_num,
-          tcpSocketNum,
-          rtpChannelId,
-          rtcpChannelId,
-          destinationTTL,
-          fIsMulticast,
-           fStreamStates[streamNum].streamToken,
-           urlSuffix,
-           destAddrIp,
-           serverRTPPort_num,
-           serverRTCPPort_num);
+                clientRTPPort_num=   ntohs(clientRTPPort.num()); 
+                clientRTCPPort_num=   ntohs(clientRTCPPort.num());     
+                serverRTPPort_num=   ntohs(serverRTPPort.num());     
+                serverRTCPPort_num=   ntohs(serverRTCPPort.num());     
+                g_pstCallback->setup(fOurSessionId,
+                fClientAddr.sin_addr.s_addr,
+                clientRTPPort_num,
+                clientRTCPPort_num,
+                tcpSocketNum,
+                rtpChannelId,
+                rtcpChannelId,
+                destinationTTL,
+                fIsMulticast,
+                fStreamStates[streamNum].streamToken,
+                urlPreSuffix,
+                destAddrStr,
+                serverRTPPort_num,
+                serverRTCPPort_num);
 
                         }
 					 
