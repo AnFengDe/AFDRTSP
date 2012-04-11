@@ -913,9 +913,12 @@ void RTSPServer::RTSPClientSession
              unsigned short clientRTCPPort_num;     
              unsigned short serverRTPPort_num;     
              unsigned short serverRTCPPort_num;
-					 // char const* streamName = falsefilename;
+             	  unsigned streamNum;
+                  // char const* streamName = falsefilename;
 			 char const* trackId = urlSuffix;
-
+              unsigned char rtpChannelId,rtcpChannelId;
+                         // g_pstCallback->play(fOurSessionId,scale0,rangeStart0,rangeEnd0);
+//need change by MR Tian
 					  // Check whether we have existing session state, and, if so, whether it's
 					  // for the session that's named in "streamName".  (Note that we don't
 					  // support more than one concurrent session on the same client connection.) #####
@@ -957,7 +960,7 @@ void RTSPServer::RTSPClientSession
 
 					  // Look up information for the specified subsession (track):
 					  ServerMediaSubsession* subsession = NULL;
-					  unsigned streamNum;
+				
 					  if (trackId != NULL && trackId[0] != '\0') { // normal case
 						  for (streamNum = 0; streamNum < fNumStreamStates; ++streamNum) {
 							  subsession = fStreamStates[streamNum].subsession;
@@ -987,7 +990,7 @@ void RTSPServer::RTSPClientSession
 					  char* clientsDestinationAddressStr;
 					  u_int8_t clientsDestinationTTL;
 					  portNumBits clientRTPPortNum, clientRTCPPortNum;
-					  unsigned char rtpChannelId, rtcpChannelId;
+					 
 					  parseTransportHeader(fullRequestStr, streamingMode, streamingModeString,
 						  clientsDestinationAddressStr, clientsDestinationTTL,
 						  clientRTPPortNum, clientRTCPPortNum,
@@ -1048,11 +1051,12 @@ void RTSPServer::RTSPClientSession
 					  int resualt=0;
 					  struct in_addr destinationAddr; destinationAddr.s_addr = destinationAddress;
 					  char* destAddrStr = strDup(our_inet_ntoa(destinationAddr));
-					  char* sourceAddrStr = strDup(our_inet_ntoa(sourceAddr.sin_addr));
+					  char* sourceAddrStr = strDup(our_inet_ntoa(sourceAddr.sin_addr));\
+                          //add by shencheng
                         if (NULL == g_pstCallback || NULL == g_pstCallback->setup)
                          {}
                         else{
-                clientRTPPort_num=   ntohs(clientRTPPort.num()); 
+               clientRTPPort_num=   ntohs(clientRTPPort.num()); 
                 clientRTCPPort_num=   ntohs(clientRTCPPort.num());     
                 serverRTPPort_num=   ntohs(serverRTPPort.num());     
                 serverRTCPPort_num=   ntohs(serverRTCPPort.num());     
@@ -1351,7 +1355,7 @@ void RTSPServer::RTSPClientSession
       }
     }
   }
-
+ 
   // Create the "Range:" header that we'll send back in our response.
   // (Note that we do this after seeking, in case the seeking operation changed the range start time.)
   char* rangeHeader;
@@ -1363,47 +1367,19 @@ void RTSPServer::RTSPClientSession
     sprintf(buf, "Range: npt=%.3f-%.3f\r\n", rangeStart, rangeEnd);
   }
   rangeHeader = strDup(buf);
+ 
 
-  // Now, start streaming:
-  for (i = 0; i < fNumStreamStates; ++i) {
-    if (subsession == NULL /* means: aggregated operation */
-        || subsession == fStreamStates[i].subsession) {
-      unsigned short rtpSeqNum = 0;
-      unsigned rtpTimestamp = 0;
-      fStreamStates[i].subsession->startStream(fOurSessionId,
-                                               fStreamStates[i].streamToken,
-                                               (TaskFunc*)noteClientLiveness, this,
-                                               rtpSeqNum, rtpTimestamp,
-                                               this);
-      const char *urlSuffix = fStreamStates[i].subsession->trackId();
-      char* prevRTPInfo = rtpInfo;
-      unsigned rtpInfoSize = rtpInfoFmtSize
-        + strlen(prevRTPInfo)
-        + 1
-        + rtspURLSize + strlen(urlSuffix)
-        + 5 /*max unsigned short len*/
-        + 10 /*max unsigned (32-bit) len*/
-        + 2 /*allows for trailing \r\n at final end of string*/;
-      rtpInfo = new char[rtpInfoSize];
-      sprintf(rtpInfo, rtpInfoFmt,
-              prevRTPInfo,
-              numRTPInfoItems++ == 0 ? "" : ",",
-              rtspURL, urlSuffix,
-              rtpSeqNum,
-              rtpTimestamp
-              );
-      delete[] prevRTPInfo;
-    }
+ if (NULL == g_pstCallback || NULL == g_pstCallback->setup)
+ {
+ 
   }
-  if (numRTPInfoItems == 0) {
-    rtpInfo[0] = '\0';
-  } else {
-    unsigned rtpInfoLen = strlen(rtpInfo);
-    rtpInfo[rtpInfoLen] = '\r';
-    rtpInfo[rtpInfoLen+1] = '\n';
-    rtpInfo[rtpInfoLen+2] = '\0';
-  }
+ else{
+      //callback for play
+g_pstCallback->play(fOurSessionId,scale,rangeStart, rangeEnd);
 
+
+      }
+  
   // Fill in the response:
   snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
            "RTSP/1.0 200 OK\r\n"

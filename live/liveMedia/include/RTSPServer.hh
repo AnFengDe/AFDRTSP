@@ -41,15 +41,17 @@ extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_na
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned OurSessionId,unsigned clientAddress,unsigned short clientRTPPort,unsigned short clientRTCPPort,int tcpSocketNum,unsigned char rtpChannelId,unsigned char rtcpChannelId,unsigned destinationTTL,unsigned isMulticast, void* streamToken,char const* filename,char* destAddrIp,unsigned short serverRTPPort, unsigned short serverRTCPPort);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned int OurSessionId,unsigned long &clientAddress,unsigned short &clientRTPPort,unsigned short &clientRTCPPort,int &tcpSocketNum,unsigned char &rtpChannelId,unsigned char &rtcpChannelId,unsigned char&destinationTTL,unsigned &isMulticast, void* streamToken,char const* filename,char* destAddrIp,unsigned short &serverRTPPort, unsigned short &serverRTCPPort);
 
-///handle cmd callback struct define
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd);
+//handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
 {
     ///the options callback function 
     AFD_RTSP_Handle_Cmd_OPTIONS options;
     AFD_RTSP_Handle_Cmd_DESCRIBE describe;
     AFD_RTSP_Handle_Cmd_SETUP  setup;
+    AFD_RTSP_Handle_Cmd_PLAY  play;
     
 }st_Handle_Cmd_Callback;
 
