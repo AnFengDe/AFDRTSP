@@ -40,7 +40,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc);
-//extern "C" typedef void* (STD_CALLBACK *AFD_RTSP_Handle_Create_SMS)(const char* stream);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned OurSessionId,unsigned clientAddress,unsigned short clientRTPPort,unsigned short clientRTCPPort,int tcpSocketNum,unsigned char rtpChannelId,unsigned char rtcpChannelId,unsigned destinationTTL,unsigned isMulticast, void* streamToken,char const* filename,char* destAddrIp,unsigned short serverRTPPort, unsigned short serverRTCPPort);
 
 ///handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
@@ -48,6 +48,8 @@ typedef struct __st_Handle_Cmd_Callback
     ///the options callback function 
     AFD_RTSP_Handle_Cmd_OPTIONS options;
     AFD_RTSP_Handle_Cmd_DESCRIBE describe;
+    AFD_RTSP_Handle_Cmd_SETUP  setup;
+    
 }st_Handle_Cmd_Callback;
 
 // A data structure used for optional user/password authentication:
@@ -157,7 +159,7 @@ public: // should be protected, but some old compilers complain otherwise
                                     char const* fullRequestStr);
     virtual void handleCmd_SETUP(char const* cseq,
                                  char const* urlPreSuffix, char const* urlSuffix,
-                                 char const* fullRequestStr);
+                                 char const* fullRequestStr,unsigned &sessionid);
     virtual void handleCmd_withinSession(char const* cmdName,
                                          char const* urlPreSuffix, char const* urlSuffix,
                                          char const* cseq, char const* fullRequestStr);
