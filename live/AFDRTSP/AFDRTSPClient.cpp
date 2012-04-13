@@ -20,6 +20,8 @@
 #include "AFDPollThread.h"
 
 /// AFD RTSP client runtime struct
+	Boolean StreamUsingTCP;
+    MediaSession* session ;
 typedef struct _st_AFD_RTSP_Client_Runtime{
     /// library initliaze flag
     bool                init_flag;
@@ -36,12 +38,35 @@ typedef struct _st_AFD_RTSP_Client_Runtime{
 st_AFD_RTSP_Client_Runtime* g_client_rt = NULL;
 
 // RTSP 'response handlers':
+void continueAfterSETUP(RTSPClient* rtspClient, int resultCode, char* resultString)
+{
+    //You can put process code here for Option.
+
+    (*(g_client_rt->env))<<"Put code for PLAY command process here please.\n";
+	//rtspClient->sendPlayCommand(*session, continueAfterPLAY, start, end, Scale, OurAuthenticator);
+ }
+void continueAfterPAUSE(RTSPClient* rtspClient, int resultCode, char* resultString)
+{
+    //You can put process code here for Option.
+
+    //(*(g_client_rt->env))<<"Put code for PAUSE command process here please.\n";
+
+ }
+void continueAfterTAERDOWN(RTSPClient* rtspClient, int resultCode, char* resultString)
+{
+    //You can put process code here for Option.
+
+    //(*(g_client_rt->env))<<"Put code for PAUSE command process here please.\n";
+
+ }
 void continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char* resultString)
 {
     //You can put process code here for DESCRIBE.
 
-    (*(g_client_rt->env))<<"Put code for DESCRIBE command process here please.\n";
-    
+    (*(g_client_rt->env))<<"Put code for SETUP command process here please.\n";
+ // 	rtspClient->sendSetupCommand(*subsession, continueAfterSETUP, False, False, forceMulticastOnUnspecified, NULL);
+
+  
 }
 
 void continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultString)
@@ -54,8 +79,11 @@ void continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultSt
     rtspClient->sendDescribeCommand(continueAfterDESCRIBE);
 }
 
+
 void continueAfterSETUP(RTSPClient* rtspClient, int resultCode, char* resultString);
 void continueAfterPLAY(RTSPClient* rtspClient, int resultCode, char* resultString);
+void continueAfterPAUSE(RTSPClient* rtspClient, int resultCode, char* resultString);
+void continueAfterTEARDOWN(RTSPClient* rtspClient, int resultCode, char* resultString);
 
 // Other event handler functions:
 void subsessionAfterPlaying(void* clientData); // called when a stream's subsession (e.g., audio or video substream) ends
@@ -155,7 +183,9 @@ extern "C" unsigned play(const void* handle)
 }
 
 int pause(const int handle)
-{
+{   
+    // (*(g_client_rt->env))<<"Put code for PAUSE command process here please.\n";
+  	//rtspClient->sendPauseCommand(*session, continueAfterPAUSE, OurAuthenticator);
     return NULL;
 }
 

@@ -144,7 +144,7 @@ private:
 class MediaSubsession {
 public:
   MediaSession& parentSession() { return fParent; }
-  MediaSession const& parentSession() const { return fParent; }
+ MediaSession const& parentSession() const { return fParent; }
 
   unsigned short clientPortNum() const { return fClientPortNum; }
   unsigned char rtpPayloadFormat() const { return fRTPPayloadFormat; }
