@@ -39,7 +39,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc, float* duration);
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned int OurSessionId,unsigned long &clientAddress,unsigned short &clientRTPPort,unsigned short &clientRTCPPort,int &tcpSocketNum,unsigned char &rtpChannelId,unsigned char &rtcpChannelId,unsigned char&destinationTTL,unsigned &isMulticast, void* streamToken,char const* filename,char* destAddrIp,unsigned short &serverRTPPort, unsigned short &serverRTCPPort);
 

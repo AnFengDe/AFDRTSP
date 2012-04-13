@@ -48,7 +48,7 @@ public:
                               char const* mediumName,
                               ServerMediaSession*& resultSession);
 
-  char* generateSDPDescription(); // based on the entire session
+  char* generateSDPDescription(char* miscSDP, float fDuration); // based on the entire session
       // Note: The caller is responsible for freeing the returned string
 
   char const* streamName() const { return fStreamName; }
@@ -87,7 +87,7 @@ private:
   char* fStreamName;
   char* fInfoSDPString;
   char* fDescriptionSDPString;
-  char* fMiscSDPLines;
+  //char* fMiscSDPLines;
   struct timeval fCreationTime;
   unsigned fReferenceCount;
   Boolean fDeleteWhenUnreferenced;
@@ -115,7 +115,7 @@ public:
 
   unsigned trackNumber() const { return fTrackNumber; }
   char const* trackId();
-  char const* sdpLines(){return NULL;}
+  //char const* sdpLines(){return NULL;}
   void getStreamParameters(unsigned clientSessionId, // in
                                    netAddressBits clientAddress, // in
                                    Port const& clientRTPPort, // in

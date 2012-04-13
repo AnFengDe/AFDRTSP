@@ -669,108 +669,64 @@ void RTSPServer::RTSPClientSession
                      char const* fullRequestStr) 
 {
     char* sdpDescription = NULL;
+    char* miscSDP = NULL;
     char* rtspURL = NULL;
-            // We should really check that the request contains an "Accept:" #####
+
+    int   iCallbackRet = 0;
+    float fDuration = 0.0;
+    bool  bCallback = (NULL == g_pstCallback || NULL == g_pstCallback->describe) ? false : true;
+
+    miscSDP = new char[1024];
+    ::memset(miscSDP, 0x00, 1024);
+
+    do 
+    {
+        char urlTotalSuffix[RTSP_PARAM_STRING_MAX];
+        if (strlen(urlPreSuffix) + strlen(urlSuffix) + 2 > sizeof urlTotalSuffix) 
+        {
+            handleCmd_bad(cseq);
+            break;
+        }
+        urlTotalSuffix[0] = '\0';
+        if (urlPreSuffix[0] != '\0') 
+        {
+            strcat(urlTotalSuffix, urlPreSuffix);
+            strcat(urlTotalSuffix, "/");
+        }
+        strcat(urlTotalSuffix, urlSuffix);
+      
+        if (!authenticationOK("DESCRIBE", cseq, urlTotalSuffix, fullRequestStr)) break;
+    
+        // We should really check that the request contains an "Accept:" #####
         // for "application/sdp", because that's what we're sending back #####
 
         // Begin by looking up the "ServerMediaSession" object for the specified "urlTotalSuffix":
-        //TODO: add by chtian -- Yes , Set callback function here
+        
         //1. let callback confirm the url is exist or not
-        //»Øµ÷{}
         //2. let callback return sdp description, we can set a large buf for callback
-        //3. other logic obey code behind.
-        if (NULL == g_pstCallback || NULL == g_pstCallback->describe)
+        if (true == bCallback)
         {
-            do 
-        {
-        char urlTotalSuffix[RTSP_PARAM_STRING_MAX];
-        if (strlen(urlPreSuffix) + strlen(urlSuffix) + 2 > sizeof urlTotalSuffix) 
-        {
-            handleCmd_bad(cseq);
-            break;
-        }
-        urlTotalSuffix[0] = '\0';
-        if (urlPreSuffix[0] != '\0') 
-        {
-            strcat(urlTotalSuffix, urlPreSuffix);
-            strcat(urlTotalSuffix, "/");
-        }
-        strcat(urlTotalSuffix, urlSuffix);
-      
-        if (!authenticationOK("DESCRIBE", cseq, urlTotalSuffix, fullRequestStr)) break;
-            ServerMediaSession* session = fOurServer.lookupServerMediaSession(urlTotalSuffix);
-         if (session == NULL) {
-         handleCmd_notFound(cseq);
-        break;
-        }
-    
-    // Then, assemble a SDP description for this session:
-        sdpDescription = session->generateSDPDescription();
-        if (sdpDescription == NULL) {
-      // This usually means that a file name that was specified for a
-      // "ServerMediaSubsession" does not exist.
-        snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-	       "RTSP/1.0 404 File Not Found, Or In Incorrect Format\r\n"
-	       "CSeq: %s\r\n"
-	       "%s\r\n",
-	       cseq,
-	       dateHeader());
-            break;
-         }
-         unsigned sdpDescriptionSize = strlen(sdpDescription);
-    
-    // Also, generate our RTSP URL, for the "Content-Base:" header
-    // (which is necessary to ensure that the correct URL gets used in
-    // subsequent "SETUP" requests).
-    rtspURL = fOurServer.rtspURL(session, fClientInputSocket);
-    
-    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-	     "RTSP/1.0 200 OK\r\nCSeq: %s\r\n"
-	     "%s"
-	     "Content-Base: %s/\r\n"
-	     "Content-Type: application/sdp\r\n"
-	     "Content-Length: %d\r\n\r\n"
-	     "%s",
-	     cseq,
-	     dateHeader(),
-	     rtspURL,
-	     sdpDescriptionSize,
-	     sdpDescription);
-    } while (0);
-
-        delete[] sdpDescription;
-        delete[] rtspURL;
-        }
-        else{
-            do 
+            g_pstCallback->describe(&iCallbackRet, urlTotalSuffix, miscSDP, &fDuration);
+            if ( 0 == iCallbackRet)
             {
-        char urlTotalSuffix[RTSP_PARAM_STRING_MAX];
-        if (strlen(urlPreSuffix) + strlen(urlSuffix) + 2 > sizeof urlTotalSuffix) 
+                handleCmd_notFound(cseq);
+                break;
+            }
+        }
+        // if no exist session , then create it 
+        ServerMediaSession* session = fOurServer.lookupServerMediaSession(urlTotalSuffix);
+        if (session == NULL && false == bCallback) 
         {
-            handleCmd_bad(cseq);
+            handleCmd_notFound(cseq);
             break;
         }
-        urlTotalSuffix[0] = '\0';
-        if (urlPreSuffix[0] != '\0') 
+        else if (session == NULL)
         {
-            strcat(urlTotalSuffix, urlPreSuffix);
-            strcat(urlTotalSuffix, "/");
-        }
-        strcat(urlTotalSuffix, urlSuffix);
-      
-        if (!authenticationOK("DESCRIBE", cseq, urlTotalSuffix, fullRequestStr)) break;
-        int ret;
-       char sdp[1024];
- // sdp=new char[1024];
-
-       g_pstCallback->describe(&ret, urlTotalSuffix, sdp);
-        if(ret==0)
-        {   
-            handleCmd_notFound(cseq);
-        }
-        else
-        {
-            ServerMediaSession* session = ServerMediaSession::createNew(envir(), urlSuffix, "file", sdp);
+            session = ServerMediaSession::createNew(envir(), 
+                                                    urlSuffix, 
+                                                    "AnFengDe Callback Info", 
+                                                    "AnFengDe Callback Description", 
+                                                    True);
             if (session == NULL) 
             {
                 handleCmd_notFound(cseq);
@@ -778,51 +734,46 @@ void RTSPServer::RTSPClientSession
             }
             ServerMediaSubsession* psmss = new ServerMediaSubsession(envir());
             session->addSubsession(psmss);
-
-            // Then, assemble a SDP description for this session:
-            //sdpDescription = session->generateSDPDescription();
-            sdpDescription =sdp;
-            if (sdpDescription == NULL) 
-            {
-                // This usually means that a file name that was specified for a
-                // "ServerMediaSubsession" does not exist.
-                snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-                        "RTSP/1.0 404 File Not Found, Or In Incorrect Format\r\n"
-                        "CSeq: %s\r\n"
-                        "%s\r\n",
-                        cseq,
-                        dateHeader());
-                break;
-            }
-            unsigned sdpDescriptionSize = strlen(sdpDescription);
+        }
     
-            // Also, generate our RTSP URL, for the "Content-Base:" header
-            // (which is necessary to ensure that the correct URL gets used in
-            // subsequent "SETUP" requests).
-            rtspURL = fOurServer.rtspURL(session, fClientInputSocket);
-        
+        // Then, assemble a SDP description for this session:
+        sdpDescription = session->generateSDPDescription(miscSDP, fDuration);
+        if (::strlen(sdpDescription) == 0) 
+        {
+            // This usually means that a file name that was specified for a
+            // "ServerMediaSubsession" does not exist.
             snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-                     "RTSP/1.0 200 OK\r\nCSeq: %s\r\n"
-                     "%s"
-                     "Content-Base: %s/\r\n"
-                     "Content-Type: application/sdp\r\n"
-                     "Content-Length: %d\r\n\r\n"
-                     "%s",
-                     cseq,
-                     dateHeader(),
-                     rtspURL,
-                     sdpDescriptionSize,
-                     sdpDescription);
+                    "RTSP/1.0 404 File Not Found, Or In Incorrect Format\r\n"
+                    "CSeq: %s\r\n"
+                    "%s\r\n",
+                    cseq,
+                    dateHeader());
+            break;
         }
-        
-        //end else
-    } while (0);
-        }
-    //delete[] sdpDescription;
-    delete[] rtspURL;
-       // }
+        unsigned sdpDescriptionSize = strlen(sdpDescription);
     
-   // }
+        // Also, generate our RTSP URL, for the "Content-Base:" header
+        // (which is necessary to ensure that the correct URL gets used in
+        // subsequent "SETUP" requests).
+        rtspURL = fOurServer.rtspURL(session, fClientInputSocket);
+    
+        snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+                 "RTSP/1.0 200 OK\r\nCSeq: %s\r\n"
+                 "%s"
+                 "Content-Base: %s/\r\n"
+                 "Content-Type: application/sdp\r\n"
+                 "Content-Length: %d\r\n\r\n"
+                 "%s",
+                 cseq,
+                 dateHeader(),
+                 rtspURL,
+                 sdpDescriptionSize,
+                 sdpDescription);
+    } while (0);
+    
+    if (miscSDP)        delete[] miscSDP;
+    if (sdpDescription) delete[] sdpDescription;
+    if (rtspURL)        delete[] rtspURL;
 }
 
 typedef enum StreamingMode {

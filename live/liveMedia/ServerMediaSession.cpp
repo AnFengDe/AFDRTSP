@@ -70,7 +70,7 @@ ServerMediaSession::ServerMediaSession(UsageEnvironment& env,
     fStreamName = strDup(streamName == NULL ? "" : streamName);
     fInfoSDPString = strDup(info == NULL ? libNameStr : info);
     fDescriptionSDPString = strDup(description == NULL ? libNameStr : description);
-    fMiscSDPLines = strDup(miscSDPLines == NULL ? "" : miscSDPLines);
+    //fMiscSDPLines = strDup(miscSDPLines == NULL ? "" : miscSDPLines);
 
     gettimeofday(&fCreationTime, NULL);
 }
@@ -81,7 +81,7 @@ ServerMediaSession::~ServerMediaSession()
     delete[] fStreamName;
     delete[] fInfoSDPString;
     delete[] fDescriptionSDPString;
-    delete[] fMiscSDPLines;
+    //delete[] fMiscSDPLines;
 }
 
 Boolean
@@ -212,11 +212,8 @@ Boolean ServerMediaSession::isServerMediaSession() const
     return True;
 }
 
-char* ServerMediaSession::generateSDPDescription() 
+char* ServerMediaSession::generateSDPDescription(char* miscSDP, float fDuration) 
 {
-    char* sdp = new char[7];
-    return sdp;
-#if 0
     AddressString ipAddressStr(ourIPAddress(envir()));
     unsigned ipAddressStrSize = strlen(ipAddressStr.val());
 
@@ -246,18 +243,18 @@ char* ServerMediaSession::generateSDPDescription()
         // (We do this first, because the call to "subsession->sdpLines()"
         // causes correct subsession 'duration()'s to be calculated later.)
         unsigned sdpLength = 0;
-        ServerMediaSubsession* subsession;
-        for (subsession = fSubsessionsHead; subsession != NULL;
-             subsession = subsession->fNext) 
-        {
-            char const* sdpLines = subsession->sdpLines();
-            if (sdpLines == NULL) break; // the media's not available
-            sdpLength += strlen(sdpLines);
-        }
-        if (subsession != NULL) break; // an error occurred
+        //ServerMediaSubsession* subsession;
+        //for (subsession = fSubsessionsHead; subsession != NULL;
+        //     subsession = subsession->fNext) 
+        //{
+        //    char const* sdpLines = subsession->sdpLines();
+        //    if (sdpLines == NULL) break; // the media's not available
+        //    sdpLength += strlen(sdpLines);
+        //}
+        //if (subsession != NULL) break; // an error occurred
 
         // Unless subsessions have differing durations, we also have a "a=range:" line:
-        float dur = duration();
+        float dur = fDuration;//duration();
         if (dur == 0.0) 
         {
             rangeLine = strDup("a=range:npt=0-\r\n");
@@ -296,7 +293,7 @@ char* ServerMediaSession::generateSDPDescription()
                   + strlen(rangeLine)
                   + strlen(fDescriptionSDPString)
                   + strlen(fInfoSDPString)
-                  + strlen(fMiscSDPLines);
+                  + strlen(miscSDP);
         sdp = new char[sdpLength];
         if (sdp == NULL) break;
 
@@ -312,21 +309,20 @@ char* ServerMediaSession::generateSDPDescription()
                 rangeLine, // a=range: line
                 fDescriptionSDPString, // a=x-qt-text-nam: line
                 fInfoSDPString, // a=x-qt-text-inf: line
-                fMiscSDPLines); // miscellaneous session SDP lines (if any)
+                miscSDP); // miscellaneous session SDP lines (if any)
 
         // Then, add the (media-level) lines for each subsession:
-        char* mediaSDP = sdp;
-        for (subsession = fSubsessionsHead; subsession != NULL;
-                subsession = subsession->fNext) 
-        {
-            mediaSDP += strlen(mediaSDP);
-            sprintf(mediaSDP, "%s", subsession->sdpLines());
-        }
+        //char* mediaSDP = sdp;
+        //for (subsession = fSubsessionsHead; subsession != NULL;
+        //        subsession = subsession->fNext) 
+        //{
+        //    mediaSDP += strlen(mediaSDP);
+        //    sprintf(mediaSDP, "%s", subsession->sdpLines());
+        //}
     } while (0);
 
     delete[] rangeLine; delete[] sourceFilterLine;
     return sdp;
-#endif
 }
 
 

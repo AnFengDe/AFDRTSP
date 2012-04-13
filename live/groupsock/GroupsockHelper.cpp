@@ -531,6 +531,7 @@ static Boolean badAddressForUs(netAddressBits addr) {
 
 Boolean loopbackWorks = 1;
 
+//TODO:this code get ip address automatically, but buzz for set ip for it
 netAddressBits ourIPAddress(UsageEnvironment& env) {
   static netAddressBits ourAddress = 0;
   int sock = -1;
