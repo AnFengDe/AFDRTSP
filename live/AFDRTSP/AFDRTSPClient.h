@@ -58,17 +58,17 @@ const void* create_new(const char* url, int verbosity = 0, const char* appname =
  */
 unsigned play(const void* handle);
 
-int pause(const int handle);
+unsigned pause(const void* handle);
 
-int resume(const int handle);
+int resume(const void* handle);
 
-int skip(const int handle, double percent);
+int skip(const void* handle, double percent);
 
-int fast(const int handle, double scale);
+int fast(const void* handle, double scale);
 
-int slow(const int handle, double scale);
+int slow(const void* handle, double scale);
 
-int stop(const int handle);
+int stop(const void* handle);
 
 #ifdef __cplusplus
 }
