@@ -69,8 +69,30 @@ unsigned play(const void* handle);
  */
 unsigned pause(const void* handle);
 
+/**
+ * \brief   Resume stream by handle create_new returned and play time, this function will call 
+ *          method PLAY
+ *          the methode call is asynchronous, if you want to process response 
+ *          yourself, you must set callback function for it.
+ *
+ * \param   handle create_new returned
+ * \param   npt Normal Play Time
+ *
+ * \return  the return value is equal zero means failure, otherwise is success.
+ */
 unsigned resume(const void* handle, double npt);
 
+/**
+ * \brief   Resume stream by handle create_new returned and play time, this function will call 
+ *          method PLAY
+ *          the methode call is asynchronous, if you want to process response 
+ *          yourself, you must set callback function for it.
+ *
+ * \param   handle create_new returned
+ * \param   npt Normal Play Time
+ *
+ * \return  the return value is equal zero means failure, otherwise is success.
+ */
 unsigned seek(const void* handle, double npt);
 
 unsigned fast(const void* handle, double scale);

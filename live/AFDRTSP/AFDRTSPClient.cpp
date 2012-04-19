@@ -315,7 +315,9 @@ void continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultSt
 void continueAfterSETUP(RTSPClient* rtspClient, int resultCode, char* resultString);
 void continueAfterPLAY(RTSPClient* rtspClient, int resultCode, char* resultString);
 //void continueAfterPAUSE(RTSPClient* rtspClient, int resultCode, char* resultString);
-void continueAfterTEARDOWN(RTSPClient* rtspClient, int resultCode, char* resultString);
+void continueAfterTEARDOWN(RTSPClient* rtspClient, int resultCode, char* resultString)
+{
+}
 
 // Other event handler functions:
 void subsessionAfterPlaying(void* clientData); // called when a stream's subsession (e.g., audio or video substream) ends
@@ -422,27 +424,36 @@ extern "C" unsigned pause(const void* handle)
     return client->sendPauseCommand(*scs.session, continueAfterPAUSE);
 }
 
-extern "C" unsigned resume(const void* handle)
+extern "C" unsigned resume(const void* handle, double npt)
 {
-    return NULL;
+    RTSPClient* client = (RTSPClient*)handle;
+    StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
+    
+    return client->sendPlayCommand(*scs.session, continueAfterPLAY, npt);
 }
 
-extern "C" unsigned seek(const void* handle, double percent)
+extern "C" unsigned seek(const void* handle, double npt)
 {
-    return NULL;
+    return resume(handle, npt);
 }
 
 extern "C" unsigned fast(const void* handle, double scale)
 {
-    return NULL;
+    RTSPClient* client = (RTSPClient*)handle;
+    StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
+    
+    return client->sendPlayCommand(*scs.session, continueAfterPLAY, 0.0f, -1.0f, scale);
 }
 
 extern "C" unsigned slow(const void* handle, double scale)
 {
-    return NULL;
+    return fast(handle, scale);
 }
 
 extern "C" unsigned stop(const void* handle)
 {
-    return NULL;
+    RTSPClient* client = (RTSPClient*)handle;
+    StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
+    
+    return client->sendTeardownCommand(*scs.session, continueAfterTEARDOWN);
 }
