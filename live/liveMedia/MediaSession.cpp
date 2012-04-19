@@ -136,16 +136,16 @@ Boolean MediaSession::initializeWithSDP(char const* sdpDescription) {
     char const* protocolName = NULL;
     unsigned payloadFormat;
     if ((sscanf(sdpLine, "m=%s %hu RTP/AVP %u",
-        	mediumName, &subsession->fClientPortNum, &payloadFormat) == 3 ||
+            mediumName, &subsession->fClientPortNum, &payloadFormat) == 3 ||
          sscanf(sdpLine, "m=%s %hu/%*u RTP/AVP %u",
-        	mediumName, &subsession->fClientPortNum, &payloadFormat) == 3)
+            mediumName, &subsession->fClientPortNum, &payloadFormat) == 3)
         && payloadFormat <= 127) {
       protocolName = "RTP";
     } else if ((sscanf(sdpLine, "m=%s %hu UDP %u",
                        mediumName, &subsession->fClientPortNum, &payloadFormat) == 3 ||
-        	sscanf(sdpLine, "m=%s %hu udp %u",
+            sscanf(sdpLine, "m=%s %hu udp %u",
                        mediumName, &subsession->fClientPortNum, &payloadFormat) == 3 ||
-        	sscanf(sdpLine, "m=%s %hu RAW/RAW/UDP %u",
+            sscanf(sdpLine, "m=%s %hu RAW/RAW/UDP %u",
                        mediumName, &subsession->fClientPortNum, &payloadFormat) == 3)
                && payloadFormat <= 127) {
       // This is a RAW UDP source
@@ -154,10 +154,10 @@ Boolean MediaSession::initializeWithSDP(char const* sdpDescription) {
       // This "m=" line is bad; output an error message saying so:
       char* sdpLineStr;
       if (nextSDPLine == NULL) {
-	sdpLineStr = (char*)sdpLine;
+    sdpLineStr = (char*)sdpLine;
       } else {
-	sdpLineStr = strDup(sdpLine);
-	sdpLineStr[nextSDPLine-sdpLine] = '\0';
+    sdpLineStr = strDup(sdpLine);
+    sdpLineStr[nextSDPLine-sdpLine] = '\0';
       }
       envir() << "Bad SDP \"m=\" line: " <<  sdpLineStr << "\n";
       if (sdpLineStr != (char*)sdpLine) delete[] sdpLineStr;
@@ -167,11 +167,11 @@ Boolean MediaSession::initializeWithSDP(char const* sdpDescription) {
 
       // Skip the following SDP lines, up until the next "m=":
       while (1) {
-	sdpLine = nextSDPLine;
-	if (sdpLine == NULL) break; // we've reached the end
-	if (!parseSDPLine(sdpLine, nextSDPLine)) return False;
+    sdpLine = nextSDPLine;
+    if (sdpLine == NULL) break; // we've reached the end
+    if (!parseSDPLine(sdpLine, nextSDPLine)) return False;
 
-	if (sdpLine[0] == 'm') break; // we've reached the next subsession
+    if (sdpLine[0] == 'm') break; // we've reached the next subsession
       }
       continue;
     }
@@ -225,11 +225,11 @@ Boolean MediaSession::initializeWithSDP(char const* sdpDescription) {
                               subsession->fRTPTimestampFrequency,
                               subsession->fNumChannels);
       if (subsession->fCodecName == NULL) {
-	char typeStr[20];
-	sprintf(typeStr, "%d", subsession->fRTPPayloadFormat);
-	envir().setResultMsg("Unknown codec name for RTP payload type ",
+    char typeStr[20];
+    sprintf(typeStr, "%d", subsession->fRTPPayloadFormat);
+    envir().setResultMsg("Unknown codec name for RTP payload type ",
                              typeStr);
-	return False;
+    return False;
       }
     }
 
@@ -415,7 +415,7 @@ Boolean MediaSession
 }
 
 char* MediaSession::lookupPayloadFormat(unsigned char rtpPayloadType,
-                                	unsigned& freq, unsigned& nCh) {
+                                    unsigned& freq, unsigned& nCh) {
   // Look up the codec name and timestamp frequency for known (static)
   // RTP payload formats.
   char const* temp = NULL;
@@ -561,138 +561,139 @@ double MediaSubsession::playStartTime() const {
   return fParent.playStartTime();
 }
 
-double MediaSubsession::playEndTime() const {
-  if (fPlayEndTime > 0) return fPlayEndTime;
+double MediaSubsession::playEndTime() const 
+{
+    if (fPlayEndTime > 0) return fPlayEndTime;
 
-  return fParent.playEndTime();
+    return fParent.playEndTime();
 }
 
-Boolean MediaSubsession::initiate(int useSpecialRTPoffset) {
+Boolean MediaSubsession::initiate(int useSpecialRTPoffset) 
+{
+    do 
+    {
+        if (fCodecName == NULL) 
+        {
+            env().setResultMsg("Codec is unspecified");
+            break;
+        }
 
-  do {
-    if (fCodecName == NULL) {
-      env().setResultMsg("Codec is unspecified");
-      break;
-    }
-
-    // Create RTP and TCP 'Groupsocks' on which to receive incoming data.
-    // (Groupsocks will work even for unicast addresses)
-    struct in_addr tempAddr;
-    tempAddr.s_addr = connectionEndpointAddress();
+        // Create RTP and TCP 'Groupsocks' on which to receive incoming data.
+        // (Groupsocks will work even for unicast addresses)
+        struct in_addr tempAddr;
+        tempAddr.s_addr = connectionEndpointAddress();
         // This could get changed later, as a result of a RTSP "SETUP"
 
-    if (fClientPortNum != 0) {
-      // The sockets' port numbers were specified for us.  Use these:
-      fClientPortNum = fClientPortNum&~1; // even
-      if (isSSM()) {
-	fRTPSocket = new Groupsock(env(), tempAddr, fSourceFilterAddr, fClientPortNum);
-      } else {
-	fRTPSocket = new Groupsock(env(), tempAddr, fClientPortNum, 255);
-      }
-      if (fRTPSocket == NULL) {
-	env().setResultMsg("Failed to create RTP socket");
-	break;
-      }
+        if (fClientPortNum != 0) 
+        {
+            // The sockets' port numbers were specified for us.  Use these:
+            fClientPortNum = fClientPortNum&~1; // even
+            if (isSSM()) 
+            {
+                fRTPSocket = new Groupsock(env(), tempAddr, fSourceFilterAddr, fClientPortNum);
+            } 
+            else 
+            {
+                fRTPSocket = new Groupsock(env(), tempAddr, fClientPortNum, 255);
+            }
+            if (fRTPSocket == NULL) 
+            {
+                env().setResultMsg("Failed to create RTP socket");
+                break;
+            }
       
-      // Set our TCP port to be the RTP port +1
-      portNumBits const rtcpPortNum = fClientPortNum|1;
-      if (isSSM()) {
-      } else {
-      }
-      if ( NULL) {
-	char tmpBuf[100];
-	sprintf(tmpBuf, "Failed to create TCP socket (port %d)", rtcpPortNum);
-	env().setResultMsg(tmpBuf);
-	break;
-      }
-    } else {
-      // Port numbers were not specified in advance, so we use ephemeral port numbers.
-      // Create sockets until we get a port-number pair (even: RTP; even+1: TCP).
-      // We need to make sure that we don't keep trying to use the same bad port numbers over and over again.
-      // so we store bad sockets in a table, and delete them all when we're done.
-      HashTable* socketHashTable = HashTable::create(ONE_WORD_HASH_KEYS);
-      if (socketHashTable == NULL) break;
-      Boolean success = False;
-      NoReuse dummy(env()); // ensures that our new ephemeral port number won't be one that's already in use
+            // Set our TCP port to be the RTP port +1
+            portNumBits const rtcpPortNum = fClientPortNum|1;
+        } 
+        else  //fClientPortNum == 0
+        {
+            // Port numbers were not specified in advance, so we use ephemeral port numbers.
+            // Create sockets until we get a port-number pair (even: RTP; even+1: TCP).
+            // We need to make sure that we don't keep trying to use the same bad port numbers over and over again.
+            // so we store bad sockets in a table, and delete them all when we're done.
+            HashTable* socketHashTable = HashTable::create(ONE_WORD_HASH_KEYS);
+            if (socketHashTable == NULL) break;
+            Boolean success = False;
+            NoReuse dummy(env()); // ensures that our new ephemeral port number won't be one that's already in use
 
-      while (1) {
-        // Create a new socket:
-	if (isSSM()) {
-          fRTPSocket = new Groupsock(env(), tempAddr, fSourceFilterAddr, 0);
-        } else {
-          fRTPSocket = new Groupsock(env(), tempAddr, 0, 255);
+            while (1) 
+            {
+                // Create a new socket:
+                if (isSSM()) 
+                {
+                    fRTPSocket = new Groupsock(env(), tempAddr, fSourceFilterAddr, 0);
+                } 
+                else 
+                {
+                    fRTPSocket = new Groupsock(env(), tempAddr, 0, 255);
+                }
+                if (fRTPSocket == NULL) 
+                {
+                    env().setResultMsg("MediaSession::initiate(): unable to create RTP and TCP sockets");
+                    break;
+                }
+
+                // Get the client port number, and check whether it's even (for RTP):
+                Port clientPort(0);
+                if (!getSourcePort(env(), fRTPSocket->socketNum(), clientPort)) 
+                {
+                    break;
+                }
+                fClientPortNum = ntohs(clientPort.num()); 
+                if ((fClientPortNum&1) != 0) 
+                { // it's odd
+                    // Record this socket in our table, and keep trying:
+                    unsigned key = (unsigned)fClientPortNum;
+                    Groupsock* existing = (Groupsock*)socketHashTable->Add((char const*)key, fRTPSocket);
+                    delete existing; // in case it wasn't NULL
+                    continue;
+                }
+
+                if (NULL) 
+                {
+                    // Success! Use these two sockets.
+                    success = True;
+                    break;
+                } 
+                else 
+                {
+                    // We couldn't create the TCP socket (perhaps that port number's already in use elsewhere?).
+
+                    // Record the first socket in our table, and keep trying:
+                    unsigned key = (unsigned)fClientPortNum;
+                    Groupsock* existing = (Groupsock*)socketHashTable->Add((char const*)key, fRTPSocket);
+                    delete existing; // in case it wasn't NULL
+                    continue;
+                }
+            }
+
+            // Clean up the socket hash table (and contents):
+            Groupsock* oldGS;
+            while ((oldGS = (Groupsock*)socketHashTable->RemoveNext()) != NULL) 
+            {
+                delete oldGS;
+            }
+            delete socketHashTable;
+
+            if (!success) break; // a fatal error occurred trying to create the RTP and TCP sockets; we can't continue
         }
-	if (fRTPSocket == NULL) {
-          env().setResultMsg("MediaSession::initiate(): unable to create RTP and TCP sockets");
-          break;
-        }
 
-        // Get the client port number, and check whether it's even (for RTP):
-	Port clientPort(0);
-	if (!getSourcePort(env(), fRTPSocket->socketNum(), clientPort)) {
-          break;
-        }
-	fClientPortNum = ntohs(clientPort.num()); 
-	if ((fClientPortNum&1) != 0) { // it's odd
-          // Record this socket in our table, and keep trying:
-          unsigned key = (unsigned)fClientPortNum;
-          Groupsock* existing = (Groupsock*)socketHashTable->Add((char const*)key, fRTPSocket);
-          delete existing; // in case it wasn't NULL
-          continue;
-        }
+        // Try to use a big receive buffer for RTP - at least 0.1 second of
+        // specified bandwidth and at least 50 KB
+        unsigned rtpBufSize = fBandwidth * 25 / 2; // 1 kbps * 0.1 s = 12.5 bytes
+        if (rtpBufSize < 50 * 1024) rtpBufSize = 50 * 1024;
+        increaseReceiveBufferTo(env(), fRTPSocket->socketNum(), rtpBufSize);
 
-        // Make sure we can use the next (i.e., odd) port number, for TCP:
-	if (isSSM()) {
-        } else {
-        }
-	if (NULL) {
-          // Success! Use these two sockets.
-          success = True;
-          break;
-        } else {
-          // We couldn't create the TCP socket (perhaps that port number's already in use elsewhere?).
+        // Create "fTPSource" and "fReadSource":
+        if (!createSourceObjects(useSpecialRTPoffset)) break;
 
-          // Record the first socket in our table, and keep trying:
-          unsigned key = (unsigned)fClientPortNum;
-          Groupsock* existing = (Groupsock*)socketHashTable->Add((char const*)key, fRTPSocket);
-          delete existing; // in case it wasn't NULL
-          continue;
-        }
-      }
+        return True;
+    } while (0);
 
-      // Clean up the socket hash table (and contents):
-      Groupsock* oldGS;
-      while ((oldGS = (Groupsock*)socketHashTable->RemoveNext()) != NULL) {
-	delete oldGS;
-      }
-      delete socketHashTable;
-
-      if (!success) break; // a fatal error occurred trying to create the RTP and TCP sockets; we can't continue
-    }
-
-    // Try to use a big receive buffer for RTP - at least 0.1 second of
-    // specified bandwidth and at least 50 KB
-    unsigned rtpBufSize = fBandwidth * 25 / 2; // 1 kbps * 0.1 s = 12.5 bytes
-    if (rtpBufSize < 50 * 1024)
-      rtpBufSize = 50 * 1024;
-    increaseReceiveBufferTo(env(), fRTPSocket->socketNum(), rtpBufSize);
-
-    // ASSERT: fRTPSocket != NULL && fTCPSocket != NULL
-    if (isSSM()) {
-      // Special case for TCP SSM: Send TCP packets back to the source via unicast:
-    }
-
-    // Create "fTPSource" and "fReadSource":
-    if (!createSourceObjects(useSpecialRTPoffset)) break;
-
-    // Finally, create our TCP instance. (It starts running automatically)
-
-    return True;
-  } while (0);
-
-  delete fRTPSocket; fRTPSocket = NULL;
-  fClientPortNum = 0;
-  return False;
+    delete fRTPSocket; fRTPSocket = NULL;
+    fClientPortNum = 0;
+  
+    return False;
 }
 
 void MediaSubsession::deInitiate() {
@@ -835,8 +836,8 @@ Boolean MediaSubsession::parseSDPAttribute_rtpmap(char const* sdpLine) {
       // codec name and timestamp frequency:
       // (First, make sure the codec name is upper case)
       {
-	Locale l("POSIX");
-	for (char* p = codecName; *p != '\0'; ++p) *p = toupper(*p);
+    Locale l("POSIX");
+    for (char* p = codecName; *p != '\0'; ++p) *p = toupper(*p);
       }
       delete[] fCodecName; fCodecName = strDup(codecName);
       fRTPTimestampFrequency = rtpTimestampFrequency;
@@ -874,13 +875,13 @@ Boolean MediaSubsession::parseSDPAttribute_range(char const* sdpLine) {
     if (playStartTime > fPlayStartTime) {
       fPlayStartTime = playStartTime;
       if (playStartTime > fParent.playStartTime()) {
-	fParent.playStartTime() = playStartTime;
+    fParent.playStartTime() = playStartTime;
       }
     }
     if (playEndTime > fPlayEndTime) {
       fPlayEndTime = playEndTime;
       if (playEndTime > fParent.playEndTime()) {
-	fParent.playEndTime() = playEndTime;
+    fParent.playEndTime() = playEndTime;
       }
     }
   }
@@ -910,64 +911,64 @@ Boolean MediaSubsession::parseSDPAttribute_fmtp(char const* sdpLine) {
       unsigned u;
       char* valueStr = strDupSize(line);
       if (sscanf(line, " auxiliarydatasizelength = %u", &u) == 1) {
-	fAuxiliarydatasizelength = u;
+    fAuxiliarydatasizelength = u;
       } else if (sscanf(line, " constantduration = %u", &u) == 1) {
-	fConstantduration = u;
+    fConstantduration = u;
       } else if (sscanf(line, " constantsize; = %u", &u) == 1) {
-	fConstantsize = u;
+    fConstantsize = u;
       } else if (sscanf(line, " crc = %u", &u) == 1) {
-	fCRC = u;
+    fCRC = u;
       } else if (sscanf(line, " ctsdeltalength = %u", &u) == 1) {
-	fCtsdeltalength = u;
+    fCtsdeltalength = u;
       } else if (sscanf(line, " de-interleavebuffersize = %u", &u) == 1) {
-	fDe_interleavebuffersize = u;
+    fDe_interleavebuffersize = u;
       } else if (sscanf(line, " dtsdeltalength = %u", &u) == 1) {
-	fDtsdeltalength = u;
+    fDtsdeltalength = u;
       } else if (sscanf(line, " indexdeltalength = %u", &u) == 1) {
-	fIndexdeltalength = u;
+    fIndexdeltalength = u;
       } else if (sscanf(line, " indexlength = %u", &u) == 1) {
-	fIndexlength = u;
+    fIndexlength = u;
       } else if (sscanf(line, " interleaving = %u", &u) == 1) {
-	fInterleaving = u;
+    fInterleaving = u;
       } else if (sscanf(line, " maxdisplacement = %u", &u) == 1) {
-	fMaxdisplacement = u;
+    fMaxdisplacement = u;
       } else if (sscanf(line, " objecttype = %u", &u) == 1) {
-	fObjecttype = u;
+    fObjecttype = u;
       } else if (sscanf(line, " octet-align = %u", &u) == 1) {
-	fOctetalign = u;
+    fOctetalign = u;
       } else if (sscanf(line, " profile-level-id = %x", &u) == 1) {
         // Note that the "profile-level-id" parameter is assumed to be hexadecimal
-	fProfile_level_id = u;
+    fProfile_level_id = u;
       } else if (sscanf(line, " robust-sorting = %u", &u) == 1) {
-	fRobustsorting = u;
+    fRobustsorting = u;
       } else if (sscanf(line, " sizelength = %u", &u) == 1) {
-	fSizelength = u;
+    fSizelength = u;
       } else if (sscanf(line, " streamstateindication = %u", &u) == 1) {
-	fStreamstateindication = u;
+    fStreamstateindication = u;
       } else if (sscanf(line, " streamtype = %u", &u) == 1) {
-	fStreamtype = u;
+    fStreamtype = u;
       } else if (sscanf(line, " cpresent = %u", &u) == 1) {
-	fCpresent = u != 0;
+    fCpresent = u != 0;
       } else if (sscanf(line, " randomaccessindication = %u", &u) == 1) {
-	fRandomaccessindication = u != 0;
+    fRandomaccessindication = u != 0;
       } else if (sscanf(sdpLine, " config = %[^; \t\r\n]", valueStr) == 1 ||
                  sscanf(sdpLine, " configuration = %[^; \t\r\n]", valueStr) == 1) {
         // Note: We used "sdpLine" here, because the value may be case-sensitive (if it's Base-64).
-	delete[] fConfig; fConfig = strDup(valueStr);
+    delete[] fConfig; fConfig = strDup(valueStr);
       } else if (sscanf(line, " mode = %[^; \t\r\n]", valueStr) == 1) {
-	delete[] fMode; fMode = strDup(valueStr);
+    delete[] fMode; fMode = strDup(valueStr);
       } else if (sscanf(sdpLine, " sprop-parameter-sets = %[^; \t\r\n]", valueStr) == 1) {
         // Note: We used "sdpLine" here, because the value is case-sensitive.
-	delete[] fSpropParameterSets; fSpropParameterSets = strDup(valueStr);
+    delete[] fSpropParameterSets; fSpropParameterSets = strDup(valueStr);
       } else if (sscanf(line, " emphasis = %[^; \t\r\n]", valueStr) == 1) {
-	delete[] fEmphasis; fEmphasis = strDup(valueStr);
+    delete[] fEmphasis; fEmphasis = strDup(valueStr);
       } else if (sscanf(sdpLine, " channel-order = %[^; \t\r\n]", valueStr) == 1) {
         // Note: We used "sdpLine" here, because the value is case-sensitive.
-	delete[] fChannelOrder; fChannelOrder = strDup(valueStr);
+    delete[] fChannelOrder; fChannelOrder = strDup(valueStr);
       } else {
         // Some of the above parameters are Boolean.  Check whether the parameter
         // names appear alone, without a "= 1" at the end:
-	if (sscanf(line, " %[^; \t\r\n]", valueStr) == 1) {
+    if (sscanf(line, " %[^; \t\r\n]", valueStr) == 1) {
           if (strcmp(valueStr, "octet-align") == 0) {
             fOctetalign = 1;
           } else if (strcmp(valueStr, "cpresent") == 0) {
@@ -1061,19 +1062,19 @@ Boolean MediaSubsession::createSourceObjects(int useSpecialRTPoffset) {
                    || strcmp(fCodecName, "SPEEX") == 0 // SPEEX audio
                    || strcmp(fCodecName, "DAT12") == 0 // 12-bit nonlinear audio (RFC 3190)
                    ) {
-	useSpecialRTPoffset = 0;
+    useSpecialRTPoffset = 0;
       } else if (useSpecialRTPoffset >= 0) {
         // We don't know this RTP payload format, but try to receive
       } else {
-	env().setResultMsg("RTP payload format unknown or not supported");
-	break;
+    env().setResultMsg("RTP payload format unknown or not supported");
+    break;
       }
       
       if (createSimpleRTPSource) {
-	char* mimeType
+    char* mimeType
           = new char[strlen(mediumName()) + strlen(codecName()) + 2] ;
-	sprintf(mimeType, "%s/%s", mediumName(), codecName());
-	delete[] mimeType;
+    sprintf(mimeType, "%s/%s", mediumName(), codecName());
+    delete[] mimeType;
       }
     }
 

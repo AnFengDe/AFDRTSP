@@ -11,7 +11,12 @@ int main()
     {
         ::memset(cmd, 0x00, 256);
         printf(	"Please input command : \n -init init rtsp client lib\n"
-        				" -create create rtsp client session\n -play send play command\n"
+        				" -create create rtsp client session\n"
+                        " -play send play command\n"
+                        " -pause send pause command\n"
+                        " -resume back to play \n"
+                        " -fast play fast\n"
+                        " -slow play slow\n"
         				" -exit exit program\n  Please input:");
         
         gets(cmd);
@@ -54,6 +59,26 @@ int main()
                 unsigned ret = play(handle);
                 printf("the play command return value is %d\n", ret);
             }
+        }
+        else if (0 == ::memcmp(cmd, "pause", 5))
+        {
+            unsigned ret = pause(handle);
+            printf("the pause command return value is %d\n", ret);
+        }
+        else if (0 == ::memcmp(cmd, "resume", 6))
+        {
+            unsigned ret = resume(handle, 45.0);
+            printf("the resume command return value is %d\n", ret);
+        }
+        else if (0 == ::memcmp(cmd, "fast", 4))
+        {
+            unsigned ret = fast(handle, 2.0);
+            printf("the fast command return value is %d\n", ret);
+        }
+        else if (0 == ::memcmp(cmd, "slow", 4))
+        {
+            unsigned ret = slow(handle, 0.125);
+            printf("the slow command return value is %d\n", ret);
         }
         else if (0 == ::memcmp(cmd, "exit", 4))
         {
