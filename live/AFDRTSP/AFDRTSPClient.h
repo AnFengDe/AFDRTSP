@@ -58,17 +58,26 @@ const void* create_new(const char* url, int verbosity = 0, const char* appname =
  */
 unsigned play(const void* handle);
 
+/**
+ * \brief   Pause stream by handle create_new returned, this function will call method PAUSE
+ *          the methode call is asynchronous, if you want to process response 
+ *          yourself, you must set callback function for it.
+ *
+ * \param   handle create_new returned
+ *
+ * \return  the return value is equal zero means failure, otherwise is success.
+ */
 unsigned pause(const void* handle);
 
-int resume(const void* handle);
+unsigned resume(const void* handle, double npt);
 
-int skip(const void* handle, double percent);
+unsigned seek(const void* handle, double npt);
 
-int fast(const void* handle, double scale);
+unsigned fast(const void* handle, double scale);
 
-int slow(const void* handle, double scale);
+unsigned slow(const void* handle, double scale);
 
-int stop(const void* handle);
+unsigned stop(const void* handle);
 
 #ifdef __cplusplus
 }

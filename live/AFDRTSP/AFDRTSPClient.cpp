@@ -314,7 +314,7 @@ void continueAfterOPTIONS(RTSPClient* rtspClient, int resultCode, char* resultSt
 
 void continueAfterSETUP(RTSPClient* rtspClient, int resultCode, char* resultString);
 void continueAfterPLAY(RTSPClient* rtspClient, int resultCode, char* resultString);
-void continueAfterPAUSE(RTSPClient* rtspClient, int resultCode, char* resultString);
+//void continueAfterPAUSE(RTSPClient* rtspClient, int resultCode, char* resultString);
 void continueAfterTEARDOWN(RTSPClient* rtspClient, int resultCode, char* resultString);
 
 // Other event handler functions:
@@ -417,33 +417,32 @@ extern "C" unsigned play(const void* handle)
 extern "C" unsigned pause(const void* handle)
 {   
     RTSPClient* client = (RTSPClient*)handle;
-    UsageEnvironment& env = client->envir(); // alias
     StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
     
     return client->sendPauseCommand(*scs.session, continueAfterPAUSE);
 }
 
-int resume(const void* handle)
+extern "C" unsigned resume(const void* handle)
 {
     return NULL;
 }
 
-int skip(const void* handle, double percent)
+extern "C" unsigned seek(const void* handle, double percent)
 {
     return NULL;
 }
 
-int fast(const void* handle, double scale)
+extern "C" unsigned fast(const void* handle, double scale)
 {
     return NULL;
 }
 
-int slow(const void* handle, double scale)
+extern "C" unsigned slow(const void* handle, double scale)
 {
     return NULL;
 }
 
-int stop(const void* handle)
+extern "C" unsigned stop(const void* handle)
 {
     return NULL;
 }
