@@ -1,6 +1,6 @@
 /*!
  * \author chtian
- * \brief 	
+ * \brief 
  * \file AFDPollThread.cpp
  * \version 1.0 
  * \date 2012-03-09 14:39
@@ -14,7 +14,7 @@
 
 AFDPollThread::AFDPollThread(UsageEnvironment*& rtspenv)
     : env(rtspenv)
-{
+{ 
 }
 
 AFDPollThread::~AFDPollThread()
