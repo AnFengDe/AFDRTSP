@@ -41,7 +41,7 @@ extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_na
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc, float* duration);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned int sessionid, const char* url, unsigned short *rtp_server_port);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned int sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd);
 

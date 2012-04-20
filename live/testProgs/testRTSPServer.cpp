@@ -44,7 +44,7 @@ void STD_CALLBACK handle_Play(unsigned OurSessionId, float &scale, double &range
     rangeEnd=2000.00;
 }
 
-void STD_CALLBACK handle_Setup(unsigned int sessionid, const char* url, unsigned short *rtp_server_port)
+void STD_CALLBACK handle_Setup(unsigned int sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port)
 {
     //set rtp server port
     *rtp_server_port = 20000;

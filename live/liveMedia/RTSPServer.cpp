@@ -997,7 +997,7 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(char const* cseq,
     unsigned short rtpServerPort = 0;
     if ( bCallback )
     {
-        g_pstCallback->setup(fOurSessionId, urlSuffix, &rtpServerPort);
+        g_pstCallback->setup(fOurSessionId, urlSuffix, clientRTPPort.num(), &rtpServerPort);
     }
 
     Port serverRTPPort(rtpServerPort);
