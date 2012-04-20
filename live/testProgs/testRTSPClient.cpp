@@ -56,28 +56,28 @@ int main()
             }
             else
             {
-                unsigned ret = play(handle);
+                unsigned ret = rtsp_play(handle);
                 printf("the play command return value is %d\n", ret);
             }
         }
         else if (0 == ::memcmp(cmd, "pause", 5))
         {
-            unsigned ret = pause(handle);
+            unsigned ret = rtsp_pause(handle);
             printf("the pause command return value is %d\n", ret);
         }
         else if (0 == ::memcmp(cmd, "resume", 6))
         {
-            unsigned ret = resume(handle, 45.0);
+            unsigned ret = rtsp_resume(handle, 45.0);
             printf("the resume command return value is %d\n", ret);
         }
         else if (0 == ::memcmp(cmd, "fast", 4))
         {
-            unsigned ret = fast(handle, 2.0);
+            unsigned ret = rtsp_fast(handle, 2.0);
             printf("the fast command return value is %d\n", ret);
         }
         else if (0 == ::memcmp(cmd, "slow", 4))
         {
-            unsigned ret = slow(handle, 0.125);
+            unsigned ret = rtsp_slow(handle, 0.125);
             printf("the slow command return value is %d\n", ret);
         }
         else if (0 == ::memcmp(cmd, "exit", 4))

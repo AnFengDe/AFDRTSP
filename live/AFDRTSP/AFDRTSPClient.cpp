@@ -404,13 +404,13 @@ extern "C" const void* create_new(const char* url, int verbosity, const char* ap
     return client;
 }
 
-extern "C" unsigned play(const void* handle)
+extern "C" unsigned rtsp_play(const void* handle)
 {
     RTSPClient* client = (RTSPClient*)handle;
     return client->sendOptionsCommand(continueAfterOPTIONS);  
 }
 
-extern "C" unsigned pause(const void* handle)
+extern "C" unsigned rtsp_pause(const void* handle)
 {   
     RTSPClient* client = (RTSPClient*)handle;
     StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
@@ -418,7 +418,7 @@ extern "C" unsigned pause(const void* handle)
     return client->sendPauseCommand(*scs.session, continueAfterPAUSE);
 }
 
-extern "C" unsigned resume(const void* handle, double npt)
+extern "C" unsigned rtsp_resume(const void* handle, double npt)
 {
     RTSPClient* client = (RTSPClient*)handle;
     StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
@@ -426,12 +426,12 @@ extern "C" unsigned resume(const void* handle, double npt)
     return client->sendPlayCommand(*scs.session, continueAfterPLAY, npt);
 }
 
-extern "C" unsigned seek(const void* handle, double npt)
+extern "C" unsigned rtsp_seek(const void* handle, double npt)
 {
-    return resume(handle, npt);
+    return rtsp_resume(handle, npt);
 }
 
-extern "C" unsigned fast(const void* handle, double scale)
+extern "C" unsigned rtsp_fast(const void* handle, double scale)
 {
     RTSPClient* client = (RTSPClient*)handle;
     StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
@@ -439,12 +439,12 @@ extern "C" unsigned fast(const void* handle, double scale)
     return client->sendPlayCommand(*scs.session, continueAfterPLAY, 0.0f, -1.0f, scale);
 }
 
-extern "C" unsigned slow(const void* handle, double scale)
+extern "C" unsigned rtsp_slow(const void* handle, double scale)
 {
-    return fast(handle, scale);
+    return rtsp_fast(handle, scale);
 }
 
-extern "C" unsigned stop(const void* handle)
+extern "C" unsigned rtsp_stop(const void* handle)
 {
     RTSPClient* client = (RTSPClient*)handle;
     StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
