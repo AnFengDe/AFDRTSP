@@ -56,7 +56,7 @@ const void* create_new(const char* url, int verbosity = 0, const char* appname =
  *
  * \return  the return value is equal zero means failure, otherwise is success.
  */
-unsigned play(const void* handle);
+unsigned rtsp_play(const void* handle);
 
 /**
  * \brief   Pause stream by handle create_new returned, this function will call method PAUSE
@@ -67,7 +67,7 @@ unsigned play(const void* handle);
  *
  * \return  the return value is equal zero means failure, otherwise is success.
  */
-unsigned pause(const void* handle);
+unsigned rtsp_pause(const void* handle);
 
 /**
  * \brief   Resume stream by handle create_new returned and play time, this function will call 
@@ -80,7 +80,7 @@ unsigned pause(const void* handle);
  *
  * \return  the return value is equal zero means failure, otherwise is success.
  */
-unsigned resume(const void* handle, double npt);
+unsigned rtsp_resume(const void* handle, double npt);
 
 /**
  * \brief   Resume stream by handle create_new returned and play time, this function will call 
@@ -93,13 +93,13 @@ unsigned resume(const void* handle, double npt);
  *
  * \return  the return value is equal zero means failure, otherwise is success.
  */
-unsigned seek(const void* handle, double npt);
+unsigned rtsp_seek(const void* handle, double npt);
 
-unsigned fast(const void* handle, double scale);
+unsigned rtsp_fast(const void* handle, double scale);
 
-unsigned slow(const void* handle, double scale);
+unsigned rtsp_slow(const void* handle, double scale);
 
-unsigned stop(const void* handle);
+unsigned rtsp_stop(const void* handle);
 
 #ifdef __cplusplus
 }
