@@ -44,20 +44,10 @@ void STD_CALLBACK handle_Play(unsigned OurSessionId, float &scale, double &range
     rangeEnd=2000.00;
 }
 
-void STD_CALLBACK handle_Setup(unsigned int OurSessionId,unsigned long &clientAddress,unsigned short &clientRTPPort,unsigned short &clientRTCPPort,int &tcpSocketNum,unsigned char &rtpChannelId,unsigned char &rtcpChannelId,unsigned char&destinationTTL,unsigned &isMulticast, void* streamToken,char const* filename,char* destAddrIp,unsigned short &serverRTPPort, unsigned short &serverRTCPPort)
+void STD_CALLBACK handle_Setup(unsigned int sessionid, const char* url, unsigned short *rtp_server_port)
 {
-		clientAddress=16777343;
-		clientRTPPort=56635;
-		clientRTCPPort=56634;
-		tcpSocketNum=-1;
-		rtpChannelId=255;
-		rtcpChannelId=255;
-		destinationTTL=255;
-		isMulticast=0; 
-		serverRTPPort=6971;
-		serverRTCPPort=6970;
-		
-		int test=0;
+    //set rtp server port
+    *rtp_server_port = 20000;
 }
 
 int main()

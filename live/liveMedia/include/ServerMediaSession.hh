@@ -115,7 +115,6 @@ public:
 
   unsigned trackNumber() const { return fTrackNumber; }
   char const* trackId();
-  //char const* sdpLines(){return NULL;}
   void getStreamParameters(unsigned clientSessionId, // in
                                    netAddressBits clientAddress, // in
                                    Port const& clientRTPPort, // in
@@ -127,7 +126,7 @@ public:
                                    Boolean& isMulticast, // out
                                    Port& serverRTPPort, // out
                                    void*& streamToken // out
-                                   ){};
+                                   );
   void startStream(unsigned clientSessionId, void* streamToken,
                            TaskFunc* rtcpRRHandler,
                            void* rtcpRRHandlerClientData,

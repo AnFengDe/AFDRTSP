@@ -362,6 +362,22 @@ ServerMediaSubsession::ServerMediaSubsession(UsageEnvironment& env)
 {
 }
 
+void ServerMediaSubsession::getStreamParameters(unsigned clientSessionId,       // in
+                                                netAddressBits clientAddress,   // in
+                                                Port const& clientRTPPort,      // in
+                                                int tcpSocketNum,               // in (-1 means use UDP, not TCP)
+                                                unsigned char rtpChannelId,     // in (used if TCP)
+                                                unsigned char rtcpChannelId,    // in (used if TCP)
+                                                netAddressBits& destinationAddress, // in out
+                                                u_int8_t& destinationTTL,       // in out
+                                                Boolean& isMulticast,           // out
+                                                Port& serverRTPPort,            // out
+                                                void*& streamToken              // out
+                                               )
+{
+    if (destinationAddress == 0) destinationAddress = clientAddress;
+}
+
 ServerMediaSubsession::~ServerMediaSubsession() 
 {
     delete[] (char*)fTrackId;

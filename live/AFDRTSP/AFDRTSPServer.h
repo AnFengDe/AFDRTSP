@@ -34,7 +34,7 @@ extern "C" {
 */
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc, float* duration);
-typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned int OurSessionId,unsigned long &clientAddress,unsigned short &clientRTPPort,unsigned short &clientRTCPPort,int &tcpSocketNum,unsigned char &rtpChannelId,unsigned char &rtcpChannelId,unsigned char&destinationTTL,unsigned &isMulticast, void* streamToken,char const* filename,char* destAddrIp,unsigned short &serverRTPPort, unsigned short &serverRTCPPort);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned int sessionid, const char* url, unsigned short *rtp_server_port);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(unsigned OurSessionId,int &ret);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(unsigned OurSessionId,int &ret);
