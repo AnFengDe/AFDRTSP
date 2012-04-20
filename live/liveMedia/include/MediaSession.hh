@@ -74,12 +74,6 @@ public:
   char* sessionDescription() const { return fSessionDescription; }
   char const* controlPath() const { return fControlPath; }
 
-  Boolean initiateByMediaType(char const* mimeType,
-                              MediaSubsession*& resultSubsession,
-                              int useSpecialRTPoffset = -1);
-      // Initiates the first subsession with the specified MIME type
-      // Returns the resulting subsession, or 'multi source' (not both)
-
 protected: // redefined virtual functions
   virtual Boolean isMediaSession() const;
 
@@ -171,7 +165,7 @@ public:
   double& _playStartTime() { return fPlayStartTime; }
   double& _playEndTime() { return fPlayEndTime; }
 
-  Boolean initiate(int useSpecialRTPoffset = -1);
+  Boolean initiate();
       // Creates a "TPSource" for this subsession. (Has no effect if it's
       // already been created.)  Returns True iff this succeeds.
   void deInitiate(); // Destroys any previously created TPSource
@@ -266,9 +260,6 @@ protected:
   Boolean parseSDPAttribute_x_dimensions(char const* sdpLine);
   Boolean parseSDPAttribute_framerate(char const* sdpLine);
 
-  virtual Boolean createSourceObjects(int useSpecialRTPoffset);
-    // create "fTPSource" and "fReadSource" member objects, after we've been initialized via SDP
-
 protected:
   // Linkage fields:
   MediaSession& fParent;
@@ -308,9 +299,6 @@ protected:
      // optionally set by "a=rtpmap:" lines for audio sessions.  Default: 1
   float fScale; // set from a RTSP "Scale:" header
   double fNPT_PTS_Offset; // set by "getNormalPlayTime()"; add this to a PTS to get NPT
-
-  // Fields set by initiate():
-  Groupsock* fRTPSocket; Groupsock* fRTCPSocket; // works even for unicast
 
   // Other fields:
   char* fSessionId; // used by RTSP

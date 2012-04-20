@@ -167,19 +167,13 @@ void setupNextSubsession(RTSPClient* rtspClient)
     scs.subsession = scs.iter->next();
     if (scs.subsession != NULL) 
     {
-        if (!scs.subsession->initiate()) 
-        {
-            env << rtspClient->url() << ": Failed to initiate the \"" << scs.subsession->mediumName() << "\" subsession: " << env.getResultMsg() << "\n";
-            setupNextSubsession(rtspClient); // give up on this subsession; go to the next one
-        } 
-        else 
-        {
-            env << rtspClient->url() << ": Initiated the \"" << scs.subsession->mediumName()
-	            << "\" subsession (client ports " << scs.subsession->clientPortNum() << "-" << scs.subsession->clientPortNum()+1 << ")\n";
+        scs.subsession->setClientPortNum(10000); //TODO:need parameter
+        env << rtspClient->url() << ": Initiated the \"" << scs.subsession->mediumName()
+            << "\" subsession (client ports " << scs.subsession->clientPortNum() << "-" << scs.subsession->clientPortNum()+1 << ")\n";
 
-            // Continue setting up this subsession, by sending a RTSP "SETUP" command:
-            rtspClient->sendSetupCommand(*scs.subsession, continueAfterSETUP);
-        }
+        // Continue setting up this subsession, by sending a RTSP "SETUP" command:
+        rtspClient->sendSetupCommand(*scs.subsession, continueAfterSETUP);
+
         return;
     }
 
