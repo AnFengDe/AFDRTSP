@@ -138,17 +138,18 @@ unsigned RTSPClient::sendGetParameterCommand(MediaSession& session, responseHand
   return result;
 }
 
-Boolean RTSPClient::changeResponseHandler(unsigned cseq, responseHandler* newResponseHandler) { 
-  // Look for the matching request record in each of our 'pending requests' queues:
-  RequestRecord* request;
-  if ((request = fRequestsAwaitingConnection.findByCSeq(cseq)) != NULL
-      || (request = fRequestsAwaitingHTTPTunneling.findByCSeq(cseq)) != NULL
-      || (request = fRequestsAwaitingResponse.findByCSeq(cseq)) != NULL) {
-    request->handler() = newResponseHandler;
-    return True;
-  }
+Boolean RTSPClient::changeResponseHandler(unsigned cseq, responseHandler* newResponseHandler) 
+{ 
+    // Look for the matching request record in each of our 'pending requests' queues:
+    RequestRecord* request;
+    if ((request = fRequestsAwaitingConnection.findByCSeq(cseq)) != NULL
+        || (request = fRequestsAwaitingResponse.findByCSeq(cseq)) != NULL) 
+    {
+        request->handler() = newResponseHandler;
+        return True;
+    }
 
-  return False;
+    return False;
 }
 
 Boolean RTSPClient::lookupByName(UsageEnvironment& env,
@@ -284,29 +285,32 @@ RTSPClient::RTSPClient(UsageEnvironment& env, char const* rtspURL,
   : Medium(env),
     fVerbosityLevel(verbosityLevel), 
     fUserAgentHeaderStr(NULL), fUserAgentHeaderStrLen(0), fInputSocketNum(-1), fOutputSocketNum(-1), fServerAddress(0), fCSeq(1),
-    fBaseURL(NULL), fTCPStreamIdCount(0), fLastSessionId(NULL), fSessionTimeoutParameter(0),
-    fHTTPTunnelingConnectionIsPending(False) {
-  setBaseURL(rtspURL);
+    fBaseURL(NULL), fTCPStreamIdCount(0), fLastSessionId(NULL), fSessionTimeoutParameter(0)
+{
+    setBaseURL(rtspURL);
 
-  fResponseBuffer = new char[responseBufferSize+1];
-  resetResponseBuffer();
+    fResponseBuffer = new char[responseBufferSize+1];
+    resetResponseBuffer();
 
-  // Set the "User-Agent:" header to use in each request:
-  char const* const libName = "AnFengDe Streaming Media v";
-  char const* const libVersionStr = LIVEMEDIA_LIBRARY_VERSION_STRING;
-  char const* libPrefix; char const* libSuffix;
-  if (applicationName == NULL || applicationName[0] == '\0') {
-    applicationName = libPrefix = libSuffix = "";
-  } else {
-    libPrefix = " (";
-    libSuffix = ")";
-  }
-  unsigned userAgentNameSize
-    = strlen(applicationName) + strlen(libPrefix) + strlen(libName) + strlen(libVersionStr) + strlen(libSuffix) + 1;
-  char* userAgentName = new char[userAgentNameSize];
-  sprintf(userAgentName, "%s%s%s%s%s", applicationName, libPrefix, libName, libVersionStr, libSuffix);
-  setUserAgentString(userAgentName);
-  delete[] userAgentName;
+    // Set the "User-Agent:" header to use in each request:
+    char const* const libName = "AnFengDe Streaming Media v";
+    char const* const libVersionStr = LIVEMEDIA_LIBRARY_VERSION_STRING;
+    char const* libPrefix; char const* libSuffix;
+    if (applicationName == NULL || applicationName[0] == '\0') 
+    {
+        applicationName = libPrefix = libSuffix = "";
+    } 
+    else 
+    {
+        libPrefix = " (";
+        libSuffix = ")";
+    }
+    unsigned userAgentNameSize
+        = strlen(applicationName) + strlen(libPrefix) + strlen(libName) + strlen(libVersionStr) + strlen(libSuffix) + 1;
+    char* userAgentName = new char[userAgentNameSize];
+    sprintf(userAgentName, "%s%s%s%s%s", applicationName, libPrefix, libName, libVersionStr, libSuffix);
+    setUserAgentString(userAgentName);
+    delete[] userAgentName;
 }
 
 RTSPClient::~RTSPClient() {
@@ -629,29 +633,6 @@ unsigned RTSPClient::sendRequest(RequestRecord* request)
             sprintf(extraHeaders, "%s%s", transportStr, sessionStr);
             delete[] transportStr; delete[] sessionStr;
         } 
-        else if ( strcmp(request->commandName(), "GET") == 0 || 
-                strcmp(request->commandName(), "POST") == 0) 
-        {
-            // We will be sending a HTTP (not a RTSP) request.
-            // Begin by re-parsing our RTSP URL, just to get the stream name, which we'll use as our 'cmdURL' in the subsequent request:
-            char* username;
-            char* password;
-            NetAddress destAddress;
-            portNumBits urlPortNum;
-            if (!parseRTSPURL(envir(), fBaseURL, username, password, destAddress, urlPortNum, (char const**)&cmdURL)) break;
-            if (cmdURL[0] == '\0') cmdURL = (char*)"/";
-            delete[] username;
-            delete[] password;
-
-            protocolStr = "HTTP/1.0";
-
-            if (strcmp(request->commandName(), "GET") == 0) 
-            {
-            } 
-            else 
-            { // "POST"
-            }
-        } 
         else 
         { // "PLAY", "PAUSE", "TEARDOWN", "RECORD", "SET_PARAMETER", "GET_PARAMETER"
             // First, make sure that we have a RTSP session in progress
@@ -776,10 +757,12 @@ void RTSPClient::handleRequestError(RequestRecord* request) {
   if (request->handler() != NULL) (*request->handler())(this, resultCode, strDup(envir().getResultMsg()));
 }
 
-Boolean RTSPClient
-::parseResponseCode(char const* line, unsigned& responseCode, char const*& responseString) {
-  if (sscanf(line, "RTSP/%*s%u", &responseCode) != 1 &&
-      sscanf(line, "HTTP/%*s%u", &responseCode) != 1) return False;
+Boolean RTSPClient::parseResponseCode(char const* line, 
+                                      unsigned& responseCode, 
+                                      char const*& responseString) 
+{
+    if (sscanf(line, "RTSP/%*s%u", &responseCode) != 1) 
+        return False;
   // Note: We check for HTTP responses as well as RTSP responses, both in order to setup RTSP-over-HTTP tunneling,
   // and so that we get back a meaningful error if the client tried to mistakenly send a RTSP command to a HTTP-only server.
 
@@ -1185,47 +1168,53 @@ void RTSPClient::connectionHandler(void* instance, int /*mask*/) {
   client->connectionHandler1();
 }
 
-void RTSPClient::connectionHandler1() {
-  // Restore normal handling on our sockets:
-  envir().taskScheduler().disableBackgroundHandling(fOutputSocketNum);
-  envir().taskScheduler().setBackgroundHandling(fInputSocketNum, SOCKET_READABLE,
-                                                (TaskScheduler::BackgroundHandlerProc*)&incomingDataHandler, this);
+void RTSPClient::connectionHandler1() 
+{
+    // Restore normal handling on our sockets:
+    envir().taskScheduler().disableBackgroundHandling(fOutputSocketNum);
+    envir().taskScheduler().setBackgroundHandling(fInputSocketNum, SOCKET_READABLE,
+                                                 (TaskScheduler::BackgroundHandlerProc*)&incomingDataHandler, 
+                                                 this);
 
-  // Move all requests awaiting connection into a new, temporary queue, to clear "fRequestsAwaitingConnection"
-  // (so that "sendRequest()" doesn't get confused by "fRequestsAwaitingConnection" being nonempty, and enqueue them all over again).
-  RequestQueue tmpRequestQueue;
-  RequestRecord* request;
-  while ((request = fRequestsAwaitingConnection.dequeue()) != NULL) {
-    tmpRequestQueue.enqueue(request);
-  }
-
-  // Find out whether the connection succeeded or failed:
-  do {
-    int err = 0;
-    SOCKLEN_T len = sizeof err;
-    if (getsockopt(fInputSocketNum, SOL_SOCKET, SO_ERROR, (char*)&err, &len) < 0 || err != 0) {
-      envir().setResultErrMsg("Connection to server failed: ", err);
-      if (fVerbosityLevel >= 1) envir() << "..." << envir().getResultMsg() << "\n";
-      break;
+    // Move all requests awaiting connection into a new, temporary queue, to clear "fRequestsAwaitingConnection"
+    // (so that "sendRequest()" doesn't get confused by "fRequestsAwaitingConnection" being nonempty, and enqueue them all over again).
+    RequestQueue tmpRequestQueue;
+    RequestRecord* request;
+    while ((request = fRequestsAwaitingConnection.dequeue()) != NULL) 
+    {
+        tmpRequestQueue.enqueue(request);
     }
 
-    // The connection succeeded.  If the connection came about from an attempt to set up RTSP-over-HTTP, finish this now:
-    if (fVerbosityLevel >= 1) envir() << "...remote connection opened\n";
-    if (fHTTPTunnelingConnectionIsPending) break;
+    // Find out whether the connection succeeded or failed:
+    do 
+    {
+        int err = 0;
+        SOCKLEN_T len = sizeof err;
+        if (getsockopt(fInputSocketNum, SOL_SOCKET, SO_ERROR, (char*)&err, &len) < 0 || err != 0) 
+        {
+            envir().setResultErrMsg("Connection to server failed: ", err);
+            if (fVerbosityLevel >= 1) envir() << "..." << envir().getResultMsg() << "\n";
+            break;
+        }
 
-    // Resume sending all pending requests:
-    while ((request = tmpRequestQueue.dequeue()) != NULL) {
-      sendRequest(request);
+        // The connection succeeded.  If the connection came about from an attempt to set up RTSP-over-HTTP, finish this now:
+        if (fVerbosityLevel >= 1) envir() << "...remote connection opened\n";
+
+        // Resume sending all pending requests:
+        while ((request = tmpRequestQueue.dequeue()) != NULL) 
+        {
+            sendRequest(request);
+        }
+        return;
+    } while (0);
+
+    // An error occurred.  Tell all pending requests about the error:
+    while ((request = tmpRequestQueue.dequeue()) != NULL) 
+    {
+        handleRequestError(request);
+        delete request;
     }
-    return;
-  } while (0);
-
-  // An error occurred.  Tell all pending requests about the error:
-  while ((request = tmpRequestQueue.dequeue()) != NULL) {
-    handleRequestError(request);
-    delete request;
-  }
-  resetTCPSockets();
+    resetTCPSockets();
 }
 
 void RTSPClient::incomingDataHandler(void* instance, int /*mask*/) 

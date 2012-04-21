@@ -248,11 +248,6 @@ private:
                               char const*& separator,
                               char const*& suffix);
 
-  // Support for tunneling RTSP-over-HTTP:
-  Boolean setupHTTPTunneling1(); // send the HTTP "GET"
-  static void responseHandlerForHTTP_GET(RTSPClient* rtspClient, int responseCode, char* responseString);
-  void responseHandlerForHTTP_GET1(int responseCode, char* responseString);
-
   // Support for asynchronous connections to the server:
   static void connectionHandler(void*, int /*mask*/);
   void connectionHandler1();
@@ -276,9 +271,7 @@ private:
   unsigned fSessionTimeoutParameter; // optionally set in response "Session:" headers
   char* fResponseBuffer;
   unsigned fResponseBytesAlreadySeen, fResponseBufferBytesLeft;
-  RequestQueue fRequestsAwaitingConnection, fRequestsAwaitingHTTPTunneling, fRequestsAwaitingResponse;
-
-  Boolean fHTTPTunnelingConnectionIsPending;
+  RequestQueue fRequestsAwaitingConnection, fRequestsAwaitingResponse;
 
 #ifdef RTSPCLIENT_SYNCHRONOUS_INTERFACE
   // Old "RTSPClient" interface, which performs synchronous (blocking) operations.
