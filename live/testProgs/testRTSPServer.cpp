@@ -41,21 +41,34 @@ void STD_CALLBACK handle_Describe(int *ret, const char* url, char* sdp_desc, flo
     strcpy(sdp_desc, sdp);
 }
 
-void STD_CALLBACK handle_Pause(unsigned OurSessionId,int &ret)
+/*! \brief process RTSP PAUSE command function 
+    \param sessionid the server rtsp session id, the unique number for session
+*/
+void STD_CALLBACK handle_Pause(const unsigned sessionid)
 {
-    ret = 1;
+    //put pause process code here
 }
 
-void STD_CALLBACK handle_Teardown(unsigned OurSessionId,int &ret)
+/*! \brief process RTSP TEARDOWN command function 
+    \param sessionid the server rtsp session id, the unique number for session
+*/
+void STD_CALLBACK handle_Teardown(const unsigned sessionid)
 {
-    ret = 1;   
+    //put teardown code here
 }
 
-void STD_CALLBACK handle_Play(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd)
+/*! \brief process RTSP SETUP command function 
+    \param sessionid the server rtsp session id, the unique number for session
+    \param url the media file url 
+    \param rtp_client_port the rtp client port, this value for rtp server,
+           and as defalut, the rtcp port is follow this
+    \param rtp_server_port the rtcp server port, this value must be set in callback function
+*/
+void STD_CALLBACK handle_Play(const unsigned sessionid, 
+                              const float scale, 
+                              const double rangeStart, 
+                              const double rangeEnd)
 {
-    scale=1.00;
-    rangeStart=0.00;
-    rangeEnd=2000.00;
 }
 
 /*! \brief process RTSP SETUP command function 

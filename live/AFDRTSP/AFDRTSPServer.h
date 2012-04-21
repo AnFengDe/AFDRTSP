@@ -35,9 +35,9 @@ extern "C" {
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, const char* url, char* sdp_desc, float* duration);
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(const unsigned sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
-typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd);
-typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(unsigned OurSessionId,int &ret);
-typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(unsigned OurSessionId,int &ret);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(const unsigned sessionid, const float scale, const double rangeStart, const double rangeEnd);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(const unsigned sessionid);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(const unsigned sessionid);
 
 ///handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
@@ -65,10 +65,13 @@ bool server_init();
  */
 bool server_cleanup();
 
+/**
+ * \brief   start up rtsp server
+ * \param pstCallback   callback function pointer
+ * \param listen_port   the server listen port
+ * \return  return true while success, otherwise is false
+ */
 bool run_rtsp_srv(st_Handle_Cmd_Callback* pstCallback, unsigned short listen_port);
-
-bool add_server_media_session();
-bool remove_server_media_session();
 
 #ifdef __cplusplus
 }

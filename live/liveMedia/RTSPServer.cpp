@@ -1217,35 +1217,48 @@ void RTSPServer::RTSPClientSession::handleCmd_withinSession(char const* cmdName,
 }
 
 void RTSPServer::RTSPClientSession
-::handleCmd_TEARDOWN(ServerMediaSubsession* /*subsession*/, char const* cseq) {
-  snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+::handleCmd_TEARDOWN(ServerMediaSubsession* subsession, char const* cseq) 
+{
+    if (NULL == g_pstCallback || NULL == g_pstCallback->pause)
+    {
+    }
+    else
+    {
+        g_pstCallback->teardown(fOurSessionId);
+    }
+    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
            "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%s\r\n",
            cseq, dateHeader());
-  fSessionIsActive = False; // triggers deletion of ourself after responding
+    fSessionIsActive = False; // triggers deletion of ourself after responding
 }
 
-static Boolean parseScaleHeader(char const* buf, float& scale) {
-  // Initialize the result parameter to a default value:
-  scale = 1.0;
+static Boolean parseScaleHeader(char const* buf, float& scale) 
+{
+    // Initialize the result parameter to a default value:
+    scale = 1.0;
 
-  // First, find "Scale:"
-  while (1) {
-    if (*buf == '\0') return False; // not found
-    if (_strncasecmp(buf, "Scale: ", 7) == 0) break;
-    ++buf;
-  }
+    // First, find "Scale:"
+    while (1) 
+    {
+        if (*buf == '\0') return False; // not found
+        if (_strncasecmp(buf, "Scale: ", 7) == 0) break;
+        ++buf;
+    }
 
-  // Then, run through each of the fields, looking for ones we handle:
-  char const* fields = buf + 7;
-  while (*fields == ' ') ++fields;
-  float sc;
-  if (sscanf(fields, "%f", &sc) == 1) {
-    scale = sc;
-  } else {
-    return False; // The header is malformed
-  }
+    // Then, run through each of the fields, looking for ones we handle:
+    char const* fields = buf + 7;
+    while (*fields == ' ') ++fields;
+    float sc;
+    if (sscanf(fields, "%f", &sc) == 1) 
+    {
+        scale = sc;
+    } 
+    else 
+    {
+        return False; // The header is malformed
+    }
 
-  return True;
+    return True;
 }
 
 void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subsession, 
@@ -1368,7 +1381,7 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
     else
     {
         //callback for play
-        g_pstCallback->play(fOurSessionId,scale,rangeStart, rangeEnd);
+        g_pstCallback->play(fOurSessionId, scale, rangeStart, rangeEnd);
     }
   
     // Fill in the response:
@@ -1392,29 +1405,28 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
 }
 
 void RTSPServer::RTSPClientSession
-  ::handleCmd_PAUSE(ServerMediaSubsession* subsession, char const* cseq) {
-  
-if (NULL == g_pstCallback || NULL == g_pstCallback->pause)
- {
-for (unsigned i = 0; i < fNumStreamStates; ++i) {
-    if (subsession == NULL /* means: aggregated operation */
-        || subsession == fStreamStates[i].subsession) {
-      fStreamStates[i].subsession->pauseStream(fOurSessionId,
-                                               fStreamStates[i].streamToken);
+  ::handleCmd_PAUSE(ServerMediaSubsession* subsession, char const* cseq) 
+{
+    if (NULL == g_pstCallback || NULL == g_pstCallback->pause)
+    {
+        for (unsigned i = 0; i < fNumStreamStates; ++i) 
+        {
+            if (subsession == NULL /* means: aggregated operation */
+                || subsession == fStreamStates[i].subsession) 
+            {
+                fStreamStates[i].subsession->pauseStream(fOurSessionId,
+                                                        fStreamStates[i].streamToken);
+            }
+        }
     }
-  }
- 
-  }
- else{
-      //callback for pause
-     int ret=0;
-     g_pstCallback->pause(fOurSessionId,ret);
-
-
-      }
-  snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-           "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sSession: %08X\r\n\r\n",
-           cseq, dateHeader(), fOurSessionId);
+    else
+    {
+        //callback for pause
+        g_pstCallback->pause(fOurSessionId);
+    }
+    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+                "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sSession: %08X\r\n\r\n",
+                cseq, dateHeader(), fOurSessionId);
 }
 
 void RTSPServer::RTSPClientSession

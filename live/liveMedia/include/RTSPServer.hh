@@ -43,11 +43,11 @@ extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, c
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(const unsigned sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(const unsigned sessionid, const float scale, const double rangeStart, const double rangeEnd);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(unsigned OurSessionId,int &ret);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(const unsigned sessionid);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(unsigned OurSessionId,int &ret);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(const unsigned sessionid);
 
 //handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
