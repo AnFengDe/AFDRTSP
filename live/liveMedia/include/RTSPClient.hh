@@ -37,9 +37,7 @@ class RTSPClient: public Medium {
 public:
   static RTSPClient* createNew(UsageEnvironment& env, char const* rtspURL,
                                int verbosityLevel = 0,
-                               char const* applicationName = NULL,
-                               portNumBits tunnelOverHTTPPortNum = 0);
-  // If "tunnelOverHTTPPortNum" is non-zero, we tunnel RTSP (and RTP)
+                               char const* applicationName = NULL);
   // over a HTTP connection with the given port number, using the technique
   // described in Apple's document <http://developer.apple.com/documentation/QuickTime/QTSS/Concepts/chapter_2_section_14.html>
 
@@ -159,7 +157,7 @@ public:
 
 protected:
   RTSPClient(UsageEnvironment& env, char const* rtspURL,
-             int verbosityLevel, char const* applicationName, portNumBits tunnelOverHTTPPortNum);
+             int verbosityLevel, char const* applicationName);
       // called only by createNew();
   virtual ~RTSPClient();
 
@@ -254,7 +252,6 @@ private:
   Boolean setupHTTPTunneling1(); // send the HTTP "GET"
   static void responseHandlerForHTTP_GET(RTSPClient* rtspClient, int responseCode, char* responseString);
   void responseHandlerForHTTP_GET1(int responseCode, char* responseString);
-  Boolean setupHTTPTunneling2(); // send the HTTP "POST"
 
   // Support for asynchronous connections to the server:
   static void connectionHandler(void*, int /*mask*/);
@@ -267,7 +264,6 @@ private:
 
 private:
   int fVerbosityLevel;
-  portNumBits fTunnelOverHTTPPortNum;
   char* fUserAgentHeaderStr;
   unsigned fUserAgentHeaderStrLen;
   int fInputSocketNum, fOutputSocketNum;
@@ -282,9 +278,6 @@ private:
   unsigned fResponseBytesAlreadySeen, fResponseBufferBytesLeft;
   RequestQueue fRequestsAwaitingConnection, fRequestsAwaitingHTTPTunneling, fRequestsAwaitingResponse;
 
-  // Support for tunneling RTSP-over-HTTP:
-  char fSessionCookie[33];
-  unsigned fSessionCookieCounter;
   Boolean fHTTPTunnelingConnectionIsPending;
 
 #ifdef RTSPCLIENT_SYNCHRONOUS_INTERFACE
@@ -293,8 +286,7 @@ private:
 public:
   static RTSPClient* createNew(UsageEnvironment& env,
                                int verbosityLevel = 0,
-                               char const* applicationName = NULL,
-                               portNumBits tunnelOverHTTPPortNum = 0);
+                               char const* applicationName = NULL);
   char* describeURL(char const* url, Authenticator* authenticator = NULL,
                     Boolean allowKasennaProtocol = False, int timeout = -1);
   char* describeWithPassword(char const* url,

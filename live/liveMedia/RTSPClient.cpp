@@ -29,10 +29,10 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 RTSPClient* RTSPClient::createNew(UsageEnvironment& env, char const* rtspURL,
                                   int verbosityLevel,
-                                  char const* applicationName,
-                                  portNumBits tunnelOverHTTPPortNum) {
-  return new RTSPClient(env, rtspURL,
-                    verbosityLevel, applicationName, tunnelOverHTTPPortNum);
+                                  char const* applicationName) 
+{
+    return new RTSPClient(env, rtspURL,
+                            verbosityLevel, applicationName);
 }
 
 unsigned RTSPClient::sendDescribeCommand(responseHandler* responseHandler, Authenticator* authenticator) {
@@ -53,7 +53,7 @@ unsigned RTSPClient::sendAnnounceCommand(char const* sdpDescription, responseHan
 unsigned RTSPClient::sendSetupCommand(MediaSubsession& subsession, responseHandler* responseHandler,
                                       Boolean streamOutgoing, Boolean streamUsingTCP, Boolean forceMulticastOnUnspecified,
                                       Authenticator* authenticator) {
-  if (fTunnelOverHTTPPortNum != 0) streamUsingTCP = True; // RTSP-over-HTTP tunneling uses TCP (by definition)
+  //streamUsingTCP = True; // RTSP-over-HTTP tunneling uses TCP (by definition)
   if (authenticator != NULL) fCurrentAuthenticator = *authenticator;
 
   u_int32_t booleanFlags = 0;
@@ -280,13 +280,12 @@ void RTSPClient::setUserAgentString(char const* userAgentName) {
 unsigned RTSPClient::responseBufferSize = 20000; // default value; you can reassign this in your application if you need to
 
 RTSPClient::RTSPClient(UsageEnvironment& env, char const* rtspURL,
-                       int verbosityLevel, char const* applicationName,
-                       portNumBits tunnelOverHTTPPortNum)
+                       int verbosityLevel, char const* applicationName)
   : Medium(env),
-    fVerbosityLevel(verbosityLevel), fTunnelOverHTTPPortNum(tunnelOverHTTPPortNum),
+    fVerbosityLevel(verbosityLevel), 
     fUserAgentHeaderStr(NULL), fUserAgentHeaderStrLen(0), fInputSocketNum(-1), fOutputSocketNum(-1), fServerAddress(0), fCSeq(1),
     fBaseURL(NULL), fTCPStreamIdCount(0), fLastSessionId(NULL), fSessionTimeoutParameter(0),
-    fSessionCookieCounter(0), fHTTPTunnelingConnectionIsPending(False) {
+    fHTTPTunnelingConnectionIsPending(False) {
   setBaseURL(rtspURL);
 
   fResponseBuffer = new char[responseBufferSize+1];
@@ -364,7 +363,7 @@ int RTSPClient::openConnection() {
     portNumBits urlPortNum;
     char const* urlSuffix;
     if (!parseRTSPURL(envir(), fBaseURL, username, password, destAddress, urlPortNum, &urlSuffix)) break;
-    portNumBits destPortNum = fTunnelOverHTTPPortNum == 0 ? urlPortNum : fTunnelOverHTTPPortNum;
+    portNumBits destPortNum = urlPortNum;
     if (username != NULL || password != NULL) {
       fCurrentAuthenticator.setUsernameAndPassword(username, password);
       delete[] username;
@@ -523,16 +522,6 @@ unsigned RTSPClient::sendRequest(RequestRecord* request)
             return request->cseq();
         }
 
-        // If requested (and we're not already doing it, or have done it), set up the special protocol for tunneling RTSP-over-HTTP:
-        if (fTunnelOverHTTPPortNum != 0 && 
-            strcmp(request->commandName(), "GET") != 0 && 
-            fOutputSocketNum == fInputSocketNum) 
-        {
-            if (!setupHTTPTunneling1()) break;
-            fRequestsAwaitingHTTPTunneling.enqueue(request);
-            return request->cseq();
-        }
-
         // Construct and send the command:
 
         // First, construct command-specific headers that we need:
@@ -658,45 +647,9 @@ unsigned RTSPClient::sendRequest(RequestRecord* request)
 
             if (strcmp(request->commandName(), "GET") == 0) 
             {
-                // Create a 'session cookie' string, using MD5:
-                struct 
-                {
-                    struct timeval timestamp;
-                    unsigned counter;
-                } seedData;
-                gettimeofday(&seedData.timestamp, NULL);
-                seedData.counter = ++fSessionCookieCounter;
-                our_MD5Data((unsigned char*)(&seedData), sizeof seedData, fSessionCookie);
-                    // DSS seems to require that the 'session cookie' string be 22 bytes long:
-                fSessionCookie[23] = '\0';
-        
-                char const* const extraHeadersFmt =
-                      "x-sessioncookie: %s\r\n"
-                      "Accept: application/x-rtsp-tunnelled\r\n"
-                      "Pragma: no-cache\r\n"
-                      "Cache-Control: no-cache\r\n";
-                unsigned extraHeadersSize = strlen(extraHeadersFmt)
-                      + strlen(fSessionCookie);
-                extraHeaders = new char[extraHeadersSize];
-                extraHeadersWereAllocated = True;
-                sprintf(extraHeaders, extraHeadersFmt,
-                fSessionCookie);
             } 
             else 
             { // "POST"
-                char const* const extraHeadersFmt =
-                      "x-sessioncookie: %s\r\n"
-                      "Content-Type: application/x-rtsp-tunnelled\r\n"
-                      "Pragma: no-cache\r\n"
-                      "Cache-Control: no-cache\r\n"
-                      "Content-Length: 32767\r\n"
-                      "Expires: Sun, 9 Jan 1972 00:00:00 GMT\r\n";
-                unsigned extraHeadersSize = strlen(extraHeadersFmt)
-                      + strlen(fSessionCookie);
-                extraHeaders = new char[extraHeadersSize];
-                extraHeadersWereAllocated = True;
-                sprintf(extraHeaders, extraHeadersFmt,
-                        fSessionCookie);
             }
         } 
         else 
@@ -784,17 +737,6 @@ unsigned RTSPClient::sendRequest(RequestRecord* request)
         if (contentLengthHeaderWasAllocated) delete[] contentLengthHeader;
 
         if (fVerbosityLevel >= 1) envir() << "Sending request: " << cmd << "\n";
-
-        if (fTunnelOverHTTPPortNum != 0 && strcmp(request->commandName(), "GET") != 0 && 
-            strcmp(request->commandName(), "POST") != 0) 
-        {
-            // When we're tunneling RTSP-over-HTTP, we Base-64-encode the request before we send it.
-            // (However, we don't do this for the HTTP "GET" and "POST" commands that we use to set up the tunnel.)
-            char* origCmd = cmd;
-            cmd = base64Encode(origCmd, strlen(cmd));
-            if (fVerbosityLevel >= 1) envir() << "\tThe request was base-64 encoded to: " << cmd << "\n\n";
-            delete[] origCmd;
-        }
 
         if (send(fOutputSocketNum, cmd, strlen(cmd), 0) < 0) 
         {
@@ -1238,69 +1180,6 @@ void RTSPClient::constructSubsessionURL(MediaSubsession const& subsession,
   }
 }
 
-Boolean RTSPClient::setupHTTPTunneling1() {
-  // Set up RTSP-over-HTTP tunneling, as described in
-  //     http://developer.apple.com/quicktime/icefloe/dispatch028.html and http://images.apple.com/br/quicktime/pdf/QTSS_Modules.pdf
-  if (fVerbosityLevel >= 1) {
-    envir() << "Requesting RTSP-over-HTTP tunneling (on port " << fTunnelOverHTTPPortNum << ")\n\n";
-  }
-
-  // Begin by sending a HTTP "GET", to set up the server->client link.  Continue when we handle the response:
-  return sendRequest(new RequestRecord(1, "GET", responseHandlerForHTTP_GET)) != 0;
-}
-
-void RTSPClient::responseHandlerForHTTP_GET(RTSPClient* rtspClient, int responseCode, char* responseString) {
-  if (rtspClient != NULL) rtspClient->responseHandlerForHTTP_GET1(responseCode, responseString);
-}
-
-void RTSPClient::responseHandlerForHTTP_GET1(int responseCode, char* responseString) {
-  RequestRecord* request;
-  do {
-    if (responseCode != 0) break; // The HTTP "GET" failed.
-
-    // Having successfully set up (using the HTTP "GET" command) the server->client link, set up a second TCP connection
-    // (to the same server & port as before) for the client->server link.  All future output will be to this new socket.
-    fOutputSocketNum = setupStreamSocket(envir(), 0);
-    if (fOutputSocketNum < 0) break;
-
-    fHTTPTunnelingConnectionIsPending = True;
-    int connectResult = connectToServer(fOutputSocketNum, fTunnelOverHTTPPortNum);
-    if (connectResult < 0) break; // an error occurred
-    else if (connectResult == 0) {
-      // A connection is pending.  Continue setting up RTSP-over-HTTP when the connection completes.
-      // First, move the pending requests to the 'awaiting connection' queue:
-      while ((request = fRequestsAwaitingHTTPTunneling.dequeue()) != NULL) {
-    fRequestsAwaitingConnection.enqueue(request);
-      }
-      return;
-    }
-
-    // The connection succeeded.  Continue setting up RTSP-over-HTTP:
-    if (!setupHTTPTunneling2()) break;
-
-    // RTSP-over-HTTP tunneling succeeded.  Resume the pending request(s):
-    while ((request = fRequestsAwaitingHTTPTunneling.dequeue()) != NULL) {
-      sendRequest(request);
-    }
-    return;
-  } while (0);
-
-  // An error occurred.  Dequeue the pending request(s), and tell them about the error:
-  fHTTPTunnelingConnectionIsPending = False;
-  while ((request = fRequestsAwaitingHTTPTunneling.dequeue()) != NULL) {
-    handleRequestError(request);
-    delete request;
-  }
-  resetTCPSockets();
-}
-
-Boolean RTSPClient::setupHTTPTunneling2() {
-  fHTTPTunnelingConnectionIsPending = False;
-
-  // Send a HTTP "POST", to set up the client->server link.  (Note that we won't see a reply to the "POST".)
-  return sendRequest(new RequestRecord(1, "POST", NULL)) != 0;
-}
-
 void RTSPClient::connectionHandler(void* instance, int /*mask*/) {
   RTSPClient* client = (RTSPClient*)instance;
   client->connectionHandler1();
@@ -1332,7 +1211,7 @@ void RTSPClient::connectionHandler1() {
 
     // The connection succeeded.  If the connection came about from an attempt to set up RTSP-over-HTTP, finish this now:
     if (fVerbosityLevel >= 1) envir() << "...remote connection opened\n";
-    if (fHTTPTunnelingConnectionIsPending && !setupHTTPTunneling2()) break;
+    if (fHTTPTunnelingConnectionIsPending) break;
 
     // Resume sending all pending requests:
     while ((request = tmpRequestQueue.dequeue()) != NULL) {
@@ -1773,10 +1652,10 @@ RTSPClient::RequestRecord* RTSPClient::RequestQueue::findByCSeq(unsigned cseq) {
 // Implementation of the old (synchronous) "RTSPClient" interface, using the new (asynchronous) interface:
 RTSPClient* RTSPClient::createNew(UsageEnvironment& env,
                                   int verbosityLevel,
-                                  char const* applicationName,
-                                  portNumBits tunnelOverHTTPPortNum) {
-  return new RTSPClient(env, NULL,
-                    verbosityLevel, applicationName, tunnelOverHTTPPortNum);
+                                  char const* applicationName) 
+{
+    return new RTSPClient(  env, NULL,
+                            verbosityLevel, applicationName);
 }
 
 char* RTSPClient::describeURL(char const* url, Authenticator* authenticator,
