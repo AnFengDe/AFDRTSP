@@ -150,10 +150,6 @@ Boolean RTSPServer::setUpTunnelingOverHTTP(Port httpPort) {
   return False;
 }
 
-portNumBits RTSPServer::httpServerPortNum() const {
-  return ntohs(fHTTPServerPort.num());
-}
-
 #define LISTEN_BACKLOG_SIZE 20
 
 int RTSPServer::setUpOurSocket(UsageEnvironment& env, Port& ourPort) {
