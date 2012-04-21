@@ -142,8 +142,6 @@ Boolean RTSPServer::setUpTunnelingOverHTTP(Port httpPort) {
   fHTTPServerSocket = setUpOurSocket(envir(), httpPort);
   if (fHTTPServerSocket >= 0) {
     fHTTPServerPort = httpPort;
-    envir().taskScheduler().turnOnBackgroundReadHandling(fHTTPServerSocket,
-                                                         (TaskScheduler::BackgroundHandlerProc*)&incomingConnectionHandlerHTTP, this);
     return True;
   }
 
@@ -244,14 +242,6 @@ void RTSPServer::incomingConnectionHandlerRTSP(void* instance, int /*mask*/) {
 }
 void RTSPServer::incomingConnectionHandlerRTSP1() {
   incomingConnectionHandler(fRTSPServerSocket);
-}
-
-void RTSPServer::incomingConnectionHandlerHTTP(void* instance, int /*mask*/) {
-  RTSPServer* server = (RTSPServer*)instance;
-  server->incomingConnectionHandlerHTTP1();
-}
-void RTSPServer::incomingConnectionHandlerHTTP1() {
-  incomingConnectionHandler(fHTTPServerSocket);
 }
 
 void RTSPServer::incomingConnectionHandler(int serverSocket) {

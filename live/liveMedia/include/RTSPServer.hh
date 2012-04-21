@@ -259,9 +259,6 @@ private:
   static void incomingConnectionHandlerRTSP(void*, int /*mask*/);
   void incomingConnectionHandlerRTSP1();
 
-  static void incomingConnectionHandlerHTTP(void*, int /*mask*/);
-  void incomingConnectionHandlerHTTP1();
-
   void incomingConnectionHandler(int serverSocket);
 
 private:
