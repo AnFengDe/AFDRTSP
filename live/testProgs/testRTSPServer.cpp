@@ -58,17 +58,16 @@ void STD_CALLBACK handle_Teardown(const unsigned sessionid)
     //put teardown code here
 }
 
-/*! \brief process RTSP SETUP command function 
+/*! \brief process RTSP PLAY command function 
     \param sessionid the server rtsp session id, the unique number for session
-    \param url the media file url 
-    \param rtp_client_port the rtp client port, this value for rtp server,
-           and as defalut, the rtcp port is follow this
-    \param rtp_server_port the rtcp server port, this value must be set in callback function
+    \param scale the play speed ratio 
+    \param start meida play start npt
+    \param end meida play end npt
 */
 void STD_CALLBACK handle_Play(const unsigned sessionid, 
                               const float scale, 
-                              const double rangeStart, 
-                              const double rangeEnd)
+                              const double start, 
+                              const double end)
 {
 }
 
