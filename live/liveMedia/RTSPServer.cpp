@@ -1115,74 +1115,105 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(char const* cseq,
     delete[] destAddrStr; delete[] sourceAddrStr; delete[] streamingModeString;
 }
 
-void RTSPServer::RTSPClientSession
-::handleCmd_withinSession(char const* cmdName,
-                          char const* urlPreSuffix, char const* urlSuffix,
-                          char const* cseq, char const* fullRequestStr) {
-  // This will either be:
-  // - an operation on the entire server, if "urlPreSuffix" is "", and "urlSuffix" is "*" (i.e., the special "*" URL), or
-  // - a non-aggregated operation, if "urlPreSuffix" is the session (stream)
-  //   name and "urlSuffix" is the subsession (track) name, or
-  // - an aggregated operation, if "urlSuffix" is the session (stream) name,
-  //   or "urlPreSuffix" is the session (stream) name, and "urlSuffix" is empty,
-  //   or "urlPreSuffix" and "urlSuffix" are both nonempty, but when concatenated, (with "/") form the session (stream) name.
-  // Begin by figuring out which of these it is:
-  ServerMediaSubsession* subsession;
-  if (urlPreSuffix[0] == '\0' && urlSuffix[0] == '*' && urlSuffix[1] == '\0') {
-    // An operation on the entire server.  This works only for GET_PARAMETER and SET_PARAMETER:
-    if (strcmp(cmdName, "GET_PARAMETER") == 0) {
-      handleCmd_GET_PARAMETER(NULL, cseq, fullRequestStr);
-    } else if (strcmp(cmdName, "SET_PARAMETER") == 0) {
-      handleCmd_SET_PARAMETER(NULL, cseq, fullRequestStr);
-    } else {
-      handleCmd_notSupported(cseq);
+void RTSPServer::RTSPClientSession::handleCmd_withinSession(char const* cmdName,
+                                                            char const* urlPreSuffix, 
+                                                            char const* urlSuffix,
+                                                            char const* cseq, 
+                                                            char const* fullRequestStr) 
+{
+    // This will either be:
+    // - an operation on the entire server, if "urlPreSuffix" is "", and "urlSuffix" is "*" (i.e., the special "*" URL), or
+    // - a non-aggregated operation, if "urlPreSuffix" is the session (stream)
+    //   name and "urlSuffix" is the subsession (track) name, or
+    // - an aggregated operation, if "urlSuffix" is the session (stream) name,
+    //   or "urlPreSuffix" is the session (stream) name, and "urlSuffix" is empty,
+    //   or "urlPreSuffix" and "urlSuffix" are both nonempty, but when concatenated, (with "/") form the session (stream) name.
+    // Begin by figuring out which of these it is:
+    ServerMediaSubsession* subsession;
+    if (urlPreSuffix[0] == '\0' && urlSuffix[0] == '*' && urlSuffix[1] == '\0') 
+    {
+        // An operation on the entire server.  This works only for GET_PARAMETER and SET_PARAMETER:
+        if (strcmp(cmdName, "GET_PARAMETER") == 0) 
+        {
+            handleCmd_GET_PARAMETER(NULL, cseq, fullRequestStr);
+        } 
+        else if (strcmp(cmdName, "SET_PARAMETER") == 0) 
+        {
+            handleCmd_SET_PARAMETER(NULL, cseq, fullRequestStr);
+        } 
+        else 
+        {
+            handleCmd_notSupported(cseq);
+        }
+        return;
+    } 
+    else if (fOurServerMediaSession == NULL) 
+    { // There wasn't a previous SETUP!
+        handleCmd_notSupported(cseq);
+        return;
+    } 
+    else if (urlSuffix[0] != '\0' && strcmp(fOurServerMediaSession->streamName(), urlPreSuffix) == 0) 
+    {
+        // Non-aggregated operation.
+        // Look up the media subsession whose track id is "urlSuffix":
+        ServerMediaSubsessionIterator iter(*fOurServerMediaSession);
+        while ((subsession = iter.next()) != NULL) 
+        {
+            if (strcmp(subsession->trackId(), urlSuffix) == 0) break; // success
+        }
+        if (subsession == NULL) 
+        { // no such track!
+            handleCmd_notFound(cseq);
+            return;
+        }
+    } 
+    else if (strcmp(fOurServerMediaSession->streamName(), urlSuffix) == 0 ||
+             (urlSuffix[0] == '\0' && strcmp(fOurServerMediaSession->streamName(), urlPreSuffix) == 0)) 
+    {
+        // Aggregated operation
+        subsession = NULL;
+    } 
+    else if (urlPreSuffix[0] != '\0' && urlSuffix[0] != '\0') 
+    {
+        // Aggregated operation, if <urlPreSuffix>/<urlSuffix> is the session (stream) name:
+        unsigned const urlPreSuffixLen = strlen(urlPreSuffix);
+        if (strncmp(fOurServerMediaSession->streamName(), urlPreSuffix, urlPreSuffixLen) == 0 
+            && fOurServerMediaSession->streamName()[urlPreSuffixLen] == '/' 
+            && strcmp(&(fOurServerMediaSession->streamName())[urlPreSuffixLen+1], urlSuffix) == 0) 
+        {
+            subsession = NULL;
+        } 
+        else 
+        {
+            handleCmd_notFound(cseq);
+            return;
+        }
+    } 
+    else 
+    { // the request doesn't match a known stream and/or track at all!
+        handleCmd_notFound(cseq);
+        return;
     }
-    return;
-  } else if (fOurServerMediaSession == NULL) { // There wasn't a previous SETUP!
-    handleCmd_notSupported(cseq);
-    return;
-  } else if (urlSuffix[0] != '\0' && strcmp(fOurServerMediaSession->streamName(), urlPreSuffix) == 0) {
-    // Non-aggregated operation.
-    // Look up the media subsession whose track id is "urlSuffix":
-    ServerMediaSubsessionIterator iter(*fOurServerMediaSession);
-    while ((subsession = iter.next()) != NULL) {
-      if (strcmp(subsession->trackId(), urlSuffix) == 0) break; // success
-    }
-    if (subsession == NULL) { // no such track!
-      handleCmd_notFound(cseq);
-      return;
-    }
-  } else if (strcmp(fOurServerMediaSession->streamName(), urlSuffix) == 0 ||
-             (urlSuffix[0] == '\0' && strcmp(fOurServerMediaSession->streamName(), urlPreSuffix) == 0)) {
-    // Aggregated operation
-    subsession = NULL;
-  } else if (urlPreSuffix[0] != '\0' && urlSuffix[0] != '\0') {
-    // Aggregated operation, if <urlPreSuffix>/<urlSuffix> is the session (stream) name:
-    unsigned const urlPreSuffixLen = strlen(urlPreSuffix);
-    if (strncmp(fOurServerMediaSession->streamName(), urlPreSuffix, urlPreSuffixLen) == 0 &&
-    fOurServerMediaSession->streamName()[urlPreSuffixLen] == '/' &&
-    strcmp(&(fOurServerMediaSession->streamName())[urlPreSuffixLen+1], urlSuffix) == 0) {
-      subsession = NULL;
-    } else {
-      handleCmd_notFound(cseq);
-      return;
-    }
-  } else { // the request doesn't match a known stream and/or track at all!
-    handleCmd_notFound(cseq);
-    return;
-  }
 
-  if (strcmp(cmdName, "TEARDOWN") == 0) {
-    handleCmd_TEARDOWN(subsession, cseq);
-  } else if (strcmp(cmdName, "PLAY") == 0) {
-    handleCmd_PLAY(subsession, cseq, fullRequestStr);
-  } else if (strcmp(cmdName, "PAUSE") == 0) {
-    handleCmd_PAUSE(subsession, cseq);
-  } else if (strcmp(cmdName, "GET_PARAMETER") == 0) {
-    handleCmd_GET_PARAMETER(subsession, cseq, fullRequestStr);
-  } else if (strcmp(cmdName, "SET_PARAMETER") == 0) {
-    handleCmd_SET_PARAMETER(subsession, cseq, fullRequestStr);
-  }
+    if (strcmp(cmdName, "TEARDOWN") == 0) 
+    {
+        handleCmd_TEARDOWN(subsession, cseq);
+    } 
+    else if (strcmp(cmdName, "PLAY") == 0) 
+    {
+        handleCmd_PLAY(subsession, cseq, fullRequestStr);
+    } else if (strcmp(cmdName, "PAUSE") == 0) 
+    {
+        handleCmd_PAUSE(subsession, cseq);
+    } 
+    else if (strcmp(cmdName, "GET_PARAMETER") == 0) 
+    {
+        handleCmd_GET_PARAMETER(subsession, cseq, fullRequestStr);
+    } 
+    else if (strcmp(cmdName, "SET_PARAMETER") == 0) 
+    {
+        handleCmd_SET_PARAMETER(subsession, cseq, fullRequestStr);
+    }
 }
 
 void RTSPServer::RTSPClientSession
@@ -1217,135 +1248,147 @@ static Boolean parseScaleHeader(char const* buf, float& scale) {
   return True;
 }
 
-void RTSPServer::RTSPClientSession
-  ::handleCmd_PLAY(ServerMediaSubsession* subsession, char const* cseq,
-                   char const* fullRequestStr) {
-  char* rtspURL = fOurServer.rtspURL(fOurServerMediaSession, fClientInputSocket);
-  unsigned rtspURLSize = strlen(rtspURL);
+void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subsession, 
+                                                   char const* cseq,
+                                                   char const* fullRequestStr) 
+{
+    char* rtspURL = fOurServer.rtspURL(fOurServerMediaSession, fClientInputSocket);
+    unsigned rtspURLSize = strlen(rtspURL);
 
-  // Parse the client's "Scale:" header, if any:
-  float scale;
-  Boolean sawScaleHeader = parseScaleHeader(fullRequestStr, scale);
+    // Parse the client's "Scale:" header, if any:
+    float scale;
+    Boolean sawScaleHeader = parseScaleHeader(fullRequestStr, scale);
 
-  // Try to set the stream's scale factor to this value:
-  if (subsession == NULL /*aggregate op*/) {
-    fOurServerMediaSession->testScaleFactor(scale);
-  } else {
-    subsession->testScaleFactor(scale);
-  }
-
-  char buf[100];
-  char* scaleHeader;
-  if (!sawScaleHeader) {
-    buf[0] = '\0'; // Because we didn't see a Scale: header, don't send one back
-  } else {
-    sprintf(buf, "Scale: %f\r\n", scale);
-  }
-  scaleHeader = strDup(buf);
-
-  // Parse the client's "Range:" header, if any:
-  double rangeStart = 0.0, rangeEnd = 0.0;
-  Boolean sawRangeHeader = parseRangeHeader(fullRequestStr, rangeStart, rangeEnd);
-
-  // Use this information, plus the stream's duration (if known), to create
-  // our own "Range:" header, for the response:
-  float duration = subsession == NULL /*aggregate op*/
-    ? fOurServerMediaSession->duration() : subsession->duration();
-  if (duration < 0.0) {
-    // We're an aggregate PLAY, but the subsessions have different durations.
-    // Use the largest of these durations in our header
-    duration = -duration;
-  }
-
-  // Make sure that "rangeStart" and "rangeEnd" (from the client's "Range:" header) have sane values
-  // before we send back our own "Range:" header in our response:
-  if (rangeStart < 0.0) rangeStart = 0.0;
-  else if (rangeStart > duration) rangeStart = duration;
-  if (rangeEnd < 0.0) rangeEnd = 0.0;
-  else if (rangeEnd > duration) rangeEnd = duration;
-  if ((scale > 0.0 && rangeStart > rangeEnd && rangeEnd > 0.0) ||
-      (scale < 0.0 && rangeStart < rangeEnd)) {
-    // "rangeStart" and "rangeEnd" were the wrong way around; swap them:
-    double tmp = rangeStart;
-    rangeStart = rangeEnd;
-    rangeEnd = tmp;
-  }
-
-  // Create a "RTP-Info:" line.  It will get filled in from each subsession's state:
-  char const* rtpInfoFmt =
-    "%s" // "RTP-Info:", plus any preceding rtpInfo items
-    "%s" // comma separator, if needed
-    "url=%s/%s"
-    ";seq=%d"
-    ";rtptime=%u"
-    ;
-  unsigned rtpInfoFmtSize = strlen(rtpInfoFmt);
-  char* rtpInfo = strDup("RTP-Info: ");
-  unsigned i, numRTPInfoItems = 0;
-
-  // Do any required seeking/scaling on each subsession, before starting streaming:
-  for (i = 0; i < fNumStreamStates; ++i) {
-    if (subsession == NULL /* means: aggregated operation */
-        || subsession == fStreamStates[i].subsession) {
-      if (sawScaleHeader) {
-    fStreamStates[i].subsession->setStreamScale(fOurSessionId,
-                                                    fStreamStates[i].streamToken,
-                                                    scale);
-      }
-      if (sawRangeHeader) {
-    double streamDuration = 0.0; // by default; means: stream until the end of the media
-    if (rangeEnd > 0.0 && (rangeEnd+0.001) < duration) { // the 0.001 is because we limited the values to 3 decimal places
-          // We want the stream to end early.  Set the duration we want:
-          streamDuration = rangeEnd - rangeStart;
-          if (streamDuration < 0.0) streamDuration = -streamDuration; // should happen only if scale < 0.0
-        }
-    u_int64_t numBytes;
-    fStreamStates[i].subsession->seekStream(fOurSessionId,
-                                            fStreamStates[i].streamToken,
-                                            rangeStart, streamDuration, numBytes);
-      }
+    // Try to set the stream's scale factor to this value:
+    if (subsession == NULL /*aggregate op*/) 
+    {
+        fOurServerMediaSession->testScaleFactor(scale);
+    } 
+    else 
+    {
+        subsession->testScaleFactor(scale);
     }
-  }
+
+    char buf[100];
+    char* scaleHeader;
+    if (!sawScaleHeader) 
+    {
+        buf[0] = '\0'; // Because we didn't see a Scale: header, don't send one back
+    } 
+    else 
+    {
+        sprintf(buf, "Scale: %f\r\n", scale);
+    }
+    scaleHeader = strDup(buf);
+
+    // Parse the client's "Range:" header, if any:
+    double rangeStart = 0.0, rangeEnd = 0.0;
+    Boolean sawRangeHeader = parseRangeHeader(fullRequestStr, rangeStart, rangeEnd);
+
+    // Make sure that "rangeStart" and "rangeEnd" (from the client's "Range:" header) have sane values
+    // before we send back our own "Range:" header in our response:
+    if (rangeStart < 0.0) 
+        rangeStart = 0.0;
+    
+    if (rangeEnd < 0.0) 
+        rangeEnd = 0.0;
+    
+    if ((scale > 0.0 && rangeStart > rangeEnd && rangeEnd > 0.0) ||
+        (scale < 0.0 && rangeStart < rangeEnd)) 
+    {
+        // "rangeStart" and "rangeEnd" were the wrong way around; swap them:
+        double tmp = rangeStart;
+        rangeStart = rangeEnd;
+        rangeEnd = tmp;
+    }
+
+    // Create a "RTP-Info:" line.  It will get filled in from each subsession's state:
+    char const* rtpInfoFmt =
+                            "%s" // "RTP-Info:", plus any preceding rtpInfo items
+                            "%s" // comma separator, if needed
+                            "url=%s/%s"
+                            ";seq=%d"
+                            ";rtptime=%u"
+                            ;
+    unsigned rtpInfoFmtSize = strlen(rtpInfoFmt);
+    char* rtpInfo = strDup("RTP-Info: ");
+    unsigned i, numRTPInfoItems = 0;
+
+    // Do any required seeking/scaling on each subsession, before starting streaming:
+    for (i = 0; i < fNumStreamStates; ++i) 
+    {
+        if (subsession == NULL /* means: aggregated operation */
+            || subsession == fStreamStates[i].subsession) 
+        {
+            if (sawScaleHeader) 
+            {
+                fStreamStates[i].subsession->setStreamScale(fOurSessionId,
+                                                            fStreamStates[i].streamToken,
+                                                            scale);
+            }
+            if (sawRangeHeader) 
+            {
+                double streamDuration = 0.0; // by default; means: stream until the end of the media
+                if (rangeEnd > 0.0 && (rangeEnd+0.001) < 0) 
+                {   // the 0.001 is because we limited the values to 3 decimal places
+                    // We want the stream to end early.  Set the duration we want:
+                    streamDuration = rangeEnd - rangeStart;
+                    if (streamDuration < 0.0) streamDuration = -streamDuration; // should happen only if scale < 0.0
+                }
+                u_int64_t numBytes;
+                fStreamStates[i].subsession->seekStream(fOurSessionId,
+                                                        fStreamStates[i].streamToken,
+                                                        rangeStart, streamDuration, numBytes);
+            }
+        }
+    }
  
-  // Create the "Range:" header that we'll send back in our response.
-  // (Note that we do this after seeking, in case the seeking operation changed the range start time.)
-  char* rangeHeader;
-  if (!sawRangeHeader) {
-    buf[0] = '\0'; // Because we didn't see a Range: header, don't send one back
-  } else if (rangeEnd == 0.0 && scale >= 0.0) {
-    sprintf(buf, "Range: npt=%.3f-\r\n", rangeStart);
-  } else {
-    sprintf(buf, "Range: npt=%.3f-%.3f\r\n", rangeStart, rangeEnd);
-  }
-  rangeHeader = strDup(buf);
+    // Create the "Range:" header that we'll send back in our response.
+    // (Note that we do this after seeking, in case the seeking operation changed the range start time.)
+    char* rangeHeader;
+    if (!sawRangeHeader) 
+    {
+        buf[0] = '\0'; // Because we didn't see a Range: header, don't send one back
+    } 
+    else if (rangeEnd == 0.0 && scale >= 0.0) 
+    {
+        sprintf(buf, "Range: npt=%.3f-\r\n", rangeStart);
+    } 
+    else 
+    {
+        sprintf(buf, "Range: npt=%.3f-%.3f\r\n", rangeStart, rangeEnd);
+    }
+    rangeHeader = strDup(buf);
  
 
- if (NULL == g_pstCallback || NULL == g_pstCallback->setup)
- {
+    if (NULL == g_pstCallback || NULL == g_pstCallback->setup)
+    {
  
-  }
- else{
-      //callback for play
-g_pstCallback->play(fOurSessionId,scale,rangeStart, rangeEnd);
-      }
+    }
+    else
+    {
+        //callback for play
+        g_pstCallback->play(fOurSessionId,scale,rangeStart, rangeEnd);
+    }
   
-  // Fill in the response:
-  snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-           "RTSP/1.0 200 OK\r\n"
-           "CSeq: %s\r\n"
-           "%s"
-           "%s"
-           "%s"
-           "Session: %08X\r\n"
-           "%s\r\n",
-           cseq,
-           dateHeader(),
-           scaleHeader,
-           rangeHeader,
-           fOurSessionId,
-           rtpInfo);
-  delete[] rtpInfo; delete[] rangeHeader;
-  delete[] scaleHeader; delete[] rtspURL;
+    // Fill in the response:
+    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+               "RTSP/1.0 200 OK\r\n"
+               "CSeq: %s\r\n"
+               "%s"
+               "%s"
+               "%s"
+               "Session: %08X\r\n"
+               "%s\r\n",
+               cseq,
+               dateHeader(),
+               scaleHeader,
+               rangeHeader,
+               fOurSessionId,
+               rtpInfo);
+
+    delete[] rtpInfo; delete[] rangeHeader;
+    delete[] scaleHeader; delete[] rtspURL;
 }
 
 void RTSPServer::RTSPClientSession

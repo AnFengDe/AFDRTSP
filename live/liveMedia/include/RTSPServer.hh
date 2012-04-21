@@ -39,9 +39,9 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, char* url, char* sdp_desc, float* duration);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, const char* url, char* sdp_desc, float* duration);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(unsigned int sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(const unsigned sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd);
 
@@ -165,14 +165,18 @@ public: // should be protected, but some old compilers complain otherwise
     virtual void handleCmd_unsupportedTransport(char const* cseq);
     virtual void handleCmd_OPTIONS(char const* cseq);
     virtual void handleCmd_DESCRIBE(char const* cseq,
-                                    char const* urlPreSuffix, char const* urlSuffix,
+                                    char const* urlPreSuffix, 
+                                    char const* urlSuffix,
                                     char const* fullRequestStr);
     virtual void handleCmd_SETUP(char const* cseq,
-                                 char const* urlPreSuffix, char const* urlSuffix,
+                                 char const* urlPreSuffix, 
+                                 char const* urlSuffix,
                                  char const* fullRequestStr);
     virtual void handleCmd_withinSession(char const* cmdName,
-                                         char const* urlPreSuffix, char const* urlSuffix,
-                                         char const* cseq, char const* fullRequestStr);
+                                         char const* urlPreSuffix, 
+                                         char const* urlSuffix,
+                                         char const* cseq, 
+                                         char const* fullRequestStr);
     virtual void handleCmd_TEARDOWN(ServerMediaSubsession* subsession,
                                     char const* cseq);
     virtual void handleCmd_PLAY(ServerMediaSubsession* subsession,
