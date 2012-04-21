@@ -93,12 +93,12 @@ int main()
     st_Handle_Cmd_Callback cb;
     
     ::memset(&cb, 0x00, sizeof(cb));
-    cb.options = handle_Options;
+    cb.options  = handle_Options;
     cb.describe = handle_Describe;
-    cb.setup = handle_Setup; 
-    cb.play = handle_Play; 
-    cb.pause = handle_Pause; 
-    cb.teardown=handle_Teardown;
+    cb.setup    = handle_Setup; 
+    cb.play     = handle_Play; 
+    cb.pause    = handle_Pause; 
+    cb.teardown = handle_Teardown;
 
     if (false == server_init())
     {

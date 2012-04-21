@@ -24,7 +24,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _LIVEMEDIA_HH
 #define _LIVEMEDIA_HH
 
-#include "RTSPServerSupportingHTTPStreaming.hh"
+#include "RTSPServer.hh"
 #include "RTSPClient.hh"
 
 #endif
