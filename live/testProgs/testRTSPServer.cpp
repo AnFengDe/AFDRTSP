@@ -36,7 +36,8 @@ void STD_CALLBACK handle_Describe(int *ret, const char* url, char* sdp_desc, flo
                     "c=IN IP4 0.0.0.0\r\n"
                     "b=AS:500\r\n"
                     "a=rtpmap:96 H264/90000\r\n"
-                    "a=fmtp:96 packetization-mode=1;profile-level-id=4D001F;sprop-parameter-sets=J00AH9oBQBbsBVIAAAMAAgAAAwBkwIAAIAAAAwAQAA3vfC8IhGo=,KO48gA==\r\n"
+                    "a=fmtp:96 packetization-mode=1;profile-level-id=4D001F;"
+                    "sprop-parameter-sets=J00AH9oBQBbsBVIAAAMAAgAAAwBkwIAAIAAAAwAQAA3vfC8IhGo=,KO48gA==\r\n"
                     "a=control:track1\r\n"; 
     strcpy(sdp_desc, sdp);
 }

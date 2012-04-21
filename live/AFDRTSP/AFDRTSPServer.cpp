@@ -92,7 +92,7 @@ extern "C" bool server_cleanup()
     
     delete g_server_rt->server;
     delete_server_runtime();
-        
+
     return true;
 }
 
