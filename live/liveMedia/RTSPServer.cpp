@@ -174,12 +174,6 @@ int RTSPServer::setUpOurSocket(UsageEnvironment& env, Port& ourPort) {
   return -1;
 }
 
-Boolean RTSPServer
-::specialClientAccessCheck(int /*clientSocket*/, struct sockaddr_in& /*clientAddr*/, char const* /*urlSuffix*/) {
-  // default implementation
-  return True;
-}
-
 RTSPServer::RTSPServer(UsageEnvironment& env,
                        int ourSocket, Port ourPort,
                        UserAuthenticationDatabase* authDatabase,
@@ -541,10 +535,10 @@ void RTSPServer::RTSPClientSession::handleCmd_OPTIONS(char const* cseq)
     }
 }
 
-void RTSPServer::RTSPClientSession
-::handleCmd_DESCRIBE(char const* cseq,
-                     char const* urlPreSuffix, char const* urlSuffix,
-                     char const* fullRequestStr) 
+void RTSPServer::RTSPClientSession::handleCmd_DESCRIBE( char const* cseq,
+                                                        char const* urlPreSuffix, 
+                                                        char const* urlSuffix,
+                                                        char const* fullRequestStr) 
 {
     char* sdpDescription = NULL;
     char* miscSDP = NULL;
@@ -1400,70 +1394,63 @@ static Boolean parseAuthorizationHeader(char const* buf,
   return True;
 }
 
-Boolean RTSPServer::RTSPClientSession
-::authenticationOK(char const* cmdName, char const* cseq,
-                   char const* urlSuffix, char const* fullRequestStr) {
+Boolean RTSPServer::RTSPClientSession::authenticationOK(char const* cmdName, 
+                                                        char const* cseq,
+                                                        char const* urlSuffix, 
+                                                        char const* fullRequestStr) 
+{
+    // If we weren't set up with an authentication database, we're OK:
+    if (fOurServer.fAuthDB == NULL) return True;
 
-  if (!fOurServer.specialClientAccessCheck(fClientInputSocket, fClientAddr, urlSuffix)) {
-    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-             "RTSP/1.0 401 Unauthorized\r\n"
-             "CSeq: %s\r\n"
-             "%s"
-             "\r\n",
-             cseq, dateHeader());
-    return False;
-  }
+    char const* username = NULL; char const* realm = NULL; char const* nonce = NULL;
+    char const* uri = NULL; char const* response = NULL;
+    Boolean success = False;
 
-  // If we weren't set up with an authentication database, we're OK:
-  if (fOurServer.fAuthDB == NULL) return True;
+    do 
+    {
+        // To authenticate, we first need to have a nonce set up
+        // from a previous attempt:
+        if (fCurrentAuthenticator.nonce() == NULL) break;
 
-  char const* username = NULL; char const* realm = NULL; char const* nonce = NULL;
-  char const* uri = NULL; char const* response = NULL;
-  Boolean success = False;
+        // Next, the request needs to contain an "Authorization:" header,
+        // containing a username, (our) realm, (our) nonce, uri,
+        // and response string:
+        if (!parseAuthorizationHeader(fullRequestStr,
+                                      username, realm, nonce, uri, response)
+            || username == NULL
+            || realm == NULL || strcmp(realm, fCurrentAuthenticator.realm()) != 0
+            || nonce == NULL || strcmp(nonce, fCurrentAuthenticator.nonce()) != 0
+            || uri == NULL || response == NULL) 
+        {
+            break;
+        }
 
-  do {
-    // To authenticate, we first need to have a nonce set up
-    // from a previous attempt:
-    if (fCurrentAuthenticator.nonce() == NULL) break;
-
-    // Next, the request needs to contain an "Authorization:" header,
-    // containing a username, (our) realm, (our) nonce, uri,
-    // and response string:
-    if (!parseAuthorizationHeader(fullRequestStr,
-                                  username, realm, nonce, uri, response)
-        || username == NULL
-        || realm == NULL || strcmp(realm, fCurrentAuthenticator.realm()) != 0
-        || nonce == NULL || strcmp(nonce, fCurrentAuthenticator.nonce()) != 0
-        || uri == NULL || response == NULL) {
-      break;
-    }
-
-    // Next, the username has to be known to us:
-    char const* password = fOurServer.fAuthDB->lookupPassword(username);
+        // Next, the username has to be known to us:
+        char const* password = fOurServer.fAuthDB->lookupPassword(username);
 #ifdef DEBUG
-    fprintf(stderr, "lookupPassword(%s) returned password %s\n", username, password);
+        fprintf(stderr, "lookupPassword(%s) returned password %s\n", username, password);
 #endif
-    if (password == NULL) break;
-    fCurrentAuthenticator.
-      setUsernameAndPassword(username, password,
-                             fOurServer.fAuthDB->passwordsAreMD5());
+        if (password == NULL) break;
+        fCurrentAuthenticator.setUsernameAndPassword(username, 
+                                                     password,
+                                                     fOurServer.fAuthDB->passwordsAreMD5()
+                                                     );
 
-    // Finally, compute a digest response from the information that we have,
-    // and compare it to the one that we were given:
-    char const* ourResponse
-      = fCurrentAuthenticator.computeDigestResponse(cmdName, uri);
-    success = (strcmp(ourResponse, response) == 0);
-    fCurrentAuthenticator.reclaimDigestResponse(ourResponse);
-  } while (0);
+        // Finally, compute a digest response from the information that we have,
+        // and compare it to the one that we were given:
+        char const* ourResponse = fCurrentAuthenticator.computeDigestResponse(cmdName, uri);
+        success = (strcmp(ourResponse, response) == 0);
+        fCurrentAuthenticator.reclaimDigestResponse(ourResponse);
+    } while (0);
 
-  delete[] (char*)username; delete[] (char*)realm; delete[] (char*)nonce;
-  delete[] (char*)uri; delete[] (char*)response;
-  if (success) return True;
+    delete[] (char*)username; delete[] (char*)realm; delete[] (char*)nonce;
+    delete[] (char*)uri; delete[] (char*)response;
+    if (success) return True;
 
-  // If we get here, there was some kind of authentication failure.
-  // Send back a "401 Unauthorized" response, with a new random nonce:
-  fCurrentAuthenticator.setRealmAndRandomNonce(fOurServer.fAuthDB->realm());
-  snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+    // If we get here, there was some kind of authentication failure.
+    // Send back a "401 Unauthorized" response, with a new random nonce:
+    fCurrentAuthenticator.setRealmAndRandomNonce(fOurServer.fAuthDB->realm());
+    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
            "RTSP/1.0 401 Unauthorized\r\n"
            "CSeq: %s\r\n"
            "%s"
@@ -1471,7 +1458,7 @@ Boolean RTSPServer::RTSPClientSession
            cseq,
            dateHeader(),
            fCurrentAuthenticator.realm(), fCurrentAuthenticator.nonce());
-  return False;
+    return False;
 }
 
 void RTSPServer::RTSPClientSession::noteLiveness() 
