@@ -184,9 +184,12 @@ public: // should be protected, but some old compilers complain otherwise
     void closeSockets();
     void reclaimStreamStates();
     void resetRequestBuffer();
-    Boolean authenticationOK(char const* cmdName, char const* cseq,
+    
+    Boolean authenticationOK(char const* cmdName, 
+                             char const* cseq,
                              char const* urlSuffix,
                              char const* fullRequestStr);
+
     Boolean isMulticast() const { return fIsMulticast; }
     static void incomingRequestHandler(void*, int /*mask*/);
     void incomingRequestHandler1();

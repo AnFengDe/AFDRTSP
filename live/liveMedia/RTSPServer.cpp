@@ -1402,62 +1402,6 @@ Boolean RTSPServer::RTSPClientSession::authenticationOK(char const* cmdName,
     // If we weren't set up with an authentication database, we're OK:
     if (fOurServer.fAuthDB == NULL) return True;
 
-    char const* username = NULL; char const* realm = NULL; char const* nonce = NULL;
-    char const* uri = NULL; char const* response = NULL;
-    Boolean success = False;
-
-    do 
-    {
-        // To authenticate, we first need to have a nonce set up
-        // from a previous attempt:
-        if (fCurrentAuthenticator.nonce() == NULL) break;
-
-        // Next, the request needs to contain an "Authorization:" header,
-        // containing a username, (our) realm, (our) nonce, uri,
-        // and response string:
-        if (!parseAuthorizationHeader(fullRequestStr,
-                                      username, realm, nonce, uri, response)
-            || username == NULL
-            || realm == NULL || strcmp(realm, fCurrentAuthenticator.realm()) != 0
-            || nonce == NULL || strcmp(nonce, fCurrentAuthenticator.nonce()) != 0
-            || uri == NULL || response == NULL) 
-        {
-            break;
-        }
-
-        // Next, the username has to be known to us:
-        char const* password = fOurServer.fAuthDB->lookupPassword(username);
-#ifdef DEBUG
-        fprintf(stderr, "lookupPassword(%s) returned password %s\n", username, password);
-#endif
-        if (password == NULL) break;
-        fCurrentAuthenticator.setUsernameAndPassword(username, 
-                                                     password,
-                                                     fOurServer.fAuthDB->passwordsAreMD5()
-                                                     );
-
-        // Finally, compute a digest response from the information that we have,
-        // and compare it to the one that we were given:
-        char const* ourResponse = fCurrentAuthenticator.computeDigestResponse(cmdName, uri);
-        success = (strcmp(ourResponse, response) == 0);
-        fCurrentAuthenticator.reclaimDigestResponse(ourResponse);
-    } while (0);
-
-    delete[] (char*)username; delete[] (char*)realm; delete[] (char*)nonce;
-    delete[] (char*)uri; delete[] (char*)response;
-    if (success) return True;
-
-    // If we get here, there was some kind of authentication failure.
-    // Send back a "401 Unauthorized" response, with a new random nonce:
-    fCurrentAuthenticator.setRealmAndRandomNonce(fOurServer.fAuthDB->realm());
-    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
-           "RTSP/1.0 401 Unauthorized\r\n"
-           "CSeq: %s\r\n"
-           "%s"
-           "WWW-Authenticate: Digest realm=\"%s\", nonce=\"%s\"\r\n\r\n",
-           cseq,
-           dateHeader(),
-           fCurrentAuthenticator.realm(), fCurrentAuthenticator.nonce());
     return False;
 }
 
