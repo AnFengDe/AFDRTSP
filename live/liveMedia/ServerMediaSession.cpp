@@ -243,15 +243,6 @@ char* ServerMediaSession::generateSDPDescription(char* miscSDP, float fDuration)
         // (We do this first, because the call to "subsession->sdpLines()"
         // causes correct subsession 'duration()'s to be calculated later.)
         unsigned sdpLength = 0;
-        //ServerMediaSubsession* subsession;
-        //for (subsession = fSubsessionsHead; subsession != NULL;
-        //     subsession = subsession->fNext) 
-        //{
-        //    char const* sdpLines = subsession->sdpLines();
-        //    if (sdpLines == NULL) break; // the media's not available
-        //    sdpLength += strlen(sdpLines);
-        //}
-        //if (subsession != NULL) break; // an error occurred
 
         // Unless subsessions have differing durations, we also have a "a=range:" line:
         float dur = fDuration;//duration();
@@ -310,15 +301,6 @@ char* ServerMediaSession::generateSDPDescription(char* miscSDP, float fDuration)
                 fDescriptionSDPString, // a=x-qt-text-nam: line
                 fInfoSDPString, // a=x-qt-text-inf: line
                 miscSDP); // miscellaneous session SDP lines (if any)
-
-        // Then, add the (media-level) lines for each subsession:
-        //char* mediaSDP = sdp;
-        //for (subsession = fSubsessionsHead; subsession != NULL;
-        //        subsession = subsession->fNext) 
-        //{
-        //    mediaSDP += strlen(mediaSDP);
-        //    sprintf(mediaSDP, "%s", subsession->sdpLines());
-        //}
     } while (0);
 
     delete[] rangeLine; delete[] sourceFilterLine;
@@ -370,7 +352,6 @@ void ServerMediaSubsession::getStreamParameters(unsigned clientSessionId,       
                                                 unsigned char rtcpChannelId,    // in (used if TCP)
                                                 netAddressBits& destinationAddress, // in out
                                                 u_int8_t& destinationTTL,       // in out
-                                                Boolean& isMulticast,           // out
                                                 Port& serverRTPPort,            // out
                                                 void*& streamToken              // out
                                                )

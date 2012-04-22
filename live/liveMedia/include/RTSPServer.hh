@@ -190,7 +190,6 @@ public: // should be protected, but some old compilers complain otherwise
                              char const* urlSuffix,
                              char const* fullRequestStr);
 
-    Boolean isMulticast() const { return fIsMulticast; }
     static void incomingRequestHandler(void*, int /*mask*/);
     void incomingRequestHandler1();
     static void handleAlternativeRequestByte(void*, u_int8_t requestByte);
@@ -211,7 +210,7 @@ public: // should be protected, but some old compilers complain otherwise
     unsigned fRequestBytesAlreadySeen, fRequestBufferBytesLeft;
     unsigned char* fLastCRLF;
     unsigned char fResponseBuffer[RTSP_BUFFER_SIZE];
-    Boolean fIsMulticast, fSessionIsActive, fStreamAfterSETUP;
+    Boolean fSessionIsActive, fStreamAfterSETUP;
     Authenticator fCurrentAuthenticator; // used if access control is needed
     unsigned char fTCPStreamIdCount; // used for (optional) RTP/TCP
     unsigned fNumStreamStates;

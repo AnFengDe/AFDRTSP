@@ -123,7 +123,6 @@ public:
                                    unsigned char rtcpChannelId, // in (used if TCP)
                                    netAddressBits& destinationAddress, // in out
                                    u_int8_t& destinationTTL, // in out
-                                   Boolean& isMulticast, // out
                                    Port& serverRTPPort, // out
                                    void*& streamToken // out
                                    );

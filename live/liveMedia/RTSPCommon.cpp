@@ -147,42 +147,56 @@ Boolean parseRTSPRequestString(char const* reqStr,
   return True;
 }
 
-Boolean parseRangeParam(char const* paramStr, double& rangeStart, double& rangeEnd) {
-  double start, end;
-  int numCharsMatched = 0;
-  Locale l("C", Numeric);
-  if (sscanf(paramStr, "npt = %lf - %lf", &start, &end) == 2) {
-    rangeStart = start;
-    rangeEnd = end;
-  } else if (sscanf(paramStr, "npt = %lf -", &start) == 1) {
-    rangeStart = start;
-    rangeEnd = 0.0;
-  } else if (strcmp(paramStr, "npt=now-") == 0) {
-    rangeStart = 0.0;
-    rangeEnd = 0.0;
-  } else if (sscanf(paramStr, "clock = %*s%n", &numCharsMatched) == 0 && numCharsMatched > 0) {
-    // We accept "clock=" parameters, but currently do no interpret them.
-  } else if (sscanf(paramStr, "smtpe = %*s%n", &numCharsMatched) == 0 && numCharsMatched > 0) {
-    // We accept "smtpe=" parameters, but currently do no interpret them.
-  } else {
-    return False; // The header is malformed
-  }
+Boolean parseRangeParam(char const* paramStr, double& rangeStart, double& rangeEnd) 
+{
+    double start, end;
+    int numCharsMatched = 0;
+    Locale l("C", Numeric);
+    if (sscanf(paramStr, "npt = %lf - %lf", &start, &end) == 2) 
+    {
+        rangeStart = start;
+        rangeEnd = end;
+    } 
+    else if (sscanf(paramStr, "npt = %lf -", &start) == 1) 
+    {
+        rangeStart = start;
+        rangeEnd = 0.0;
+    } 
+    else if (strcmp(paramStr, "npt=now-") == 0) 
+    {
+        rangeStart = 0.0;
+        rangeEnd = 0.0;
+    } 
+    else if (sscanf(paramStr, "clock = %*s%n", &numCharsMatched) == 0 && numCharsMatched > 0) 
+    {
+        // We accept "clock=" parameters, but currently do no interpret them.
+    } 
+    else if (sscanf(paramStr, "smtpe = %*s%n", &numCharsMatched) == 0 && numCharsMatched > 0) 
+    {
+        // We accept "smtpe=" parameters, but currently do no interpret them.
+    } 
+    else 
+    {
+        return False; // The header is malformed
+    }
 
-  return True;
+    return True;
 }
 
-Boolean parseRangeHeader(char const* buf, double& rangeStart, double& rangeEnd) {
-  // First, find "Range:"
-  while (1) {
-    if (*buf == '\0') return False; // not found
-    if (_strncasecmp(buf, "Range: ", 7) == 0) break;
-    ++buf;
-  }
+Boolean parseRangeHeader(char const* buf, double& rangeStart, double& rangeEnd) 
+{
+    // First, find "Range:"
+    while (1) 
+    {
+        if (*buf == '\0') return False; // not found
+        if (_strncasecmp(buf, "Range: ", 7) == 0) break;
+        ++buf;
+    }
 
-  // Then, run through each of the fields, looking for ones we handle:
-  char const* fields = buf + 7;
-  while (*fields == ' ') ++fields;
-  return parseRangeParam(fields, rangeStart, rangeEnd);
+    // Then, run through each of the fields, looking for ones we handle:
+    char const* fields = buf + 7;
+    while (*fields == ' ') ++fields;
+    return parseRangeParam(fields, rangeStart, rangeEnd);
 }
 
 char const* dateHeader() 
