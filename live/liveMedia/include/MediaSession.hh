@@ -48,9 +48,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _MEDIA_HH
 #include <Media.hh>
 #endif
-#ifndef _GROUPSOCK_HH
 #include "NetAddress.hh"
-#endif
 
 class MediaSubsession; // forward
 
