@@ -378,33 +378,6 @@ char const* ServerMediaSubsession::trackId()
     return fTrackId;
 }
 
-void ServerMediaSubsession::pauseStream(unsigned /*clientSessionId*/,
-                                	void* /*streamToken*/) 
-{
-    // default implementation: do nothing
-}
-
-void ServerMediaSubsession::seekStream(unsigned /*clientSessionId*/,
-                                       void* /*streamToken*/, 
-                                       double& /*seekNPT*/, 
-                                       double /*streamDuration*/, 
-                                       u_int64_t& numBytes) 
-{
-    // default implementation: do nothing
-    numBytes = 0;
-}
-void ServerMediaSubsession::setStreamScale(unsigned /*clientSessionId*/,
-                                           void* /*streamToken*/, float /*scale*/) 
-{
-    // default implementation: do nothing
-}
-
-void ServerMediaSubsession::deleteStream(unsigned /*clientSessionId*/,
-                                         void*& /*streamToken*/) 
-{
-    // default implementation: do nothing
-}
-
 void ServerMediaSubsession::testScaleFactor(float& scale) 
 {
     // default implementation: Support scale = 1 only
@@ -415,34 +388,4 @@ float ServerMediaSubsession::duration() const
 {
     // default implementation: assume an unbounded session:
     return 0.0;
-}
-
-void ServerMediaSubsession::setServerAddressAndPortForSDP(netAddressBits addressBits,
-                                                          portNumBits portBits) 
-{
-    fServerAddressForSDP = addressBits;
-    fPortNumForSDP = portBits;
-}
-
-char const*
-ServerMediaSubsession::rangeSDPLine() const 
-{
-    if (fParentSession == NULL) return NULL;
-
-    // If all of our parent's subsessions have the same duration
-    // (as indicated by "fParentSession->duration() >= 0"), there's no "a=range:" line:
-    if (fParentSession->duration() >= 0.0) return strDup("");
-
-    // Use our own duration for a "a=range:" line:
-    float ourDuration = duration();
-    if (ourDuration == 0.0) 
-    {
-        return strDup("a=range:npt=0-\r\n");
-    } 
-    else 
-    {
-        char buf[100];
-        sprintf(buf, "a=range:npt=0-%.3f\r\n", ourDuration);
-        return strDup(buf);
-    }
 }

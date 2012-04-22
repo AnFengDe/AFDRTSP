@@ -132,27 +132,13 @@ public:
                            unsigned short& rtpSeqNum,
                            unsigned& rtpTimestamp,
                            void* serverRequestAlternativeByteHandlerClientData){};
-  virtual void pauseStream(unsigned clientSessionId, void* streamToken);
-  virtual void seekStream(unsigned clientSessionId, void* streamToken, double& seekNPT, double streamDuration, u_int64_t& numBytes);
-     // "streamDuration", if >0.0, specifies how much data to stream, past "seekNPT".  (If <=0.0, all remaining data is streamed.)
-     // "numBytes" returns the size (in bytes) of the data to be streamed, or 0 if unknown or unlimited.
-  virtual void setStreamScale(unsigned clientSessionId, void* streamToken, float scale);
-  virtual void deleteStream(unsigned clientSessionId, void*& streamToken);
 
   virtual void testScaleFactor(float& scale); // sets "scale" to the actual supported scale
   virtual float duration() const;
     // returns 0 for an unbounded session (the default)
     // returns > 0 for a bounded session
 
-  // The following may be called by (e.g.) SIP servers, for which the
-  // address and port number fields in SDP descriptions need to be non-zero:
-  void setServerAddressAndPortForSDP(netAddressBits addressBits,
-                                     portNumBits portBits);
-
 protected: // we're a virtual base class
-
-  char const* rangeSDPLine() const;
-      // returns a string to be delete[]d
 
   ServerMediaSession* fParentSession;
   netAddressBits fServerAddressForSDP;

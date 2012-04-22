@@ -311,46 +311,43 @@ void RTSPServer::RTSPClientSession::closeSockets() {
 
 void RTSPServer::RTSPClientSession::reclaimStreamStates() 
 {
-    for (unsigned i = 0; i < fNumStreamStates; ++i) 
-    {
-        if (fStreamStates[i].subsession != NULL) 
-        {
-            fStreamStates[i].subsession->deleteStream(fOurSessionId,
-                                                      fStreamStates[i].streamToken);
-        }
-    }
     delete[] fStreamStates; fStreamStates = NULL;
     fNumStreamStates = 0;
 }
 
-void RTSPServer::RTSPClientSession::resetRequestBuffer() {
-  fRequestBytesAlreadySeen = 0;
-  fRequestBufferBytesLeft = sizeof fRequestBuffer;
-  fLastCRLF = &fRequestBuffer[-3]; // hack: Ensures that we don't think we have end-of-msg if the data starts with <CR><LF>
+void RTSPServer::RTSPClientSession::resetRequestBuffer() 
+{
+    fRequestBytesAlreadySeen = 0;
+    fRequestBufferBytesLeft = sizeof fRequestBuffer;
+    fLastCRLF = &fRequestBuffer[-3]; // hack: Ensures that we don't think we have end-of-msg if the data starts with <CR><LF>
 }
 
-void RTSPServer::RTSPClientSession::incomingRequestHandler(void* instance, int /*mask*/) {
-  RTSPClientSession* session = (RTSPClientSession*)instance;
-  session->incomingRequestHandler1();
+void RTSPServer::RTSPClientSession::incomingRequestHandler(void* instance, int /*mask*/) 
+{
+    RTSPClientSession* session = (RTSPClientSession*)instance;
+    session->incomingRequestHandler1();
 }
 
-void RTSPServer::RTSPClientSession::incomingRequestHandler1() {
-  struct sockaddr_in dummy; // 'from' address, meaningless in this case
+void RTSPServer::RTSPClientSession::incomingRequestHandler1() 
+{
+    struct sockaddr_in dummy; // 'from' address, meaningless in this case
 
-  int bytesRead = readSocket(envir(), fClientInputSocket, &fRequestBuffer[fRequestBytesAlreadySeen], fRequestBufferBytesLeft, dummy);
-  handleRequestBytes(bytesRead);
+    int bytesRead = readSocket(envir(), fClientInputSocket, &fRequestBuffer[fRequestBytesAlreadySeen], fRequestBufferBytesLeft, dummy);
+    handleRequestBytes(bytesRead);
 }
 
-void RTSPServer::RTSPClientSession::handleAlternativeRequestByte(void* instance, u_int8_t requestByte) {
-  RTSPClientSession* session = (RTSPClientSession*)instance;
-  session->handleAlternativeRequestByte1(requestByte);
+void RTSPServer::RTSPClientSession::handleAlternativeRequestByte(void* instance, u_int8_t requestByte) 
+{
+    RTSPClientSession* session = (RTSPClientSession*)instance;
+    session->handleAlternativeRequestByte1(requestByte);
 }
 
-void RTSPServer::RTSPClientSession::handleAlternativeRequestByte1(u_int8_t requestByte) {
-  // Add this character to our buffer; then try to handle the data that we have buffered so far:
-  if (fRequestBufferBytesLeft == 0|| fRequestBytesAlreadySeen >= RTSP_BUFFER_SIZE) return;
-  fRequestBuffer[fRequestBytesAlreadySeen] = requestByte;
-  handleRequestBytes(1);
+void RTSPServer::RTSPClientSession::handleAlternativeRequestByte1(u_int8_t requestByte) 
+{
+    // Add this character to our buffer; then try to handle the data that we have buffered so far:
+    if (fRequestBufferBytesLeft == 0|| fRequestBytesAlreadySeen >= RTSP_BUFFER_SIZE) return;
+    fRequestBuffer[fRequestBytesAlreadySeen] = requestByte;
+    handleRequestBytes(1);
 }
 
 void RTSPServer::RTSPClientSession::handleRequestBytes(int newBytesRead) 
@@ -1138,8 +1135,7 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
                                                    char const* cseq,
                                                    char const* fullRequestStr) 
 {
-    char* rtspURL = fOurServer.rtspURL(fOurServerMediaSession, fClientInputSocket);
-    unsigned rtspURLSize = strlen(rtspURL);
+    bool  bCallback = (NULL == g_pstCallback || NULL == g_pstCallback->play) ? false : true;
 
     // Parse the client's "Scale:" header, if any:
     float scale;
@@ -1186,36 +1182,6 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
         rangeEnd = tmp;
     }
 
-    // Do any required seeking/scaling on each subsession, before starting streaming:
-    unsigned i;
-    for (i = 0; i < fNumStreamStates; ++i) 
-    {
-        if (subsession == NULL /* means: aggregated operation */
-            || subsession == fStreamStates[i].subsession) 
-        {
-            if (sawScaleHeader) 
-            {
-                fStreamStates[i].subsession->setStreamScale(fOurSessionId,
-                                                            fStreamStates[i].streamToken,
-                                                            scale);
-            }
-            if (sawRangeHeader) 
-            {
-                double streamDuration = 0.0; // by default; means: stream until the end of the media
-                if (rangeEnd > 0.0 && (rangeEnd+0.001) < 0) 
-                {   // the 0.001 is because we limited the values to 3 decimal places
-                    // We want the stream to end early.  Set the duration we want:
-                    streamDuration = rangeEnd - rangeStart;
-                    if (streamDuration < 0.0) streamDuration = -streamDuration; // should happen only if scale < 0.0
-                }
-                u_int64_t numBytes;
-                fStreamStates[i].subsession->seekStream(fOurSessionId,
-                                                        fStreamStates[i].streamToken,
-                                                        rangeStart, streamDuration, numBytes);
-            }
-        }
-    }
- 
     // Create the "Range:" header that we'll send back in our response.
     // (Note that we do this after seeking, in case the seeking operation changed the range start time.)
     char* rangeHeader;
@@ -1234,15 +1200,8 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
     rangeHeader = strDup(buf);
  
 
-    if (NULL == g_pstCallback || NULL == g_pstCallback->setup)
-    {
- 
-    }
-    else
-    {
-        //callback for play
+    if (bCallback)
         g_pstCallback->play(fOurSessionId, scale, rangeStart, rangeEnd);
-    }
   
     // Fill in the response:
     snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
@@ -1259,25 +1218,14 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
                fOurSessionId);
 
     delete[] rangeHeader;
-    delete[] scaleHeader; delete[] rtspURL;
+    delete[] scaleHeader;
 }
 
-void RTSPServer::RTSPClientSession
-  ::handleCmd_PAUSE(ServerMediaSubsession* subsession, char const* cseq) 
+void RTSPServer::RTSPClientSession::handleCmd_PAUSE(ServerMediaSubsession* subsession, 
+                                                    char const* cseq) 
 {
-    if (NULL == g_pstCallback || NULL == g_pstCallback->pause)
-    {
-        for (unsigned i = 0; i < fNumStreamStates; ++i) 
-        {
-            if (subsession == NULL /* means: aggregated operation */
-                || subsession == fStreamStates[i].subsession) 
-            {
-                fStreamStates[i].subsession->pauseStream(fOurSessionId,
-                                                        fStreamStates[i].streamToken);
-            }
-        }
-    }
-    else
+    bool  bCallback = (NULL == g_pstCallback || NULL == g_pstCallback->pause) ? false : true;
+    if (bCallback)
     {
         //callback for pause
         g_pstCallback->pause(fOurSessionId);
@@ -1287,95 +1235,28 @@ void RTSPServer::RTSPClientSession
                 cseq, dateHeader(), fOurSessionId);
 }
 
-void RTSPServer::RTSPClientSession
-::handleCmd_GET_PARAMETER(ServerMediaSubsession* /*subsession*/, char const* cseq,
-                          char const* /*fullRequestStr*/) {
-  // By default, we implement "GET_PARAMETER" just as a 'keep alive', and send back an empty response.
-  // (If you want to handle "GET_PARAMETER" properly, you can do so by defining a subclass of "RTSPServer"
-  // and "RTSPServer::RTSPClientSession", and then reimplement this virtual function in your subclass.)
-  snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+void RTSPServer::RTSPClientSession::handleCmd_GET_PARAMETER(ServerMediaSubsession* /*subsession*/, 
+                                                            char const* cseq,
+                                                            char const* /*fullRequestStr*/) 
+{
+    // By default, we implement "GET_PARAMETER" just as a 'keep alive', and send back an empty response.
+    // (If you want to handle "GET_PARAMETER" properly, you can do so by defining a subclass of "RTSPServer"
+    // and "RTSPServer::RTSPClientSession", and then reimplement this virtual function in your subclass.)
+    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
            "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sSession: %08X\r\n\r\n",
            cseq, dateHeader(), fOurSessionId);
 }
 
-void RTSPServer::RTSPClientSession
-::handleCmd_SET_PARAMETER(ServerMediaSubsession* /*subsession*/, char const* cseq,
-                          char const* /*fullRequestStr*/) {
-  // By default, we implement "SET_PARAMETER" just as a 'keep alive', and send back an empty response.
-  // (If you want to handle "SET_PARAMETER" properly, you can do so by defining a subclass of "RTSPServer"
-  // and "RTSPServer::RTSPClientSession", and then reimplement this virtual function in your subclass.)
-  snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
+void RTSPServer::RTSPClientSession::handleCmd_SET_PARAMETER(ServerMediaSubsession* /*subsession*/, 
+                                                            char const* cseq,
+                                                            char const* /*fullRequestStr*/) 
+{
+    // By default, we implement "SET_PARAMETER" just as a 'keep alive', and send back an empty response.
+    // (If you want to handle "SET_PARAMETER" properly, you can do so by defining a subclass of "RTSPServer"
+    // and "RTSPServer::RTSPClientSession", and then reimplement this virtual function in your subclass.)
+    snprintf((char*)fResponseBuffer, sizeof fResponseBuffer,
            "RTSP/1.0 200 OK\r\nCSeq: %s\r\n%sSession: %08X\r\n\r\n",
            cseq, dateHeader(), fOurSessionId);
-}
-
-static void lookForHeader(char const* headerName, char const* source, unsigned sourceLen, char* resultStr, unsigned resultMaxSize) {
-  resultStr[0] = '\0';  // by default, return an empty string
-  unsigned headerNameLen = strlen(headerName);
-  for (int i = 0; i < (int)(sourceLen-headerNameLen); ++i) {
-    if (strncmp(&source[i], headerName, headerNameLen) == 0 && source[i+headerNameLen] == ':') {
-      // We found the header.  Skip over any whitespace, then copy the rest of the line to "resultStr":
-      for (i += headerNameLen+1; i < (int)sourceLen && (source[i] == ' ' || source[i] == '\t'); ++i) {}
-      for (unsigned j = i; j < sourceLen; ++j) {
-    if (source[j] == '\r' || source[j] == '\n') {
-          // We've found the end of the line.  Copy it to the result (if it will fit):
-          if (j-i+1 > resultMaxSize) break;
-          char const* resultSource = &source[i];
-          char const* resultSourceEnd = &source[j];
-          while (resultSource < resultSourceEnd) *resultStr++ = *resultSource++;
-          *resultStr = '\0';
-          break;
-        }
-      }
-    }
-  }
-}
-
-static Boolean parseAuthorizationHeader(char const* buf,
-                                    char const*& username,
-                                    char const*& realm,
-                                    char const*& nonce, char const*& uri,
-                                    char const*& response) {
-  // Initialize the result parameters to default values:
-  username = realm = nonce = uri = response = NULL;
-
-  // First, find "Authorization:"
-  while (1) {
-    if (*buf == '\0') return False; // not found
-    if (_strncasecmp(buf, "Authorization: Digest ", 22) == 0) break;
-    ++buf;
-  }
-
-  // Then, run through each of the fields, looking for ones we handle:
-  char const* fields = buf + 22;
-  while (*fields == ' ') ++fields;
-  char* parameter = strDupSize(fields);
-  char* value = strDupSize(fields);
-  while (1) {
-    value[0] = '\0';
-    if (sscanf(fields, "%[^=]=\"%[^\"]\"", parameter, value) != 2 &&
-    sscanf(fields, "%[^=]=\"\"", parameter) != 1) {
-      break;
-    }
-    if (strcmp(parameter, "username") == 0) {
-      username = strDup(value);
-    } else if (strcmp(parameter, "realm") == 0) {
-      realm = strDup(value);
-    } else if (strcmp(parameter, "nonce") == 0) {
-      nonce = strDup(value);
-    } else if (strcmp(parameter, "uri") == 0) {
-      uri = strDup(value);
-    } else if (strcmp(parameter, "response") == 0) {
-      response = strDup(value);
-    }
-
-    fields += strlen(parameter) + 2 /*="*/ + strlen(value) + 1 /*"*/;
-    while (*fields == ',' || *fields == ' ') ++fields;
-        // skip over any separating ',' and ' ' chars
-    if (*fields == '\0' || *fields == '\r' || *fields == '\n') break;
-  }
-  delete[] parameter; delete[] value;
-  return True;
 }
 
 Boolean RTSPServer::RTSPClientSession::authenticationOK(char const* cmdName, 
