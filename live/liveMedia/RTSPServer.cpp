@@ -94,41 +94,49 @@ void RTSPServer::removeServerMediaSession(char const* streamName) {
   removeServerMediaSession(lookupServerMediaSession(streamName));
 }
 
-char* RTSPServer
-::rtspURL(ServerMediaSession const* serverMediaSession, int clientSocket) const {
-  char* urlPrefix = rtspURLPrefix(clientSocket);
-  char const* sessionName = serverMediaSession->streamName();
+char* RTSPServer::rtspURL(ServerMediaSession const* serverMediaSession, 
+                          int clientSocket) const 
+{
+    char* urlPrefix = rtspURLPrefix(clientSocket);
+    char const* sessionName = serverMediaSession->streamName();
 
-  char* resultURL = new char[strlen(urlPrefix) + strlen(sessionName) + 1];
-  sprintf(resultURL, "%s%s", urlPrefix, sessionName);
+    char* resultURL = new char[strlen(urlPrefix) + strlen(sessionName) + 1];
+    sprintf(resultURL, "%s%s", urlPrefix, sessionName);
 
-  delete[] urlPrefix;
-  return resultURL;
+    delete[] urlPrefix;
+    return resultURL;
 }
 
-char* RTSPServer::rtspURLPrefix(int clientSocket) const {
-  struct sockaddr_in ourAddress;
-  if (clientSocket < 0) {
-    // Use our default IP address in the URL:
-    ourAddress.sin_addr.s_addr = ReceivingInterfaceAddr != 0
-      ? ReceivingInterfaceAddr
-      : ourIPAddress(envir()); // hack
-  } else {
-    SOCKLEN_T namelen = sizeof ourAddress;
-    getsockname(clientSocket, (struct sockaddr*)&ourAddress, &namelen);
-  }
+char* RTSPServer::rtspURLPrefix(int clientSocket) const 
+{
+    struct sockaddr_in ourAddress;
+    if (clientSocket < 0) 
+    {
+        // Use our default IP address in the URL:
+        ourAddress.sin_addr.s_addr = ReceivingInterfaceAddr != 0
+                                        ? ReceivingInterfaceAddr
+                                        : ourIPAddress(envir()); // hack
+    } 
+    else 
+    {
+        SOCKLEN_T namelen = sizeof ourAddress;
+        getsockname(clientSocket, (struct sockaddr*)&ourAddress, &namelen);
+    }
 
-  char urlBuffer[100]; // more than big enough for "rtsp://<ip-address>:<port>/"
+    char urlBuffer[100]; // more than big enough for "rtsp://<ip-address>:<port>/"
 
-  portNumBits portNumHostOrder = ntohs(fRTSPServerPort.num());
-  if (portNumHostOrder == 554 /* the default port number */) {
-    sprintf(urlBuffer, "rtsp://%s/", AddressString(ourAddress).val());
-  } else {
-    sprintf(urlBuffer, "rtsp://%s:%hu/",
-            AddressString(ourAddress).val(), portNumHostOrder);
-  }
+    portNumBits portNumHostOrder = ntohs(fRTSPServerPort.num());
+    if (portNumHostOrder == 554 /* the default port number */) 
+    {
+        sprintf(urlBuffer, "rtsp://%s/", AddressString(ourAddress).val());
+    } 
+    else 
+    {
+        sprintf(urlBuffer, "rtsp://%s:%hu/",
+                AddressString(ourAddress).val(), portNumHostOrder);
+    }
 
-  return strDup(urlBuffer);
+    return strDup(urlBuffer);
 }
 
 UserAuthenticationDatabase* RTSPServer::setAuthenticationDatabase(UserAuthenticationDatabase* newDB) {
@@ -1165,14 +1173,12 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
 
     // Make sure that "rangeStart" and "rangeEnd" (from the client's "Range:" header) have sane values
     // before we send back our own "Range:" header in our response:
-    if (rangeStart < 0.0) 
-        rangeStart = 0.0;
+    if (rangeStart < 0.0) rangeStart = 0.0;
     
-    if (rangeEnd < 0.0) 
-        rangeEnd = 0.0;
+    if (rangeEnd < 0.0) rangeEnd = 0.0;
     
-    if ((scale > 0.0 && rangeStart > rangeEnd && rangeEnd > 0.0) ||
-        (scale < 0.0 && rangeStart < rangeEnd)) 
+    if ((scale > 0.0 && rangeStart > rangeEnd && rangeEnd > 0.0) 
+        || (scale < 0.0 && rangeStart < rangeEnd)) 
     {
         // "rangeStart" and "rangeEnd" were the wrong way around; swap them:
         double tmp = rangeStart;
@@ -1180,19 +1186,8 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
         rangeEnd = tmp;
     }
 
-    // Create a "RTP-Info:" line.  It will get filled in from each subsession's state:
-    char const* rtpInfoFmt =
-                            "%s" // "RTP-Info:", plus any preceding rtpInfo items
-                            "%s" // comma separator, if needed
-                            "url=%s/%s"
-                            ";seq=%d"
-                            ";rtptime=%u"
-                            ;
-    unsigned rtpInfoFmtSize = strlen(rtpInfoFmt);
-    char* rtpInfo = strDup("RTP-Info: ");
-    unsigned i, numRTPInfoItems = 0;
-
     // Do any required seeking/scaling on each subsession, before starting streaming:
+    unsigned i;
     for (i = 0; i < fNumStreamStates; ++i) 
     {
         if (subsession == NULL /* means: aggregated operation */
@@ -1256,16 +1251,14 @@ void RTSPServer::RTSPClientSession::handleCmd_PLAY(ServerMediaSubsession* subses
                "%s"
                "%s"
                "%s"
-               "Session: %08X\r\n"
-               "%s\r\n",
+               "Session: %08X\r\n",
                cseq,
                dateHeader(),
                scaleHeader,
                rangeHeader,
-               fOurSessionId,
-               rtpInfo);
+               fOurSessionId);
 
-    delete[] rtpInfo; delete[] rangeHeader;
+    delete[] rangeHeader;
     delete[] scaleHeader; delete[] rtspURL;
 }
 
