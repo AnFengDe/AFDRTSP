@@ -79,19 +79,20 @@ ServerMediaSession* RTSPServer::lookupServerMediaSession(char const* streamName)
     return (ServerMediaSession*)(fServerMediaSessions->Lookup(streamName));
 }
 
-void RTSPServer::removeServerMediaSession(ServerMediaSession* serverMediaSession) {
-  if (serverMediaSession == NULL) return;
+void RTSPServer::removeServerMediaSession(ServerMediaSession* serverMediaSession) 
+{
+    if (serverMediaSession == NULL) return;
 
-  fServerMediaSessions->Remove(serverMediaSession->streamName());
-  if (serverMediaSession->referenceCount() == 0) {
-    Medium::close(serverMediaSession);
-  } else {
-    serverMediaSession->deleteWhenUnreferenced() = True;
-  }
+    fServerMediaSessions->Remove(serverMediaSession->streamName());
+    if (serverMediaSession->referenceCount() == 0) 
+    {
+        Medium::close(serverMediaSession);
+    } 
 }
 
-void RTSPServer::removeServerMediaSession(char const* streamName) {
-  removeServerMediaSession(lookupServerMediaSession(streamName));
+void RTSPServer::removeServerMediaSession(char const* streamName) 
+{
+    removeServerMediaSession(lookupServerMediaSession(streamName));
 }
 
 char* RTSPServer::rtspURL(ServerMediaSession const* serverMediaSession, 
@@ -139,47 +140,52 @@ char* RTSPServer::rtspURLPrefix(int clientSocket) const
     return strDup(urlBuffer);
 }
 
-UserAuthenticationDatabase* RTSPServer::setAuthenticationDatabase(UserAuthenticationDatabase* newDB) {
-  UserAuthenticationDatabase* oldDB = fAuthDB;
-  fAuthDB = newDB;
+UserAuthenticationDatabase* RTSPServer::setAuthenticationDatabase(UserAuthenticationDatabase* newDB) 
+{
+    UserAuthenticationDatabase* oldDB = fAuthDB;
+    fAuthDB = newDB;
 
-  return oldDB;
+    return oldDB;
 }
 
 #define LISTEN_BACKLOG_SIZE 20
 
-int RTSPServer::setUpOurSocket(UsageEnvironment& env, Port& ourPort) {
-  int ourSocket = -1;
+int RTSPServer::setUpOurSocket(UsageEnvironment& env, Port& ourPort) 
+{
+    int ourSocket = -1;
 
-  do {
-    // The following statement is enabled by default.
-    // Don't disable it (by defining ALLOW_RTSP_SERVER_PORT_REUSE) unless you know what you're doing.
+    do 
+    {
+        // The following statement is enabled by default.
+        // Don't disable it (by defining ALLOW_RTSP_SERVER_PORT_REUSE) unless you know what you're doing.
 #ifndef ALLOW_RTSP_SERVER_PORT_REUSE
-    NoReuse dummy(env); // Don't use this socket if there's already a local server using it
+        NoReuse dummy(env); // Don't use this socket if there's already a local server using it
 #endif
 
-    ourSocket = setupStreamSocket(env, ourPort);
-    if (ourSocket < 0) break;
+        ourSocket = setupStreamSocket(env, ourPort);
+        if (ourSocket < 0) break;
 
-    // Make sure we have a big send buffer:
-    if (!increaseSendBufferTo(env, ourSocket, 50*1024)) break;
+        // Make sure we have a big send buffer:
+        if (!increaseSendBufferTo(env, ourSocket, 50*1024)) break;
 
-    // Allow multiple simultaneous connections:
-    if (listen(ourSocket, LISTEN_BACKLOG_SIZE) < 0) {
-      env.setResultErrMsg("listen() failed: ");
-      break;
-    }
+        // Allow multiple simultaneous connections:
+        if (listen(ourSocket, LISTEN_BACKLOG_SIZE) < 0) 
+        {
+            env.setResultErrMsg("listen() failed: ");
+            break;
+        }
 
-    if (ourPort.num() == 0) {
-      // bind() will have chosen a port for us; return it also:
-      if (!getSourcePort(env, ourSocket, ourPort)) break;
-    }
+        if (ourPort.num() == 0) 
+        {
+            // bind() will have chosen a port for us; return it also:
+            if (!getSourcePort(env, ourSocket, ourPort)) break;
+        }
 
-    return ourSocket;
-  } while (0);
+        return ourSocket;
+    } while (0);
 
-  if (ourSocket != -1) ::closeSocket(ourSocket);
-  return -1;
+    if (ourSocket != -1) ::closeSocket(ourSocket);
+    return -1;
 }
 
 RTSPServer::RTSPServer(UsageEnvironment& env,
@@ -287,8 +293,7 @@ RTSPServer::RTSPClientSession::~RTSPClientSession()
     if (fOurServerMediaSession != NULL) 
     {
         fOurServerMediaSession->decrementReferenceCount();
-        if (fOurServerMediaSession->referenceCount() == 0
-            && fOurServerMediaSession->deleteWhenUnreferenced()) 
+        if (fOurServerMediaSession->referenceCount() == 0) 
         {
             fOurServer.removeServerMediaSession(fOurServerMediaSession);
             fOurServerMediaSession = NULL;

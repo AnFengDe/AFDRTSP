@@ -65,12 +65,11 @@ ServerMediaSession::ServerMediaSession(UsageEnvironment& env,
                                        Boolean isSSM, char const* miscSDPLines)
     : Medium(env), fIsSSM(isSSM), fSubsessionsHead(NULL),
     fSubsessionsTail(NULL), fSubsessionCounter(0),
-    fReferenceCount(0), fDeleteWhenUnreferenced(False) 
+    fReferenceCount(0) 
 {
     fStreamName = strDup(streamName == NULL ? "" : streamName);
     fInfoSDPString = strDup(info == NULL ? libNameStr : info);
     fDescriptionSDPString = strDup(description == NULL ? libNameStr : description);
-    //fMiscSDPLines = strDup(miscSDPLines == NULL ? "" : miscSDPLines);
 
     gettimeofday(&fCreationTime, NULL);
 }
@@ -81,7 +80,6 @@ ServerMediaSession::~ServerMediaSession()
     delete[] fStreamName;
     delete[] fInfoSDPString;
     delete[] fDescriptionSDPString;
-    //delete[] fMiscSDPLines;
 }
 
 Boolean
@@ -339,7 +337,7 @@ void ServerMediaSubsessionIterator::reset()
 
 ServerMediaSubsession::ServerMediaSubsession(UsageEnvironment& env)
   : Medium(env),
-    fParentSession(NULL), fServerAddressForSDP(0), fPortNumForSDP(0),
+    fParentSession(NULL), fPortNumForSDP(0),
     fNext(NULL), fTrackNumber(0), fTrackId(NULL) 
 {
 }

@@ -64,7 +64,6 @@ public:
   unsigned referenceCount() const { return fReferenceCount; }
   void incrementReferenceCount() { ++fReferenceCount; }
   void decrementReferenceCount() { if (fReferenceCount > 0) --fReferenceCount; }
-  Boolean& deleteWhenUnreferenced() { return fDeleteWhenUnreferenced; }
 
 protected:
   ServerMediaSession(UsageEnvironment& env, char const* streamName,
@@ -87,10 +86,8 @@ private:
   char* fStreamName;
   char* fInfoSDPString;
   char* fDescriptionSDPString;
-  //char* fMiscSDPLines;
   struct timeval fCreationTime;
   unsigned fReferenceCount;
-  Boolean fDeleteWhenUnreferenced;
 };
 
 
@@ -126,12 +123,6 @@ public:
                                    Port& serverRTPPort, // out
                                    void*& streamToken // out
                                    );
-  void startStream(unsigned clientSessionId, void* streamToken,
-                           TaskFunc* rtcpRRHandler,
-                           void* rtcpRRHandlerClientData,
-                           unsigned short& rtpSeqNum,
-                           unsigned& rtpTimestamp,
-                           void* serverRequestAlternativeByteHandlerClientData){};
 
   virtual void testScaleFactor(float& scale); // sets "scale" to the actual supported scale
   virtual float duration() const;
@@ -141,7 +132,6 @@ public:
 protected: // we're a virtual base class
 
   ServerMediaSession* fParentSession;
-  netAddressBits fServerAddressForSDP;
   portNumBits fPortNumForSDP;
 
 private:

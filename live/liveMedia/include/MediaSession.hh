@@ -177,8 +177,9 @@ public:
       // (even) port number is chosen.)  This routine should *not* be
       // called after initiate().
   char*& connectionEndpointName() { return fConnectionEndpointName; }
-  char const* connectionEndpointName() const {
-    return fConnectionEndpointName;
+  char const* connectionEndpointName() const 
+  {
+        return fConnectionEndpointName;
   }
 
   // Various parameters set in "a=fmtp:" SDP lines:
