@@ -48,9 +48,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _MEDIA_HH
 #include <Media.hh>
 #endif
-#ifndef _GROUPSOCK_HH
-#include "Groupsock.hh"
-#endif
+#include "NetAddress.hh"
 
 class MediaSubsession; // forward
 
@@ -177,8 +175,9 @@ public:
       // (even) port number is chosen.)  This routine should *not* be
       // called after initiate().
   char*& connectionEndpointName() { return fConnectionEndpointName; }
-  char const* connectionEndpointName() const {
-    return fConnectionEndpointName;
+  char const* connectionEndpointName() const 
+  {
+        return fConnectionEndpointName;
   }
 
   // Various parameters set in "a=fmtp:" SDP lines:

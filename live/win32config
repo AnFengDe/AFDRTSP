@@ -1,5 +1,5 @@
 # Comment out the following line to produce Makefiles that generate debuggable code:
-#NODEBUG=1
+NODEBUG=1
 
 # The following definition ensures that we are properly matching
 # the WinSock2 library file with the correct header files.
@@ -30,7 +30,7 @@ CPLUSPLUS_FLAGS =	$(COMPILE_OPTS)
 OBJ =			obj
 LINK =			$(link) -out:
 LIBRARY_LINK =		lib -out:
-LINK_OPTS_0 =		$(linkdebug) msvcrtd.lib
+LINK_OPTS_0 =		$(linkdebug) msvcrt.lib
 LIBRARY_LINK_OPTS =	
 LINK_OPTS =		$(LINK_OPTS_0) $(UI_OPTS)
 CONSOLE_LINK_OPTS =	$(LINK_OPTS_0) $(CONSOLE_UI_OPTS)

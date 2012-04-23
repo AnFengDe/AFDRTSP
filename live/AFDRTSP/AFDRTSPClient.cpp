@@ -61,16 +61,13 @@ public:
   static ourRTSPClient* createNew(  UsageEnvironment& env, 
                                     char const* rtspURL,
                                     int verbosityLevel = 0,
-                                    char const* applicationName = NULL,
-                                    portNumBits tunnelOverHTTPPortNum = 0);
+                                    char const* applicationName = NULL);
 
 protected:
   ourRTSPClient(UsageEnvironment& env, 
                 char const* rtspURL,
                 int verbosityLevel, 
-                char const* applicationName, 
-                portNumBits tunnelOverHTTPPortNum);
-    // called only by createNew();
+                char const* applicationName);
   virtual ~ourRTSPClient();
 
 public:
@@ -80,18 +77,16 @@ public:
 ourRTSPClient* ourRTSPClient::createNew(UsageEnvironment& env, 
                                         char const* rtspURL,
                                         int verbosityLevel, 
-                                        char const* applicationName, 
-                                        portNumBits tunnelOverHTTPPortNum) 
+                                        char const* applicationName) 
 {
-    return new ourRTSPClient(env, rtspURL, verbosityLevel, applicationName, tunnelOverHTTPPortNum);
+    return new ourRTSPClient(env, rtspURL, verbosityLevel, applicationName);
 }
 
 ourRTSPClient::ourRTSPClient(UsageEnvironment& env, 
                              char const* rtspURL,
                              int verbosityLevel, 
-                             char const* applicationName, 
-                             portNumBits tunnelOverHTTPPortNum)
-  : RTSPClient(env,rtspURL, verbosityLevel, applicationName, tunnelOverHTTPPortNum) 
+                             char const* applicationName)
+  : RTSPClient(env,rtspURL, verbosityLevel, applicationName) 
 {
 }
 

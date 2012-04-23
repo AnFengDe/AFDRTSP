@@ -36,26 +36,39 @@ void STD_CALLBACK handle_Describe(int *ret, const char* url, char* sdp_desc, flo
                     "c=IN IP4 0.0.0.0\r\n"
                     "b=AS:500\r\n"
                     "a=rtpmap:96 H264/90000\r\n"
-                    "a=fmtp:96 packetization-mode=1;profile-level-id=4D001F;sprop-parameter-sets=J00AH9oBQBbsBVIAAAMAAgAAAwBkwIAAIAAAAwAQAA3vfC8IhGo=,KO48gA==\r\n"
+                    "a=fmtp:96 packetization-mode=1;profile-level-id=4D001F;"
+                    "sprop-parameter-sets=J00AH9oBQBbsBVIAAAMAAgAAAwBkwIAAIAAAAwAQAA3vfC8IhGo=,KO48gA==\r\n"
                     "a=control:track1\r\n"; 
     strcpy(sdp_desc, sdp);
 }
 
-void STD_CALLBACK handle_Pause(unsigned OurSessionId,int &ret)
+/*! \brief process RTSP PAUSE command function 
+    \param sessionid the server rtsp session id, the unique number for session
+*/
+void STD_CALLBACK handle_Pause(const unsigned sessionid)
 {
-    ret = 1;
+    //put pause process code here
 }
 
-void STD_CALLBACK handle_Teardown(unsigned OurSessionId,int &ret)
+/*! \brief process RTSP TEARDOWN command function 
+    \param sessionid the server rtsp session id, the unique number for session
+*/
+void STD_CALLBACK handle_Teardown(const unsigned sessionid)
 {
-    ret = 1;   
+    //put teardown code here
 }
 
-void STD_CALLBACK handle_Play(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd)
+/*! \brief process RTSP PLAY command function 
+    \param sessionid the server rtsp session id, the unique number for session
+    \param scale the play speed ratio 
+    \param start meida play start npt
+    \param end meida play end npt
+*/
+void STD_CALLBACK handle_Play(const unsigned sessionid, 
+                              const float scale, 
+                              const double start, 
+                              const double end)
 {
-    scale=1.00;
-    rangeStart=0.00;
-    rangeEnd=2000.00;
 }
 
 /*! \brief process RTSP SETUP command function 
@@ -80,12 +93,12 @@ int main()
     st_Handle_Cmd_Callback cb;
     
     ::memset(&cb, 0x00, sizeof(cb));
-    cb.options = handle_Options;
+    cb.options  = handle_Options;
     cb.describe = handle_Describe;
-    cb.setup = handle_Setup; 
-    cb.play = handle_Play; 
-    cb.pause = handle_Pause; 
-    cb.teardown=handle_Teardown;
+    cb.setup    = handle_Setup; 
+    cb.play     = handle_Play; 
+    cb.pause    = handle_Pause; 
+    cb.teardown = handle_Teardown;
 
     if (false == server_init())
     {

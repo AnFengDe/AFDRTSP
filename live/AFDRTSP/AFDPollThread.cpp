@@ -49,14 +49,10 @@ void AFDPollThread::Stop()
     stop = 0x01;
     stopmutex.Unlock();
                         
-    bool done = false;
-
-    while (JThread::IsRunning() && !done)
+    while (JThread::IsRunning())
     {
-        // wait max 5 sec
-        done = true;
 #ifdef WIN32
-        Sleep(10000);
+        Sleep(100);
 #else
         sleep(1);
 #endif

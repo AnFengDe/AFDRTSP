@@ -43,11 +43,11 @@ extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, c
 
 extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(const unsigned sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(unsigned OurSessionId, float &scale, double &rangeStart, double &rangeEnd);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(const unsigned sessionid, const float scale, const double start, const double end);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(unsigned OurSessionId,int &ret);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(const unsigned sessionid);
 
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(unsigned OurSessionId,int &ret);
+extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(const unsigned sessionid);
 
 //handle cmd callback struct define
 typedef struct __st_Handle_Cmd_Callback
@@ -126,12 +126,6 @@ public:
       // Changes the server's authentication database to "newDB", returning a pointer to the old database (if there was one).
       // "newDB" may be NULL (you can use this to disable authentication at runtime, if desired).
 
-  Boolean setUpTunnelingOverHTTP(Port httpPort);
-      // (Attempts to) enable RTSP-over-HTTP tunneling on the specified port.
-      // Returns True iff the specified port can be used in this way (i.e., it's not already being used for a separate HTTP server).
-      // Note: RTSP-over-HTTP tunneling is described in http://developer.apple.com/quicktime/icefloe/dispatch028.html
-  portNumBits httpServerPortNum() const; // in host byte order.  (Returns 0 if not present.)
-
   virtual ~RTSPServer();
 protected:
   RTSPServer(UsageEnvironment& env,
@@ -141,8 +135,6 @@ protected:
       // called only by createNew();
 
   static int setUpOurSocket(UsageEnvironment& env, Port& ourPort);
-  virtual Boolean specialClientAccessCheck(int clientSocket, struct sockaddr_in& clientAddr,
-                                           char const* urlSuffix);
       // a hook that allows subclassed servers to do server-specific access checking
       // on each client (e.g., based on client IP address), without using
       // digest authentication.
@@ -187,25 +179,17 @@ public: // should be protected, but some old compilers complain otherwise
                                          char const* cseq, char const* fullRequestStr);
     virtual void handleCmd_SET_PARAMETER(ServerMediaSubsession* subsession,
                                          char const* cseq, char const* fullRequestStr);
-    // Support for optional RTSP-over-HTTP tunneling:
-    virtual Boolean parseHTTPRequestString(char* resultCmdName, unsigned resultCmdNameMaxSize,
-                                           char* urlSuffix, unsigned urlSuffixMaxSize,
-                                           char* sessionCookie, unsigned sessionCookieMaxSize,
-                                           char* acceptStr, unsigned acceptStrMaxSize);
-    virtual void handleHTTPCmd_notSupported();
-    virtual void handleHTTPCmd_notFound();
-    virtual void handleHTTPCmd_TunnelingGET(char const* sessionCookie);
-    virtual Boolean handleHTTPCmd_TunnelingPOST(char const* sessionCookie, unsigned char const* extraData, unsigned extraDataSize);
-    virtual void handleHTTPCmd_StreamingGET(char const* urlSuffix, char const* fullRequestStr);
   protected:
     UsageEnvironment& envir() { return fOurServer.envir(); }
     void closeSockets();
     void reclaimStreamStates();
     void resetRequestBuffer();
-    Boolean authenticationOK(char const* cmdName, char const* cseq,
+    
+    Boolean authenticationOK(char const* cmdName, 
+                             char const* cseq,
                              char const* urlSuffix,
                              char const* fullRequestStr);
-    Boolean isMulticast() const { return fIsMulticast; }
+
     static void incomingRequestHandler(void*, int /*mask*/);
     void incomingRequestHandler1();
     static void handleAlternativeRequestByte(void*, u_int8_t requestByte);
@@ -221,14 +205,12 @@ public: // should be protected, but some old compilers complain otherwise
     ServerMediaSession* fOurServerMediaSession;
     int fClientInputSocket, fClientOutputSocket;
     struct sockaddr_in fClientAddr;
-    char* fSessionCookie; // used for optional RTSP-over-HTTP tunneling
     TaskToken fLivenessCheckTask;
     unsigned char fRequestBuffer[RTSP_BUFFER_SIZE];
     unsigned fRequestBytesAlreadySeen, fRequestBufferBytesLeft;
     unsigned char* fLastCRLF;
-    unsigned fBase64RemainderCount; // used for optional RTSP-over-HTTP tunneling (possible values: 0,1,2,3)
     unsigned char fResponseBuffer[RTSP_BUFFER_SIZE];
-    Boolean fIsMulticast, fSessionIsActive, fStreamAfterSETUP;
+    Boolean fSessionIsActive, fStreamAfterSETUP;
     Authenticator fCurrentAuthenticator; // used if access control is needed
     unsigned char fTCPStreamIdCount; // used for (optional) RTP/TCP
     unsigned fNumStreamStates;
@@ -260,9 +242,6 @@ private:
   static void incomingConnectionHandlerRTSP(void*, int /*mask*/);
   void incomingConnectionHandlerRTSP1();
 
-  static void incomingConnectionHandlerHTTP(void*, int /*mask*/);
-  void incomingConnectionHandlerHTTP1();
-
   void incomingConnectionHandler(int serverSocket);
 
 private:
@@ -270,9 +249,6 @@ private:
   friend class ServerMediaSessionIterator;
   int fRTSPServerSocket;
   Port fRTSPServerPort;
-  int fHTTPServerSocket; // for optional RTSP-over-HTTP tunneling
-  Port fHTTPServerPort; // ditto
-  HashTable* fClientSessionsForHTTPTunneling; // ditto (maps 'session cookie' strings to "RTSPClientSession"s)
   UserAuthenticationDatabase* fAuthDB;
   unsigned fReclamationTestSeconds;
   HashTable* fServerMediaSessions;

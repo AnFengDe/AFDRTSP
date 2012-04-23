@@ -73,11 +73,13 @@ void BasicTaskScheduler0::unscheduleDelayedTask(TaskToken& prevTask) {
   delete alarmHandler;
 }
 
-void BasicTaskScheduler0::doEventLoop(char* watchVariable) {
+void BasicTaskScheduler0::doEventLoop(char* watchVariable) 
+{
   // Repeatedly loop, handling readble sockets and timed events:
-  while (1) {
-    if (watchVariable != NULL && *watchVariable != 0) break;
-    SingleStep();
+  while (1) 
+  {
+        if (watchVariable != NULL && *watchVariable != 0) break;
+        SingleStep();
   }
 }
 
@@ -118,8 +120,8 @@ void BasicTaskScheduler0::deleteEventTrigger(EventTriggerId eventTriggerId) {
     EventTriggerId mask = 0x80000000;
     for (unsigned i = 0; i < MAX_NUM_EVENT_TRIGGERS; ++i) {
       if ((eventTriggerId&mask) != 0) {
-	fTriggeredEventHandlers[i] = NULL;
-	fTriggeredEventClientDatas[i] = NULL;
+    fTriggeredEventHandlers[i] = NULL;
+    fTriggeredEventClientDatas[i] = NULL;
       }
       mask >>= 1;
     }
@@ -134,10 +136,10 @@ void BasicTaskScheduler0::triggerEvent(EventTriggerId eventTriggerId, void* clie
     EventTriggerId mask = 0x80000000;
     for (unsigned i = 0; i < MAX_NUM_EVENT_TRIGGERS; ++i) {
       if ((eventTriggerId&mask) != 0) {
-	fTriggeredEventClientDatas[i] = clientData;
+    fTriggeredEventClientDatas[i] = clientData;
 
-	fLastUsedTriggerMask = mask;
-	fLastUsedTriggerNum = i;
+    fLastUsedTriggerMask = mask;
+    fLastUsedTriggerNum = i;
       }
       mask >>= 1;
     }

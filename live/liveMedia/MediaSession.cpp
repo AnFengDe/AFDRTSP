@@ -700,18 +700,20 @@ double MediaSubsession::getNormalPlayTime(struct timeval const& presentationTime
   //}
 }
 
-Boolean MediaSubsession::parseSDPLine_c(char const* sdpLine) {
-  // Check for "c=IN IP4 <connection-endpoint>"
-  // or "c=IN IP4 <connection-endpoint>/<ttl+numAddresses>"
-  // (Later, do something with <ttl+numAddresses> also #####)
-  char* connectionEndpointName = parseCLine(sdpLine);
-  if (connectionEndpointName != NULL) {
-    delete[] fConnectionEndpointName;
-    fConnectionEndpointName = connectionEndpointName;
-    return True;
-  }
+Boolean MediaSubsession::parseSDPLine_c(char const* sdpLine) 
+{
+    // Check for "c=IN IP4 <connection-endpoint>"
+    // or "c=IN IP4 <connection-endpoint>/<ttl+numAddresses>"
+    // (Later, do something with <ttl+numAddresses> also #####)
+    char* connectionEndpointName = parseCLine(sdpLine);
+    if (connectionEndpointName != NULL) 
+    {
+        delete[] fConnectionEndpointName;
+        fConnectionEndpointName = connectionEndpointName;
+        return True;
+    }
 
-  return False;
+    return False;
 }
 
 Boolean MediaSubsession::parseSDPLine_b(char const* sdpLine) {
@@ -756,154 +758,225 @@ Boolean MediaSubsession::parseSDPAttribute_rtpmap(char const* sdpLine) {
   return parseSuccess;
 }
 
-Boolean MediaSubsession::parseSDPAttribute_control(char const* sdpLine) {
-  // Check for a "a=control:<control-path>" line:
-  Boolean parseSuccess = False;
+Boolean MediaSubsession::parseSDPAttribute_control(char const* sdpLine) 
+{
+    // Check for a "a=control:<control-path>" line:
+    Boolean parseSuccess = False;
 
-  char* controlPath = strDupSize(sdpLine); // ensures we have enough space
-  if (sscanf(sdpLine, "a=control: %s", controlPath) == 1) {
-    parseSuccess = True;
-    delete[] fControlPath; fControlPath = strDup(controlPath);
-  }
-  delete[] controlPath;
-
-  return parseSuccess;
-}
-
-Boolean MediaSubsession::parseSDPAttribute_range(char const* sdpLine) {
-  // Check for a "a=range:npt=<startTime>-<endTime>" line:
-  // (Later handle other kinds of "a=range" attributes also???#####)
-  Boolean parseSuccess = False;
-
-  double playStartTime;
-  double playEndTime;
-  if (parseRangeAttribute(sdpLine, playStartTime, playEndTime)) {
-    parseSuccess = True;
-    if (playStartTime > fPlayStartTime) {
-      fPlayStartTime = playStartTime;
-      if (playStartTime > fParent.playStartTime()) {
-    fParent.playStartTime() = playStartTime;
-      }
-    }
-    if (playEndTime > fPlayEndTime) {
-      fPlayEndTime = playEndTime;
-      if (playEndTime > fParent.playEndTime()) {
-    fParent.playEndTime() = playEndTime;
-      }
-    }
-  }
-
-  return parseSuccess;
-}
-
-Boolean MediaSubsession::parseSDPAttribute_fmtp(char const* sdpLine) {
-  // Check for a "a=fmtp:" line:
-  // TEMP: We check only for a handful of expected parameter names #####
-  // Later: (i) check that payload format number matches; #####
-  //        (ii) look for other parameters also (generalize?) #####
-  do {
-    if (strncmp(sdpLine, "a=fmtp:", 7) != 0) break; sdpLine += 7;
-    while (isdigit(*sdpLine)) ++sdpLine;
-
-    // The remaining "sdpLine" should be a sequence of
-    //     <name>=<value>;
-    // parameter assignments.  Look at each of these.
-    // First, convert the line to lower-case, to ease comparison:
-    char* const lineCopy = strDup(sdpLine); char* line = lineCopy;
+    char* controlPath = strDupSize(sdpLine); // ensures we have enough space
+    if (sscanf(sdpLine, "a=control: %s", controlPath) == 1) 
     {
-      Locale l("POSIX");
-      for (char* c = line; *c != '\0'; ++c) *c = tolower(*c);
+        parseSuccess = True;
+        delete[] fControlPath; fControlPath = strDup(controlPath);
     }
-    while (*line != '\0' && *line != '\r' && *line != '\n') {
-      unsigned u;
-      char* valueStr = strDupSize(line);
-      if (sscanf(line, " auxiliarydatasizelength = %u", &u) == 1) {
-    fAuxiliarydatasizelength = u;
-      } else if (sscanf(line, " constantduration = %u", &u) == 1) {
-    fConstantduration = u;
-      } else if (sscanf(line, " constantsize; = %u", &u) == 1) {
-    fConstantsize = u;
-      } else if (sscanf(line, " crc = %u", &u) == 1) {
-    fCRC = u;
-      } else if (sscanf(line, " ctsdeltalength = %u", &u) == 1) {
-    fCtsdeltalength = u;
-      } else if (sscanf(line, " de-interleavebuffersize = %u", &u) == 1) {
-    fDe_interleavebuffersize = u;
-      } else if (sscanf(line, " dtsdeltalength = %u", &u) == 1) {
-    fDtsdeltalength = u;
-      } else if (sscanf(line, " indexdeltalength = %u", &u) == 1) {
-    fIndexdeltalength = u;
-      } else if (sscanf(line, " indexlength = %u", &u) == 1) {
-    fIndexlength = u;
-      } else if (sscanf(line, " interleaving = %u", &u) == 1) {
-    fInterleaving = u;
-      } else if (sscanf(line, " maxdisplacement = %u", &u) == 1) {
-    fMaxdisplacement = u;
-      } else if (sscanf(line, " objecttype = %u", &u) == 1) {
-    fObjecttype = u;
-      } else if (sscanf(line, " octet-align = %u", &u) == 1) {
-    fOctetalign = u;
-      } else if (sscanf(line, " profile-level-id = %x", &u) == 1) {
-        // Note that the "profile-level-id" parameter is assumed to be hexadecimal
-    fProfile_level_id = u;
-      } else if (sscanf(line, " robust-sorting = %u", &u) == 1) {
-    fRobustsorting = u;
-      } else if (sscanf(line, " sizelength = %u", &u) == 1) {
-    fSizelength = u;
-      } else if (sscanf(line, " streamstateindication = %u", &u) == 1) {
-    fStreamstateindication = u;
-      } else if (sscanf(line, " streamtype = %u", &u) == 1) {
-    fStreamtype = u;
-      } else if (sscanf(line, " cpresent = %u", &u) == 1) {
-    fCpresent = u != 0;
-      } else if (sscanf(line, " randomaccessindication = %u", &u) == 1) {
-    fRandomaccessindication = u != 0;
-      } else if (sscanf(sdpLine, " config = %[^; \t\r\n]", valueStr) == 1 ||
-                 sscanf(sdpLine, " configuration = %[^; \t\r\n]", valueStr) == 1) {
-        // Note: We used "sdpLine" here, because the value may be case-sensitive (if it's Base-64).
-    delete[] fConfig; fConfig = strDup(valueStr);
-      } else if (sscanf(line, " mode = %[^; \t\r\n]", valueStr) == 1) {
-    delete[] fMode; fMode = strDup(valueStr);
-      } else if (sscanf(sdpLine, " sprop-parameter-sets = %[^; \t\r\n]", valueStr) == 1) {
-        // Note: We used "sdpLine" here, because the value is case-sensitive.
-    delete[] fSpropParameterSets; fSpropParameterSets = strDup(valueStr);
-      } else if (sscanf(line, " emphasis = %[^; \t\r\n]", valueStr) == 1) {
-    delete[] fEmphasis; fEmphasis = strDup(valueStr);
-      } else if (sscanf(sdpLine, " channel-order = %[^; \t\r\n]", valueStr) == 1) {
-        // Note: We used "sdpLine" here, because the value is case-sensitive.
-    delete[] fChannelOrder; fChannelOrder = strDup(valueStr);
-      } else {
-        // Some of the above parameters are Boolean.  Check whether the parameter
-        // names appear alone, without a "= 1" at the end:
-    if (sscanf(line, " %[^; \t\r\n]", valueStr) == 1) {
-          if (strcmp(valueStr, "octet-align") == 0) {
-            fOctetalign = 1;
-          } else if (strcmp(valueStr, "cpresent") == 0) {
-            fCpresent = True;
-          } else if (strcmp(valueStr, "crc") == 0) {
-            fCRC = 1;
-          } else if (strcmp(valueStr, "robust-sorting") == 0) {
-            fRobustsorting = 1;
-          } else if (strcmp(valueStr, "randomaccessindication") == 0) {
-            fRandomaccessindication = True;
-          }
+    delete[] controlPath;
+
+    return parseSuccess;
+}
+
+Boolean MediaSubsession::parseSDPAttribute_range(char const* sdpLine) 
+{
+    // Check for a "a=range:npt=<startTime>-<endTime>" line:
+    // (Later handle other kinds of "a=range" attributes also???#####)
+    Boolean parseSuccess = False;
+
+    double playStartTime;
+    double playEndTime;
+    if (parseRangeAttribute(sdpLine, playStartTime, playEndTime)) 
+    {
+        parseSuccess = True;
+        if (playStartTime > fPlayStartTime) 
+        {
+            fPlayStartTime = playStartTime;
+            if (playStartTime > fParent.playStartTime()) 
+            {
+                fParent.playStartTime() = playStartTime;
+            }
         }
-      }
-      delete[] valueStr;
-
-      // Move to the next parameter assignment string:
-      while (*line != '\0' && *line != '\r' && *line != '\n'
-             && *line != ';') ++line;
-      while (*line == ';') ++line;
-
-      // Do the same with sdpLine; needed for finding case sensitive values:
-      while (*sdpLine != '\0' && *sdpLine != '\r' && *sdpLine != '\n'
-             && *sdpLine != ';') ++sdpLine;
-      while (*sdpLine == ';') ++sdpLine;
+        if (playEndTime > fPlayEndTime) 
+        {
+            fPlayEndTime = playEndTime;
+            if (playEndTime > fParent.playEndTime()) 
+            {
+                fParent.playEndTime() = playEndTime;
+            }
+        }
     }
-    delete[] lineCopy;
-    return True;
-  } while (0);
+
+    return parseSuccess;
+}
+
+Boolean MediaSubsession::parseSDPAttribute_fmtp(char const* sdpLine) 
+{
+    // Check for a "a=fmtp:" line:
+    // TEMP: We check only for a handful of expected parameter names #####
+    // Later: (i) check that payload format number matches; #####
+    //        (ii) look for other parameters also (generalize?) #####
+    do 
+    {
+        if (strncmp(sdpLine, "a=fmtp:", 7) != 0) break; sdpLine += 7;
+        while (isdigit(*sdpLine)) ++sdpLine;
+
+        // The remaining "sdpLine" should be a sequence of
+        //     <name>=<value>;
+        // parameter assignments.  Look at each of these.
+        // First, convert the line to lower-case, to ease comparison:
+        char* const lineCopy = strDup(sdpLine); char* line = lineCopy;
+        {
+            Locale l("POSIX");
+            for (char* c = line; *c != '\0'; ++c) *c = tolower(*c);
+        }
+        while (*line != '\0' && *line != '\r' && *line != '\n') 
+        {
+            unsigned u;
+            char* valueStr = strDupSize(line);
+            if (sscanf(line, " auxiliarydatasizelength = %u", &u) == 1) 
+            {
+                fAuxiliarydatasizelength = u;
+            } 
+            else if (sscanf(line, " constantduration = %u", &u) == 1) 
+            {
+                fConstantduration = u;
+            } 
+            else if (sscanf(line, " constantsize; = %u", &u) == 1) 
+            {
+                fConstantsize = u;
+            } 
+            else if (sscanf(line, " crc = %u", &u) == 1) 
+            {
+                fCRC = u;
+            } 
+            else if (sscanf(line, " ctsdeltalength = %u", &u) == 1) 
+            {
+                fCtsdeltalength = u;
+            } 
+            else if (sscanf(line, " de-interleavebuffersize = %u", &u) == 1) 
+            {
+                fDe_interleavebuffersize = u;
+            } 
+            else if (sscanf(line, " dtsdeltalength = %u", &u) == 1) 
+            {
+                fDtsdeltalength = u;
+            } 
+            else if (sscanf(line, " indexdeltalength = %u", &u) == 1) 
+            {
+                fIndexdeltalength = u;
+            } 
+            else if (sscanf(line, " indexlength = %u", &u) == 1) 
+            {
+                fIndexlength = u;
+            } 
+            else if (sscanf(line, " interleaving = %u", &u) == 1) 
+            {
+                fInterleaving = u;
+            } 
+            else if (sscanf(line, " maxdisplacement = %u", &u) == 1) 
+            {
+                fMaxdisplacement = u;
+            } 
+            else if (sscanf(line, " objecttype = %u", &u) == 1) 
+            {
+                fObjecttype = u;
+            } 
+            else if (sscanf(line, " octet-align = %u", &u) == 1) 
+            {
+                fOctetalign = u;
+            } else if (sscanf(line, " profile-level-id = %x", &u) == 1) 
+            {
+                // Note that the "profile-level-id" parameter is assumed to be hexadecimal
+                fProfile_level_id = u;
+            } 
+            else if (sscanf(line, " robust-sorting = %u", &u) == 1) 
+            {
+                fRobustsorting = u;
+            } 
+            else if (sscanf(line, " sizelength = %u", &u) == 1) 
+            {
+                fSizelength = u;
+            }
+            else if (sscanf(line, " streamstateindication = %u", &u) == 1) 
+            {
+                fStreamstateindication = u;
+            } 
+            else if (sscanf(line, " streamtype = %u", &u) == 1) 
+            {
+                fStreamtype = u;
+            } 
+            else if (sscanf(line, " cpresent = %u", &u) == 1) 
+            {
+                fCpresent = u != 0;
+            } 
+            else if (sscanf(line, " randomaccessindication = %u", &u) == 1) 
+            {
+                fRandomaccessindication = u != 0;
+            } 
+            else if (sscanf(sdpLine, " config = %[^; \t\r\n]", valueStr) == 1 
+                    || sscanf(sdpLine, " configuration = %[^; \t\r\n]", valueStr) == 1) 
+            {
+                // Note: We used "sdpLine" here, because the value may be case-sensitive (if it's Base-64).
+                delete[] fConfig; fConfig = strDup(valueStr);
+            } 
+            else if (sscanf(line, " mode = %[^; \t\r\n]", valueStr) == 1) 
+            {
+                delete[] fMode; fMode = strDup(valueStr);
+            } 
+            else if (sscanf(sdpLine, " sprop-parameter-sets = %[^; \t\r\n]", valueStr) == 1) 
+            {
+                // Note: We used "sdpLine" here, because the value is case-sensitive.
+                delete[] fSpropParameterSets; fSpropParameterSets = strDup(valueStr);
+            } 
+            else if (sscanf(line, " emphasis = %[^; \t\r\n]", valueStr) == 1) 
+            {
+                delete[] fEmphasis; fEmphasis = strDup(valueStr);
+            } 
+            else if (sscanf(sdpLine, " channel-order = %[^; \t\r\n]", valueStr) == 1) 
+            {
+                // Note: We used "sdpLine" here, because the value is case-sensitive.
+                delete[] fChannelOrder; fChannelOrder = strDup(valueStr);
+            } 
+            else 
+            {
+                // Some of the above parameters are Boolean.  Check whether the parameter
+                // names appear alone, without a "= 1" at the end:
+                if (sscanf(line, " %[^; \t\r\n]", valueStr) == 1) 
+                {
+                    if (strcmp(valueStr, "octet-align") == 0) 
+                    {
+                        fOctetalign = 1;
+                    } 
+                    else if (strcmp(valueStr, "cpresent") == 0) 
+                    {
+                        fCpresent = True;
+                    } 
+                    else if (strcmp(valueStr, "crc") == 0) 
+                    {
+                        fCRC = 1;
+                    } 
+                    else if (strcmp(valueStr, "robust-sorting") == 0) 
+                    {
+                        fRobustsorting = 1;
+                    } 
+                    else if (strcmp(valueStr, "randomaccessindication") == 0) 
+                    {
+                        fRandomaccessindication = True;
+                    }
+                }
+            }
+            delete[] valueStr;
+
+            // Move to the next parameter assignment string:
+            while (*line != '\0' && *line != '\r' && *line != '\n'
+                    && *line != ';') ++line;
+            while (*line == ';') ++line;
+
+            // Do the same with sdpLine; needed for finding case sensitive values:
+            while (*sdpLine != '\0' && *sdpLine != '\r' && *sdpLine != '\n'
+                    && *sdpLine != ';') ++sdpLine;
+            while (*sdpLine == ';') ++sdpLine;
+        }
+        delete[] lineCopy;
+        return True;
+    } while (0);
 
   return False;
 }
@@ -927,19 +1000,24 @@ Boolean MediaSubsession::parseSDPAttribute_x_dimensions(char const* sdpLine) {
   return parseSuccess;
 }
 
-Boolean MediaSubsession::parseSDPAttribute_framerate(char const* sdpLine) {
-  // Check for a "a=framerate: <fps>" or "a=x-framerate: <fps>" line:
-  Boolean parseSuccess = False;
+Boolean MediaSubsession::parseSDPAttribute_framerate(char const* sdpLine) 
+{
+    // Check for a "a=framerate: <fps>" or "a=x-framerate: <fps>" line:
+    Boolean parseSuccess = False;
 
-  float frate;
-  int rate;
-  if (sscanf(sdpLine, "a=framerate: %f", &frate) == 1 || sscanf(sdpLine, "a=framerate:%f", &frate) == 1) {
-    parseSuccess = True;
-    fVideoFPS = (unsigned)frate;
-  } else if (sscanf(sdpLine, "a=x-framerate: %d", &rate) == 1) {
-    parseSuccess = True;
-    fVideoFPS = (unsigned)rate;
-  }
+    float frate;
+    int rate;
+    if (sscanf(sdpLine, "a=framerate: %f", &frate) == 1 
+        || sscanf(sdpLine, "a=framerate:%f", &frate) == 1) 
+    {
+        parseSuccess = True;
+        fVideoFPS = (unsigned)frate;
+    } 
+    else if (sscanf(sdpLine, "a=x-framerate: %d", &rate) == 1) 
+    {
+        parseSuccess = True;
+        fVideoFPS = (unsigned)rate;
+    }
 
-  return parseSuccess;
+    return parseSuccess;
 }
