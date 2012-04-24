@@ -28,7 +28,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "Media.hh"
 #endif
 #ifndef _GROUPEID_HH
-#include "GroupEId.hh"
+//#include "GroupEId.hh"
+#include "NetAddress.hh"
 #endif
 
 class ServerMediaSubsession; // forward

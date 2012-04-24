@@ -955,30 +955,12 @@ Boolean RTSPClient::handleSETUPResponse(MediaSubsession& subsession, char const*
     subsession.rtcpChannelId = rtcpChannelId;
 
     if (streamUsingTCP) {
-      // Tell the subsession to receive RTP (and send/receive RTCP) over the RTSP stream:
-      //if (subsession.rtpSource() != NULL) {
-        //subsession.rtpSource()->setStreamSocket(fInputSocketNum, subsession.rtpChannelId);
-        //subsession.rtpSource()->setServerRequestAlternativeByteHandler(fInputSocketNum, handleAlternativeRequestByte, this);
-      //}
-      //if (subsession.rtcpInstance() != NULL) subsession.rtcpInstance()->setStreamSocket(fInputSocketNum, subsession.rtcpChannelId);
     } else {
       // Normal case.
       // Set the RTP and RTCP sockets' destination address and port from the information in the SETUP response (if present):
       netAddressBits destAddress = subsession.connectionEndpointAddress();
       if (destAddress == 0) destAddress = fServerAddress;
       subsession.setDestinations(destAddress);
-
-      // Hack: To increase the likelihood of UDP packets from the server reaching us, if we're behind a NAT, send a few 'dummy'
-      // UDP packets to the server now.  (We do this only for RTP, not RTCP, because for RTCP our regular RTCP "RR" packets will
-      // have the same effect.)                                                                                                     
-      //if (subsession.rtpSource() != NULL) {
-      //  Groupsock* gs = subsession.rtpSource()->RTPgs();
-      //  if (gs != NULL) {
-      //    u_int32_t dummy = 0xFEEDFACE;
-      //    unsigned const numDummyPackets = 2;
-      //    for (unsigned i = 0; i < numDummyPackets; ++i) gs->output(envir(), 255, (unsigned char*)&dummy, sizeof dummy);
-        //}
-      //}
     }
 
     success = True;
