@@ -1094,10 +1094,8 @@ void RTSPServer::RTSPClientSession::handleCmd_withinSession(char const* cmdName,
 void RTSPServer::RTSPClientSession
 ::handleCmd_TEARDOWN(ServerMediaSubsession* subsession, char const* cseq) 
 {
-    if (NULL == g_pstCallback || NULL == g_pstCallback->pause)
-    {
-    }
-    else
+    bool bCallback = (NULL == g_pstCallback || NULL == g_pstCallback->teardown) ? false : true;
+    if (bCallback)
     {
         g_pstCallback->teardown(fOurSessionId);
     }
