@@ -6,10 +6,58 @@
  * \date 2012-04-25 23:37
  * */
 
-#include <stdio.h>
+#include "rtpsession.h"
+#include "rtppacket.h"
+#include "rtpipv4address.h"
+#include "rtpsessionparams.h"
+#include "rtpudpv4transmitter.h"
+#include "rtptransmitter.h"
 
-int testclient()
+typedef struct _t_RTPAddress
 {
-    printf("hello,world!\n");
-    return 0;
+    uint16_t portbase;
+    uint16_t destport;
+    uint32_t destip;
+
+    _t_RTPAddress()
+    {   
+        portbase = 0;
+        destport = 0;
+        destip = 0;
+    }   
+}t_RTPAddress;
+
+class RTPClientSession : public RTPSession
+{
+public:
+    RTPClientSession();
+    ~RTPClientSession();
+
+
+    RTPIPv4Address RTPAddr;
+};
+
+RTPClientSession::RTPClientSession()
+{
+}
+
+RTPClientSession::~RTPClientSession()
+{
+    RTPSession::Destroy();
+}
+
+extern "C" bool init_rtp_client()
+{
+    return true;
+}
+
+
+extern "C" bool cleanup_rtp_client()
+{
+    return true;
+}
+
+extern "C" const void* create_rtp_client()
+{
+    return NULL;
 }

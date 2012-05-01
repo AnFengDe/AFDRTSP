@@ -49,7 +49,7 @@ int main()
         else if (0 == ::memcmp(cmd, "play", 4))
         {
             client_init();
-            handle = create_new("rtsp://192.168.31.224:8554/1.1", 1);
+            handle = create_new("rtsp://127.0.0.1:8554/1.1", 1);
             if ( NULL == handle) 
             {
                 printf("Input order error!\n You must input create command first.\n");

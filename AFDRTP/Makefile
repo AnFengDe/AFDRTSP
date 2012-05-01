@@ -1,18 +1,19 @@
 INCLUDES = -I. 
 ##### Change the following for your environment: 
-COMPILE_OPTS =		$(INCLUDES) -I. -O2 -DDEBUG -DSOCKLEN_T=socklen_t -D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64
+COMPILE_OPTS =		$(INCLUDES) -I. -I../jrtplib-3.8.2/src/ -I../jthread-1.2.1/src -O2 
 C =			c
 C_COMPILER =		cc
 C_FLAGS =		$(COMPILE_OPTS)
 CPP =			cpp
 CPLUSPLUS_COMPILER =	c++
-CPLUSPLUS_FLAGS =	$(COMPILE_OPTS) -Wall -fpic -DPIC 
+CPLUSPLUS_FLAGS =	$(COMPILE_OPTS) -Wall -fPIC 
 OBJ =			o
 LINK =			c++ -o
 LINK_OPTS =		-L.
 CONSOLE_LINK_OPTS =	$(LINK_OPTS)
 LIBRARY_LINK =		ar cr 
-LIBRARY_LINK_OPTS = 	
+#LIBRARY_LINK_OPTS = -L../jrtplib-3.8.2/src/.libs -ljrtp -L../jthread-1.2.1/src/.libs -ljthread 
+LIBRARY_LINK_OPTS =  
 LIB_SUFFIX =			a
 LIBS_FOR_CONSOLE_APPLICATION =
 LIBS_FOR_GUI_APPLICATION =
@@ -37,10 +38,12 @@ AFDRTP_LIB_OBJS = $(RTP_OBJS)
 $(AFDRTP_LIB): $(AFDRTP_LIB_OBJS) \
     $(PLATFORM_SPECIFIC_LIB_OBJS)
 	$(LIBRARY_LINK)$@ $(LIBRARY_LINK_OPTS) \
-		$(AFDRTP_LIB_OBJS)
+		../jrtplib-3.8.2/src/.libs/libjrtp.a ../jthread-1.2.1/src/.libs/libjthread.a $(AFDRTP_LIB_OBJS)
 
-AFDRTPServer.$(CPP):	AFDRTPServer.h
-AFDRTPClient.$(CPP):	AFDRTPClient.h  
+AFDRTPServer.$(CPP):	
+#AFDRTPClient.$(CPP):	rtpsession.h rtppacket.h rtpipv4address.h rtpsessionparams.h rtpudpv4transmitter.h rtptransmitter.h   
+#rtpsession.h:    rtpconfig.h rtplibraryversion.h rtppacketbuilder.h rtpsessionsources.h rtptransmitter.h rtpcollisionlist.h rtcpscheduler.h rtcppacketbuilder.h rtptimeutilities.h rtcpcompoundpacketbuilder.h rtpmemoryobject.h
+#rtpconfig.h:
 
 clean:
 	-rm -rf *.$(OBJ) $(ALL) core *.core *~ include/*~

@@ -11,11 +11,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-//bool init_rtp_client();
+bool init_rtp_client();
 
-//bool cleanup_rtp_client();
+bool cleanup_rtp_client();
 
-//const void* create_rtp_client();
+const void* create_rtp_client();
 
 
 #ifdef __cplusplus
