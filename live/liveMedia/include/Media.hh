@@ -34,9 +34,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #endif
 
 // Lots of files end up needing the following, so just #include them here:
-#ifndef _NET_COMMON_H
-#include "NetCommon.h"
-#endif
 #include <stdio.h>
 
 // The following makes the Borland compiler happy:

@@ -24,9 +24,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _SERVER_MEDIA_SESSION_HH
 #include "ServerMediaSession.hh"
 #endif
-#ifndef _NET_ADDRESS_HH
-#include <NetAddress.hh>
-#endif
 #ifndef _DIGEST_AUTHENTICATION_HH
 #include "DigestAuthentication.hh"
 #endif
