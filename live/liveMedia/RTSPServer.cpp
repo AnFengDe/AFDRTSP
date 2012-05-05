@@ -21,6 +21,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "RTSPCommon.hh"
 #include "Base64.hh"
 #include "GroupsockHelper.hh"
+#include "../../AFDRTSP/AFDRTSPServerCallBack.h"
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(_QNX4)
 #else

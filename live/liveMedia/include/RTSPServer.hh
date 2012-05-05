@@ -18,8 +18,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // A RTSP server
 // C++ header
 
-#include "../../AFDRTSP/AFDRTSPServerCallBack.h"
-
 #ifndef _RTSP_SERVER_HH
 #define _RTSP_SERVER_HH
 

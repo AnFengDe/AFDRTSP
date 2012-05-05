@@ -18,6 +18,7 @@
 #include "liveMedia.hh"
 #include "BasicUsageEnvironment.hh"
 #include "AFDPollThread.h"
+#include "AFDRTSPServerCallBack.h"
 
 extern st_Handle_Cmd_Callback* g_pstCallback;
 

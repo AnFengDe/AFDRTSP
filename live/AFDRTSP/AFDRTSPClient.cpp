@@ -426,7 +426,7 @@ extern "C" unsigned rtsp_seek(const void* handle, double npt)
     return rtsp_resume(handle, npt);
 }
 
-extern "C" unsigned rtsp_fast(const void* handle, double scale)
+extern "C" unsigned rtsp_fast(const void* handle, float scale)
 {
     RTSPClient* client = (RTSPClient*)handle;
     StreamClientState& scs = ((ourRTSPClient*)client)->scs; // alias
@@ -434,7 +434,7 @@ extern "C" unsigned rtsp_fast(const void* handle, double scale)
     return client->sendPlayCommand(*scs.session, continueAfterPLAY, 0.0f, -1.0f, scale);
 }
 
-extern "C" unsigned rtsp_slow(const void* handle, double scale)
+extern "C" unsigned rtsp_slow(const void* handle, float scale)
 {
     return rtsp_fast(handle, scale);
 }
