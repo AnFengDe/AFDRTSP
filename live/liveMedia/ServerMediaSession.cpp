@@ -288,7 +288,7 @@ char* ServerMediaSession::generateSDPDescription(char* miscSDP, float fDuration)
 
         // Generate the SDP prefix (session-level lines):
         sprintf(sdp, sdpPrefixFmt,
-                fCreationTime.tv_sec, fCreationTime.tv_usec, // o= <session id>
+                fCreationTime.tv_sec, (long)fCreationTime.tv_usec, // o= <session id>
                 1, // o= <version> // (needs to change if params are modified)
                 ipAddressStr.val(), // o= <address>
                 fDescriptionSDPString, // s= <description>
