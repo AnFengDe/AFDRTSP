@@ -26,7 +26,7 @@ Locale::Locale(char const* newLocale, LocaleCategory category)
 {
 #ifndef LOCALE_NOT_USED
 #ifndef XLOCALE_NOT_USED
-    int categoryMask;
+    int categoryMask = 0;
     switch (category) 
     {
         case All: { categoryMask = LC_ALL_MASK; break; }
