@@ -28,11 +28,20 @@ extern "C" {
 #define STD_CALLBACK    
 #endif
 
+/** 
+ * \brief RTSP OPTIONS command handler define
+ * \param cmd_names the rtsp cmds that server supported
+ */
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
+/// RTSP DESCRIBE command handler define
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, const char* url, char* sdp_desc, float* duration);
+/// RTSP SETUP command handler define
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(const unsigned sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
+/// RTSP PLAY command handler define
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(const unsigned sessionid, const float scale, const double start, const double end);
+/// RTSP PAUSE command handler define
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(const unsigned sessionid);
+/// RTSP TEARDOWN command handler define
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(const unsigned sessionid);
 
 ///handle cmd callback struct define
