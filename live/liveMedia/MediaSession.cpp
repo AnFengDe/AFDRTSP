@@ -644,10 +644,10 @@ void MediaSubsession::setDestinations(netAddressBits defaultDestAddress)
     // (This will be 0 if it's not known, in which case we use the default)
     netAddressBits destAddress = connectionEndpointAddress();
     if (destAddress == 0) destAddress = defaultDestAddress;
-    struct in_addr destAddr; destAddr.s_addr = destAddress;
+    //struct in_addr destAddr; destAddr.s_addr = destAddress;
 
     // The destination TTL remains unchanged:
-    int destTTL = ~0; // means: don't change
+    //int destTTL = ~0; // means: don't change
 
     //if (fRTPSocket != NULL) 
     //{
@@ -656,7 +656,7 @@ void MediaSubsession::setDestinations(netAddressBits defaultDestAddress)
     //}
     if (NULL && !isSSM()) {
         // Note: For SSM sessions, the dest address for TCP was already set.
-        Port destPort(serverPortNum+1);
+        //Port destPort(serverPortNum+1);
     }
 }
 

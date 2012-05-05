@@ -95,9 +95,9 @@ unsigned rtsp_resume(const void* handle, double npt);
  */
 unsigned rtsp_seek(const void* handle, double npt);
 
-unsigned rtsp_fast(const void* handle, double scale);
+unsigned rtsp_fast(const void* handle, float scale);
 
-unsigned rtsp_slow(const void* handle, double scale);
+unsigned rtsp_slow(const void* handle, float scale);
 
 unsigned rtsp_stop(const void* handle);
 

@@ -21,6 +21,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "RTSPCommon.hh"
 #include "Base64.hh"
 #include "GroupsockHelper.hh"
+#include "../../AFDRTSP/AFDRTSPServerCallBack.h"
 
 #if defined(__WIN32__) || defined(_WIN32) || defined(_QNX4)
 #else
@@ -429,7 +430,7 @@ void RTSPServer::RTSPClientSession::handleRequestBytes(int newBytesRead)
         {
 #ifdef DEBUG
             fprintf(stderr, 
-                    "parseRTSPRequestString() succeeded, returning cmdName \"%s\", urlPreSuffix \"%s\", urlSuffix \"%s\", CSeq \"%s\", Content-Length %u, with %d bytes following the message.\n", 
+                    "parseRTSPRequestString() succeeded, returning cmdName \"%s\", urlPreSuffix \"%s\", urlSuffix \"%s\", CSeq \"%s\", Content-Length %u, with %ld bytes following the message.\n", 
                     cmdName, urlPreSuffix, urlSuffix, cseq, contentLength, ptr + newBytesRead - (tmpPtr + 2));
 #endif
             // If there was a "Content-Length:" header, then make sure we've received all of the data that it specified:
@@ -868,8 +869,8 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(char const* cseq,
                          rtpChannelId, 
                          rtcpChannelId);
 
-    if (streamingMode == RTP_TCP && rtpChannelId == 0xFF 
-        || streamingMode != RTP_TCP && fClientOutputSocket != fClientInputSocket) 
+    if ((streamingMode == RTP_TCP && rtpChannelId == 0xFF) 
+        || (streamingMode != RTP_TCP && fClientOutputSocket != fClientInputSocket)) 
     {
         // An anomolous situation, caused by a buggy client.  Either:
         //     1/ TCP streaming was requested, but with no "interleaving=" fields.  (QuickTime Player sometimes does this.), or
