@@ -18,6 +18,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // A RTSP server
 // C++ header
 
+#include "../../AFDRTSP/AFDRTSPServerCallBack.h"
+
 #ifndef _RTSP_SERVER_HH
 #define _RTSP_SERVER_HH
 
@@ -30,37 +32,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #ifndef _DIGEST_AUTHENTICATION_HH
 #include "DigestAuthentication.hh"
 #endif
-
-#ifdef WIN32
-#define STD_CALLBACK    __stdcall
-#else
-#define STD_CALLBACK    
-#endif
-
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
-
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, const char* url, char* sdp_desc, float* duration);
-
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(const unsigned sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
-
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(const unsigned sessionid, const float scale, const double start, const double end);
-
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PAUSE)(const unsigned sessionid);
-
-extern "C" typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_TEARDOWN)(const unsigned sessionid);
-
-//handle cmd callback struct define
-typedef struct __st_Handle_Cmd_Callback
-{
-    ///the options callback function 
-    AFD_RTSP_Handle_Cmd_OPTIONS     options;
-    AFD_RTSP_Handle_Cmd_DESCRIBE    describe;
-    AFD_RTSP_Handle_Cmd_SETUP       setup;
-    AFD_RTSP_Handle_Cmd_PLAY        play;
-    AFD_RTSP_Handle_Cmd_PAUSE       pause;
-    AFD_RTSP_Handle_Cmd_TEARDOWN    teardown;
-    
-}st_Handle_Cmd_Callback;
 
 // A data structure used for optional user/password authentication:
 
