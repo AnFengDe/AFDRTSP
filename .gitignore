@@ -3,8 +3,13 @@
 Makefile
 
 live/html/*
+.deps/
+.libs/
 .DS_Store
 *.bak
+*.lo
+*.log
+*.la
 *.obj
 *.ncb
 *.suo
