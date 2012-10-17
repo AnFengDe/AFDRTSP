@@ -25,10 +25,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "HashTable.hh"
 #endif
 
-#ifndef _NET_COMMON_H
-#include "NetCommon.h"
-#endif
-
 #ifndef _USAGE_ENVIRONMENT_HH
 #include "UsageEnvironment.hh"
 #endif
