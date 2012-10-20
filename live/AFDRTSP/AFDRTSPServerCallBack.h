@@ -56,7 +56,7 @@ typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, const char* 
           and as defalut, the rtcp port is follow this
    \param rtp_server_port the rtcp server port, this value must be set in callback function
  */
-typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(const unsigned sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(int* ret, const unsigned sessionid, const char* url, const sockaddr_in rtp_client_addr, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
 
 /** 
  * \brief RTSP PLAY command handler define TODO:fix comment for PAUSE / RESUME 

@@ -908,9 +908,15 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(char const* cseq,
 #endif
     delete[] clientsDestinationAddressStr;
     unsigned short rtpServerPort = 0;
+    int iCallBackRet = 0;
     if ( bCallback )
     {
-        g_pstCallback->setup(fOurSessionId, urlSuffix, clientRTPPort.num(), &rtpServerPort);
+        g_pstCallback->setup(&iCallBackRet, fOurSessionId, urlSuffix, fClientAddr, clientRTPPort.num(), &rtpServerPort);
+    }
+    if (0 == iCallBackRet)
+    {
+        handleCmd_notFound(cseq);
+        return;        
     }
 
     Port serverRTPPort(rtpServerPort);

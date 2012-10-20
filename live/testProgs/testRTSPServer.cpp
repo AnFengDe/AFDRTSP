@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <netinet/in.h>
 #include "AFDRTSPServer.h"
 
 #ifdef WIN32
@@ -78,8 +79,10 @@ void STD_CALLBACK handle_Play(const unsigned sessionid,
            and as defalut, the rtcp port is follow this
     \param rtp_server_port the rtcp server port, this value must be set in callback function
 */
-void STD_CALLBACK handle_Setup(const unsigned sessionid, 
-                               const char* url, 
+void STD_CALLBACK handle_Setup(int* iRet, 
+                               const unsigned sessionid, 
+                               const char* url,
+                               const sockaddr_in rtp_client_addr, 
                                const unsigned short rtp_client_port, 
                                unsigned short *rtp_server_port)
 {

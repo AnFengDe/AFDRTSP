@@ -36,7 +36,7 @@ typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_OPTIONS)(char* cmd_names);
 /// RTSP DESCRIBE command handler define
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_DESCRIBE)(int* ret, const char* url, char* sdp_desc, float* duration);
 /// RTSP SETUP command handler define
-typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(const unsigned sessionid, const char* url, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
+typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_SETUP)(int* ret, const unsigned sessionid, const char* url, const struct sockaddr_in rtp_client_addr, const unsigned short rtp_client_port, unsigned short *rtp_server_port);
 /// RTSP PLAY command handler define
 typedef void (STD_CALLBACK *AFD_RTSP_Handle_Cmd_PLAY)(const unsigned sessionid, const float scale, const double start, const double end);
 /// RTSP PAUSE command handler define
