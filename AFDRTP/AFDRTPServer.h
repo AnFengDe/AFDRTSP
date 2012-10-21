@@ -7,5 +7,5 @@
  * */
 #ifndef _AFDRTPSERVER_H_
 #define _AFDRTPSERVER_H_
-
+//only guard define for this file. 
 #endif
